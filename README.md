@@ -2,6 +2,22 @@
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
+# Install node.js & run app locally
+
+[Install Node.js](https://nodejs.org/en/download)
+
+Run
+
+> npm install
+
+within the x4-team-project directory in the terminal.
+
+Then run
+
+> npm start
+
+to start the app locally. Follow the link provided (localhost:3000) to test the app.
+
 ## Available Scripts
 
 In the project directory, you can run:
@@ -28,6 +44,38 @@ The build is minified and the filenames include the hashes.\
 Your app is ready to be deployed!
 
 See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+
+# How to build the React app with docker
+
+**You should only use docker for running the app after major changes have been made**
+
+**Otherwise, follow the instructions above for running the React app locally**
+
+Follow instructions for installing Docker on Windows:
+
+[Install Docker for Windows](https://docs.docker.com/desktop/setup/install/windows-install/)
+
+Once installed, open the directory "x4-team-project" in the terminal.
+
+Build an image of the environment using:
+
+> docker build -t react-app .
+
+Include the "." at the end
+
+After this has completed, run a container using this image with:
+
+> docker run -it --name running-app -it -p 3000:3000 react-app
+
+Output should look something like this:
+
+![Image showing expected output](image.png)
+
+Now open your browser, and enter
+
+> localhost:3000
+
+into the address bar, and the app should display correctly.
 
 ### `npm run eject`
 
