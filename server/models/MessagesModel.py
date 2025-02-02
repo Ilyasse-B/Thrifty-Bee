@@ -1,6 +1,7 @@
 from models.index import db
-from ChatsModel import ChatsModel
-from UserModel import UserModel
+from models.ChatsModel import ChatsModel
+from models.UserModel import UserModel
+#from sqlalchemy import ForeignKey
 
 
 
@@ -9,16 +10,15 @@ class MessagesModel(db.Model):
 
 
 
-    id = db.Column(db.Integer, primary_key=True)
-    chat_id = db.Column (db.Integer,ForeignKey(ChatsModel.id), primary_key=True)
-    user_id = db.Column (db.Integer,ForeignKey(UserModel.id), primary_key=True)
-    last_name = db.Column(db.String(100), nullable=False)
-    content = db.Column(db.Double, nullable=False)
-    timestamp = db.Column(db.Datetime, nullable=False)
+    id = db.Column(db.Integer, primary_key=True, nullable=False)
+    chat_id = db.Column (db.Integer,db.ForeignKey('chats_table.id'),nullable=False)
+    user_id = db.Column (db.Integer,db.ForeignKey('user_table.id'),nullable=False)
+    content = db.Column(db.Boolean, nullable=False)
+    timestamp = db.Column(db.DateTime, nullable=False)
     read = db.Column(db.Boolean, nullable=False)
 
 
 
 
     def __repr__(self):
-        return f"<MessagesModel {self.name}>"
+        return f"<MessagesModel {self.id},{self.chat_id},{self.user_id},{self.content},{self.timestamp},{self.read}>"

@@ -1,6 +1,7 @@
 from models.index import db
-from UserModel import UserModel
-from RolesModel import RolesModel
+from models.UserModel import UserModel
+from models.RolesModel import RolesModel
+#from sqlalchemy import ForeignKey
 
 
 class UserRolesModel(db.Model):
@@ -8,11 +9,11 @@ class UserRolesModel(db.Model):
 
 
 
-    user_id = db.Column(db.Integer,ForeignKey(UserModel.id) primary_key=True)
-    role_id = db.Column(db.Integer,ForeignKey(RolesModel.id) primary_key=True)
+    user_id = db.Column(db.Integer,db.ForeignKey('user_table.id') ,primary_key=True , nullable=False)
+    role_id = db.Column(db.Integer,db.ForeignKey('roles_table.id') ,primary_key=True , nullable=False)
 
 
 
 
     def __repr__(self):
-        return f"<UserRolesModel {self.name}>"
+        return f"<UserRolesModel UserId :{self.user_id}, RoleID : {self.role_id}>"

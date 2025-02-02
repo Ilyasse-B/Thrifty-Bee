@@ -1,17 +1,16 @@
 from models.index import db
-from ListingsModel import ListingsModel
-
-
+from models.ListingsModel import ListingsModel
+#from sqlalchemy import ForeignKey
 
 class ChatsModel(db.Model):
     __tablename__ = 'chats_table'
 
 
-    id = db.Column(db.Integer, primary_key=True)
-    listing_id = db.Column(db.Integer,ForeignKey(ListingsModel.id), primary_key=True)
+    id = db.Column(db.Integer, primary_key=True, nullable=False)
+    listing_id = db.Column(db.Integer,db.ForeignKey('listings_table.id'), nullable=False)
     active = db.Column(db.Boolean, nullable=False)
 
 
 
     def __repr__(self):
-        return f"<ChatsModel {self.name}>"
+        return f"<ChatsModel {self.id} Listing ID {self.listing_id} Active {self.active}>"

@@ -7,7 +7,7 @@ class UserModel(db.Model):
 
 
 
-    id = db.Column(db.Integer, primary_key=True)
+    id = db.Column(db.Integer, primary_key=True , nullable=False)
     first_name = db.Column(db.String(100), nullable=False)
     last_name = db.Column(db.String(100), nullable=False)
     email_address = db.Column(db.String(200), nullable=False)
@@ -17,4 +17,4 @@ class UserModel(db.Model):
 
 
     def __repr__(self):
-        return f"<UserModel {self.name}>"
+        return f"<UserModel {self.id} First Name :{self.first_name} Last Name :{self.last_name}>"

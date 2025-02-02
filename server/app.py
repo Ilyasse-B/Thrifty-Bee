@@ -4,7 +4,14 @@ from flask_cors import CORS
 from sqlalchemy import and_
 
 from flask_migrate import Migrate
-from models.DummyModel import DummyModel
+#from models.DummyModel import DummyModel
+from models.ChatsModel import ChatsModel
+from models.RolesModel import RolesModel
+from models.TransactionsModel import TransactionsModel
+from models.UserModel import UserModel
+from models.UserRolesModel import UserRolesModel
+from models.ListingsModel import ListingsModel
+from models.MessagesModel import MessagesModel
 
 
 # Initialize Flask app
@@ -21,6 +28,9 @@ db.init_app(app)
 CORS(app)
 migrate = Migrate(app, db)
 
+#Create Database
+with app.app_context():
+    db.create_all()
 
 if __name__ == '__main__':
     app.run(debug=True)
