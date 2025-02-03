@@ -4,6 +4,7 @@ import { useAuth } from "./AuthContext.js"; //import global auth state
 import { Link } from "react-router-dom"; // Import Link for navigation
 import React from 'react'
 import { useNavigate, useLocation } from "react-router-dom";
+import logo from "./assets/logo.png";
 
 const Navbar = () => {
   const { isLoggedIn, toggleLogin } = useAuth(); // Get login state and function
@@ -23,6 +24,7 @@ const Navbar = () => {
     <nav className = "navbar">
       {/* Left Side - Brand */}
       <div className="nav-left">
+        <img src={logo} alt="Thrifty Bee Logo" className="logo" />
         <span className="brand">Thrifty Bee</span>
       </div>
 

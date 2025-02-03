@@ -10,9 +10,14 @@
   
   /* Left side brand */
   .nav-left .brand {
-    font-size: 24px;
+    font-size: 40px;
     font-weight: bold;
     color: #9E2CED;
+  }
+
+  .nav-left{
+    display: flex;
+    align-items: center;
   }
   
   /* Right side navigation */
@@ -25,7 +30,7 @@
   .nav-button {
     background: none;
     border: none;
-    font-size: 16px;
+    font-size: 23px;
     cursor: pointer;
     color: black;
   }
@@ -38,13 +43,21 @@
   .login-button {
     background: transparent;
     border: 2px solid black;
-    padding: 8px 15px;
+    padding: 7px 12px;
     border-radius: 5px;
     cursor: pointer;
     color: black;
+    font-size: 23px;
   }
   
   .login-button:hover {
     background-color: rgba(0, 0, 0, 0.1);
+  }
+  
+  .logo {
+    height: 100%;
+    max-height: 80px;
+    width: auto;
+    margin-right: 10px;
   }
   
