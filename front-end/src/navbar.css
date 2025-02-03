@@ -1,0 +1,50 @@
+/* Navbar container */
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 30px;
+    background-color: white;
+    border-bottom: 1px solid #ddd;
+  }
+  
+  /* Left side brand */
+  .nav-left .brand {
+    font-size: 24px;
+    font-weight: bold;
+    color: #9E2CED;
+  }
+  
+  /* Right side navigation */
+  .nav-right {
+    display: flex;
+    gap: 15px;
+  }
+  
+  /* General button styles */
+  .nav-button {
+    background: none;
+    border: none;
+    font-size: 16px;
+    cursor: pointer;
+    color: black;
+  }
+  
+  .nav-button:hover {
+    text-decoration: underline;
+  }
+  
+  /* Login button */
+  .login-button {
+    background: transparent;
+    border: 2px solid black;
+    padding: 8px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+    color: black;
+  }
+  
+  .login-button:hover {
+    background-color: rgba(0, 0, 0, 0.1);
+  }
+  
