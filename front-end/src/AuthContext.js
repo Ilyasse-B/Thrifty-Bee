@@ -1,6 +1,6 @@
 // This file will store a global state of "logged in", which can be used in any page to know if the user is logged in or not.
 
-import React, { createContext, useState, useContext, useEffect } from "react";
+import React, { createContext, useState, useContext} from "react";
 
 // Create a Context for authentication
 const AuthContext = createContext();

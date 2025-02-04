@@ -1,16 +1,11 @@
 FROM ubuntu:22.04
 
-WORKDIR /ThriftyBee
-
-COPY ./ ./
-
 RUN apt update -y
 RUN apt upgrade -y
-RUN apt install curl -y
 
-# RUN apt install nodejs -y
-# RUN apt install npm -y
-# RUN npm install
+RUN apt install nodejs -y
+RUN apt install npm -y
+
 
 
 RUN apt install python3 -y
@@ -23,14 +18,16 @@ RUN pip install SQLAlchemy
 RUN pip install Flask
 RUN pip install Flask_cors
 RUN pip install flask_migrate
-RUN flask db init
-RUN flask db migrate
-RUN flask db upgrade
 
-
+# RUN flask db init
+# RUN flask db migrate
+# RUN flask db upgrade
 EXPOSE 5000
-
 ENV FLASK_RUN_HOST=0.0.0.0
 ENV FLASK_RUN_PORT=5000
 
-CMD ["flask", "run"]
+# RUN npm install
+EXPOSE 3000
+
+# RUN npm start
+# RUN flask run
