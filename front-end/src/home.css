@@ -1,13 +1,65 @@
-h1{
+/* Container styling */
+.home-container {
+    text-align: center;
+    padding: 2px;
+  }
+  
+  /* Search title styling */
+  .search-title {
+    color: #FFF07C;
+    font-size: 3rem;
+    margin-bottom: 20px;
+  }
+  
+  /* Labels container */
+  .labels-container {
+    display: flex;
+    justify-content: space-evenly; /* Equally spaces labels */
+    width: 80%;
+    margin: 0 auto;
+    align-items: center;
+  }
+  
+  /* Label styling */
+  .label {
     color: #9E2CED;
-}
-
-#heading-con{
-    margin: auto;
-    width: fit-content;
-}
-
-h3{
-    color: #DCE145;
-    padding: 15%;
-}
+    font-size: 1.5rem;
+    display: block; /* Ensures it's above the input/dropdowns */
+    margin-bottom: 5px;
+  }
+  
+  /* Search box styling */
+  .search-box {
+    width: 200px;
+    padding: 8px;
+    font-size: 1rem;
+    border: 2px solid #D3D3D3;
+    border-radius: 5px;
+    outline: none;
+  }
+  
+  /* Dropdown container (Filters section) */
+  .filter-dropdowns {
+    display: flex;
+    justify-content: center;
+    gap: 10px; /* Spaces dropdowns */
+  }
+  
+  /* Dropdown styling */
+  .dropdown {
+    width: 130px;
+    padding: 8px;
+    font-size: 1rem;
+    border: 2px solid #D3D3D3;
+    border-radius: 5px;
+    background: white;
+    cursor: pointer;
+    outline: none;
+  }
+  
+  /* Adjust spacing for the filters section */
+  .filters-section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }  
