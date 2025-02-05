@@ -7,6 +7,7 @@ gap: 1vh;
 }
 .item-main-container.inner{
     gap:0.5vh;
+    text-align: left;
 }
 
 #only-image{
@@ -19,6 +20,7 @@ gap: 1vh;
     font-size: 2vw;
     color: #9E2CED;
     font-weight: bold;
+    text-align: left;
 }
 .Description-text{
     color:#828282;
