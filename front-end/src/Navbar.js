@@ -30,6 +30,7 @@ const Navbar = () => {
       {/* Right Side - Navigation Links */}
       <div className="nav-right">
         <button className="nav-button">Help</button>
+        <button className="nav-button" onClick={() => handleNavigation("/listing")}>Listing (Temporary)</button>
         <button className="nav-button" onClick={() => handleNavigation("/")}>Search</button>
         <button className="login-button" onClick={() => {
           if (!isLoggedIn){
