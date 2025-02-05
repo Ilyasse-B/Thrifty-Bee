@@ -1,5 +1,6 @@
 import React from 'react';
 import './home.css';
+import Item from "./Item";
 
 const Home = () => {
   return (
@@ -55,6 +56,12 @@ const Home = () => {
           </select>
         </div>
       </div>
+      <div id="all-product-container">
+        <Item />
+        <Item />
+        <Item />
+        <Item />
+        </div>
     </div>
   );
 };
