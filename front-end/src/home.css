@@ -63,3 +63,24 @@
     flex-direction: column;
     align-items: center;
   }  
+
+#heading-con{
+    margin: auto;
+    width: fit-content;
+}
+
+h3{
+    color: #DCE145;
+    padding: 15%;
+}
+#all-product-container{
+    width: 80vw;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    column-gap: 10vw;
+    row-gap: 3vh;
+
+    margin:auto;
+    padding-top: 7vh;
+}
