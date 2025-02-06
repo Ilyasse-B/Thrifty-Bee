@@ -10,7 +10,7 @@ class ListingsModel(db.Model):
     id = db.Column(db.Integer, primary_key=True, nullable=False)
     user_id = db.Column(db.Integer,db.ForeignKey('user_table.id'), nullable=False)
     listing_name = db.Column(db.String(200), nullable=False, unique = True)
-    image = db.Column(db.LargeBinary, nullable=False, unique = True)
+    image = db.Column(db.String(500), nullable=False, unique = True)
     price = db.Column(db.Float, nullable=False)
 
 

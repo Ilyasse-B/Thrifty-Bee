@@ -11,9 +11,6 @@ class UserModel(db.Model):
     first_name = db.Column(db.String(100), nullable=False)
     last_name = db.Column(db.String(100), nullable=False)
     email_address = db.Column(db.String(200), nullable=False)
-    password = db.Column(db.String(100), nullable=False)
-
-
 
 
     def __repr__(self):
