@@ -13,6 +13,8 @@ from models.UserRolesModel import UserRolesModel
 from models.ListingsModel import ListingsModel
 from models.MessagesModel import MessagesModel
 
+import uuid
+
 
 # Initialize Flask app
 app = Flask(__name__)
@@ -31,6 +33,15 @@ migrate = Migrate(app, db)
 #Create Database
 with app.app_context():
     db.create_all()
+    userOne = UserModel(first_name = "John", last_name = "Smith", email_address = "john.smith@student.manchester.ac.uk")
+    db.session.add(userOne)
+    userTwo = UserModel(first_name = "Jenny", last_name = "Smith", email_address = "jenny.smith@student.manchester.ac.uk")
+    db.session.add(userTwo)
+    listing_one = ListingsModel ( user_id = 1, listing_name = "Chopping Board", image =" https://www.freepik.com/free-photo/wood-cutting-board_1035116.htm#fromView=keyword&page=1&position=0&uuid=97ecb2a1-a2d0-45a5-ad2f-9566f3a5a1de&query=Cutting+Board", price = 3.00)
+    db.session.add(listing_one)
+    listing_two = ListingsModel(user_id = 2, listing_name = "Sofa", image = "https://www.freepik.com/free-photo/beautiful-interior-room-design-concept_11523457.htm#fromView=search&page=1&position=4&uuid=a1a510e5-2579-4891-bca8-90fa60260f69&query=Sofa" ,price = 20.50)
+    db.session.add(listing_two)
+    db.session.commit()
 
 if __name__ == '__main__':
     app.run(debug=True)
@@ -41,3 +52,4 @@ if __name__ == '__main__':
 def teachers():
 
     return make_response('Dummy')
+
