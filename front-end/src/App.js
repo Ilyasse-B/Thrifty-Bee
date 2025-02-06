@@ -5,6 +5,7 @@ import Navbar from './Navbar.js';
 import Profile from "./Profile.js"; // Import Profile page
 import Listing from "./Listing.js"; // Import Listing page
 import { useAuth } from "./AuthContext"; // Import login state
+import Footer from "./Footer.js";
 
 function App() {
   const { isLoggedIn } = useAuth(); // Get login state
@@ -17,8 +18,9 @@ function App() {
         {/* Redirect to Profile when logged in, otherwise stay on Home */}
         <Route path="/profile" element={isLoggedIn ? <Profile /> : <Navigate to="/" />} />
       </Routes>
+      <Footer/>
     </div>
   );
-}
+};
 
 export default App;
