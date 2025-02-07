@@ -1,0 +1,124 @@
+
+.container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 1.5rem;
+}
+
+
+.form-container {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  column-gap: 4rem;
+  row-gap: 1rem; 
+  width: 100%;
+  max-width: 800px;
+  align-items: start;
+}
+
+.form-group {
+  margin: 0; 
+  padding: 0; 
+}
+
+.form-group label {
+  font-size: 13px; 
+  font-weight: bold; 
+  color: #333; 
+}
+
+
+.title {
+  font-size: 38px; 
+  font-weight: bold;
+  text-align: center;
+  margin-bottom: 5px; 
+}
+
+.subtitle {
+  font-size: 18px;
+  text-align: center;
+  margin-top: 0; 
+  color: #999999; 
+}
+
+
+.input, .textarea {
+  width: 100%; 
+  height: 10px; 
+  padding: 0.75rem;
+  border: 1px solid #ddd;
+  font-size: 0.8rem;
+  font-family: inherit;
+  border-radius: 8px;
+  background-color: #fafafa;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+}
+
+.description {
+  grid-row: 3; 
+  grid-column: span 2;
+  display: flex;
+  flex-direction: column;
+  align-items: start;
+}
+
+.textarea {
+  height: 30px; 
+  resize: none; 
+}
+
+.category {
+  grid-column: 1;
+    grid-row: 2;
+}
+
+.condition {
+  grid-column: 2;
+  grid-row: 2;
+}
+
+.price {
+  grid-column: 2;
+  grid-row: 1;
+}
+
+.submit-button-container {
+  display: flex;
+  justify-content: center;
+  grid-column: span 2;
+  margin-top: 2rem;
+}
+
+.submit-button {
+  width: 75%;
+  background-color: #660099;
+  color: white;
+  padding: 1rem;
+  font-size: 1.2rem;
+  font-weight: bold;
+  border-radius: 12px; 
+}
+
+.submit-button:hover { /*hover colour change*/
+  background-color: #922ce6;
+}
+
+.icon {
+  width: 110px; 
+}
+
+.image-upload-container {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 1rem;
+}
+
+.upload-image {
+  width: 120px; 
+  height: 120px;
+  border-radius: 8px;
+  object-fit: cover; 
+}
+
