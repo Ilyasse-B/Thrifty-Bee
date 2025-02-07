@@ -9,19 +9,19 @@ const Footer = () => {
         <div className="inner-container">
           <div className="inner-group">
             <div className="sub-heading">Help</div>
-            <button className="nav-button">Feedback</button>
-            <button className="nav-button">Report a User</button>
-            <button className="nav-button">Contact Us</button>
+            <button className="foot-button">Feedback</button>
+            <button className="foot-button">Report a User</button>
+            <button className="foot-button">Contact Us</button>
           </div>
           <div className="inner-group">
             <div className="sub-heading">Selling</div>
-            <button className="nav-button">Community Guidelines</button>
-            <button className="nav-button">Seller Requirements</button>
+            <button className="foot-button">Community Guidelines</button>
+            <button className="foot-button">Seller Requirements</button>
           </div>
           <div className="inner-group">
             <div className="sub-heading">About Us</div>
-            <button className="nav-button">Commitment</button>
-            <button className="nav-button">Page</button>
+            <button className="foot-button">Commitment</button>
+            <button className="foot-button">Page</button>
           </div>
         </div>
       </div>
