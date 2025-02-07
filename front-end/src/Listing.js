@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import "./CreateListing.css";
+import "./listing.css";
 import uploadIcon from "../assets/photoupload.png";
 
 const CreateListing = () => {
