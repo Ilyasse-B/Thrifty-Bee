@@ -53,3 +53,16 @@ def teachers():
 
     return make_response('Dummy')
 
+@app.route('/listings', methods=['GET'])
+def get_listings():
+    listings = ListingsModel.query.all()  # Fetch all listings
+    listings_data = [
+        {
+            "id": listing.id,
+            "listing_name": listing.listing_name,
+            "image": listing.image,
+            "price": listing.price
+        }
+        for listing in listings
+    ]
+    return make_response({"listings": listings_data}, 200)

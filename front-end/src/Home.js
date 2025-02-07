@@ -1,8 +1,17 @@
-import React from 'react';
+import React, {useEffect, useState} from 'react';
 import './home.css';
 import Item from "./Item";
 
 const Home = () => {
+  const [products, setProducts] = useState([]); // State to store fetched items
+
+  useEffect(() => {
+    fetch("http://127.0.0.1:5000/listings") // URL of Flask API
+      .then(response => response.json())
+      .then(data => setProducts(data.listings)) // Store fetched data in state
+      .catch(error => console.error("Error fetching listings:", error));
+  }, []);
+
   return (
     <div className="home-container">
       {/* Search Title */}
@@ -56,12 +65,19 @@ const Home = () => {
           </select>
         </div>
       </div>
+      
+      {/* Dynamic Product Display */}
       <div id="all-product-container">
-        <Item />
-        <Item />
-        <Item />
-        <Item />
-        </div>
+        {products.map(product => (
+          <Item 
+            key={product.id} 
+            id={product.id} 
+            name={product.listing_name} 
+            image={product.image} 
+            price={product.price} 
+          />
+        ))}
+      </div>
     </div>
 
   );
