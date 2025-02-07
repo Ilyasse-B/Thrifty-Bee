@@ -12,6 +12,7 @@ from models.UserModel import UserModel
 from models.UserRolesModel import UserRolesModel
 from models.ListingsModel import ListingsModel
 from models.MessagesModel import MessagesModel
+import uuid
 
 
 # Initialize Flask app
@@ -37,7 +38,16 @@ if __name__ == '__main__':
 
 
 
-@app.route('/dummy', methods=['GET'])
+@app.route('/intiate_login', methods=['GET'])
 def teachers():
+    cs_ticket = uuid.uuid4().hex[:12]
+    redirect_url = f'http://studentnet.cs.manchester.ac.uk/authenticate/?url=https://e185-130-88-226-8.ngrok-free.app/profile&csticket={cs_ticket}&version=3&command=validate'
 
-    return make_response('Dummy')
+    res = {
+        "auth_url": redirect_url,
+        "cs_ticket":cs_ticket
+    }
+
+
+
+    return make_response(res)

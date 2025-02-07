@@ -1,15 +1,18 @@
 //This will be a navigation bar component used on all pages
 import "./navbar.css";
 import { useAuth } from "./AuthContext.js"; //import global auth state
-import { Link } from "react-router-dom"; // Import Link for navigation
+import { Link, redirect } from "react-router-dom"; // Import Link for navigation
 import React from 'react'
 import { useNavigate, useLocation } from "react-router-dom";
 import logo from "./assets/logo.png";
+import CryptoJS from 'crypto-js';
+
 
 const Navbar = () => {
-  const { isLoggedIn, toggleLogin } = useAuth(); // Get login state and function
+  const { isLoggedIn, toggleLogin, updateEncryptedCsTicket, updateUserCredentials, username, fullName, encryptedCsTicket } = useAuth(); // Get login state and function
   const navigate = useNavigate(); // Navigation function
   const location = useLocation(); // Get current page
+  const secretKey = process.env.REACT_APP_APP_SECRET
 
   // Function to force reload to a given page
   const handleNavigation = (path) => {
@@ -18,6 +21,29 @@ const Navbar = () => {
     } else {
       navigate(path);
     }
+  };
+
+  const authenticateViaCAS =  async () => {
+    try {
+      const response = await fetch("http://127.0.0.1:5000/intiate_login")
+      if (!response.ok){
+
+        throw new Error('Failed to authenticate user, check the flask server because this is not meant to happen')
+
+      }
+      console.log(secretKey)
+      const data = await response.json();
+      const redirect_url = data.auth_url
+      const csTick = data.cs_ticket
+      const encryptedCsTicket = CryptoJS.AES.encrypt(csTick, secretKey).toString();
+      updateEncryptedCsTicket(encryptedCsTicket)
+
+      window.location = redirect_url
+
+    }catch (error){
+      console.error(error)
+    }
+
   };
 
   return (
@@ -34,8 +60,9 @@ const Navbar = () => {
         <button className="nav-button" onClick={() => handleNavigation("/")}>Search</button>
         <button className="login-button" onClick={() => {
           if (!isLoggedIn){
-            toggleLogin();
-            navigate("/profile");
+            authenticateViaCAS()
+            // toggleLogin(); I have removed this so that we only toggle when the person has successfuly loged in. Look at Profile.js line 25
+
           } else{
             handleNavigation("/profile");
           }
@@ -44,7 +71,7 @@ const Navbar = () => {
         </button>
       </div>
 
-    </nav>    
+    </nav>
   )
 }
 

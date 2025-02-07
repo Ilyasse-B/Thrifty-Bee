@@ -26,3 +26,8 @@ localhost:5000
 into the address bar. The app should be displayed.
 
 To end the container process, use Ctrl + C in the terminal
+
+# Creating environment variable for app secret:
+## run npm install dotenv
+## make a .env file
+## load the
