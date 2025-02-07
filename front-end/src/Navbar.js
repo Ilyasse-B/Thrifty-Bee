@@ -57,6 +57,7 @@ const Navbar = () => {
       {/* Right Side - Navigation Links */}
       <div className="nav-right">
         <button className="nav-button">Help</button>
+        <button className="nav-button" onClick={() => handleNavigation("/listing")}>Listing (Temporary)</button>
         <button className="nav-button" onClick={() => handleNavigation("/")}>Search</button>
         <button className="login-button" onClick={() => {
           if (!isLoggedIn){
@@ -64,8 +65,9 @@ const Navbar = () => {
             // toggleLogin(); I have removed this so that we only toggle when the person has successfuly loged in. Look at Profile.js line 25
 
           } else{
-            handleNavigation("/profile");
+            navigate(`/profile/?app_secret=${secretKey}&csticket=${true}`)
           }
+          console.log(isLoggedIn)
           }}>
           {isLoggedIn ? "Dashboard" : "Login"}
         </button>

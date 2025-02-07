@@ -1,15 +1,13 @@
 // This file will store a global state of "logged in", which can be used in any page to know if the user is logged in or not.
 
-import React, { createContext, useState, useContext, useRef } from "react";
+import React, { createContext, useState, useContext} from "react";
 
 // Create a Context for authentication
 const AuthContext = createContext();
 
 // AuthProvider component to wrap the app
 export const AuthProvider = ({ children }) => {
-  const [isLoggedIn, setIsLoggedIn] = useState(() => {
-    return sessionStorage.getItem("isLoggedIn") === "true";
-  });
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [username, setUsername] = useState(() => {
     return sessionStorage.getItem("username") || '';
   });
@@ -21,11 +19,6 @@ export const AuthProvider = ({ children }) => {
   });
 
 
-
-
-  const usernameRef = useRef('')
-  const fullNameRef = useRef('');
-  const csTicketRef = useRef('');
 
   const updateUserCredentials = (newUsernname,newFullName) => {
 
@@ -50,7 +43,7 @@ export const AuthProvider = ({ children }) => {
   const toggleLogin = () => {
     const newState = !isLoggedIn;
     setIsLoggedIn(newState);
-    sessionStorage.setItem("isLoggedIn", newState.toString());//stores in session
+    // sessionStorage.setItem("isLoggedIn", newState.toString());//stores in session
   }
   return (
     <AuthContext.Provider value={{ isLoggedIn, toggleLogin, updateUserCredentials, updateEncryptedCsTicket, username, fullName, encryptedCsTicket}}>
