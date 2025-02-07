@@ -37,9 +37,9 @@ with app.app_context():
     db.session.add(userOne)
     userTwo = UserModel(first_name = "Jenny", last_name = "Smith", email_address = "jenny.smith@student.manchester.ac.uk")
     db.session.add(userTwo)
-    listing_one = ListingsModel ( user_id = 1, listing_name = "Chopping Board", image =" https://www.freepik.com/free-photo/wood-cutting-board_1035116.htm#fromView=keyword&page=1&position=0&uuid=97ecb2a1-a2d0-45a5-ad2f-9566f3a5a1de&query=Cutting+Board", price = 3.00)
+    listing_one = ListingsModel ( user_id = 1, listing_name = "Chopping Board", image ="https://img.freepik.com/free-photo/wood-cutting-board_1203-3148.jpg?t=st=1738937016~exp=1738940616~hmac=ffa2367ba27fed36015963353d65c4a50973931a35202392a1943abdc630938b&w=996", price = 3.00)
     db.session.add(listing_one)
-    listing_two = ListingsModel(user_id = 2, listing_name = "Sofa", image = "https://www.freepik.com/free-photo/beautiful-interior-room-design-concept_11523457.htm#fromView=search&page=1&position=4&uuid=a1a510e5-2579-4891-bca8-90fa60260f69&query=Sofa" ,price = 20.50)
+    listing_two = ListingsModel(user_id = 2, listing_name = "Sofa", image = "https://img.freepik.com/free-photo/beautiful-interior-room-design-concept_23-2148786485.jpg?t=st=1738937245~exp=1738940845~hmac=d22d78f604dc8709293d294ab81ca42fe70a578bd3ad9c18f5a389bf064ccd31&w=996" ,price = 20.50)
     db.session.add(listing_two)
     db.session.commit()
 
