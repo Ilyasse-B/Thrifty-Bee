@@ -1,24 +1,41 @@
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import "./profile.css";
-import CuttingBoard from "./assets/Image.png";
 
 const Profile = () => {
   // Example user data - will need to be updated with information from CAS login
   const user = {
-    name: "Example User",
-    email: "example.user@manchester.ac.uk",
+    id: 2,
+    name: "John Smith",
+    email: "john.smith@student.manchester.ac.uk",
   };
 
   //Example listings 
-  const [listings, setListings] = useState([
-    {id: 1, title: "Item One", price: "£0.00", image: CuttingBoard},
-    {id: 2, title: "Item Two", price: "£0.00", image: CuttingBoard },
-    {id: 3, title: "Item Three", price: "£0.00", image: CuttingBoard},
-  ]);
+  const [listings, setListings] = useState([]);
+
+  // Fetch user listings dynamically
+  useEffect(() => {
+    fetch(`http://127.0.0.1:5000/user_listings?user_id=${user.id}`)
+      .then((response) => response.json())
+      .then((data) => {
+        if (data.listings) {
+          setListings(data.listings);
+        } else {
+          console.error("No listings found");
+        }
+      })
+      .catch((error) => console.error("Error fetching listings:", error));
+  }, [user.id]);
 
   // Ability to delete listings on the profile page
   const deleteListing = (id) => {
-    setListings(listings.filter((listing) => listing.id !== id));
+    fetch(`http://127.0.0.1:5000/delete_listing/${id}`, {
+      method: "DELETE",
+    })
+      .then((response) => response.json())
+      .then(() => {
+        setListings(listings.filter((listing) => listing.id !== id));
+      })
+      .catch((error) => console.error("Error deleting listing:", error));
   };
 
   return (
@@ -37,7 +54,7 @@ const Profile = () => {
           <div key={listing.id} className="listing-card">
             <img src={listing.image} alt={listing.title}/>
           <h3>{listing.title}</h3>
-          <p>{listing.price}</p>
+          <p>{listing.price.toFixed(2)}</p>
           <div className="button-group">
           <button className="delete-button" onClick={() => deleteListing(listing.id)}>
           Delete

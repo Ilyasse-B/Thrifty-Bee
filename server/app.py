@@ -66,3 +66,36 @@ def get_listings():
         for listing in listings
     ]
     return make_response({"listings": listings_data}, 200)
+
+@app.route('/user_listings', methods=['GET'])
+def get_user_listings():
+    user_id = request.args.get('user_id', type=int)  # Get user_id from query parameters
+
+    if not user_id:
+        return make_response({"message": "User ID is required"}, 400)
+
+    listings = ListingsModel.query.filter_by(user_id=user_id).all()
+
+    listings_data = [
+        {
+            "id": listing.id,
+            "title": listing.listing_name,
+            "image": listing.image,
+            "price": listing.price
+        }
+        for listing in listings
+    ]
+    
+    return make_response({"listings": listings_data}, 200)
+
+@app.route('/delete_listing/<int:listing_id>', methods=['DELETE'])
+def delete_listing(listing_id):
+    listing = ListingsModel.query.get(listing_id)
+    
+    if not listing:
+        return make_response({"message": "Listing not found"}, 404)
+    
+    db.session.delete(listing)
+    db.session.commit()
+    
+    return make_response({"message": "Listing deleted successfully"}, 200)
