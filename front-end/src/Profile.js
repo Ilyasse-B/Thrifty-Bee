@@ -5,17 +5,24 @@ import { useNavigate } from "react-router-dom";
 import CryptoJS from 'crypto-js';
 import "./profile.css";
 import CuttingBoard from "./assets/Image.png";
+import { useDispatch } from "react-redux";
+import { toggle } from "./redux/slices/booleanSlice";
+import { useSelector } from 'react-redux';
 
 
-const Profile = () => {
-  const { toggleLogin, isLoggedIn, updateEncryptedCsTicket, updateUserCredentials, username, fullName, encryptedCsTicket } = useAuth();
+const Profile = ({GlobalState}) => {
+  const dispatch = useDispatch();
+  const booleanValue = useSelector((state) => state.boolean.value);
+
+  //const { toggleLogin, isLoggedIn, updateEncryptedCsTicket, updateUserCredentials, username, fullName, encryptedCsTicket } = useAuth();
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const secretKey = process.env.REACT_APP_APP_SECRET
+  const {auth, setAuth} = GlobalState
 
   const fullNa = searchParams.get("fullname");
   const userNa = searchParams.get("username");
-  const returnedCsTicket = searchParams.get('csticket')
+  const returnedCsTicket = searchParams.get('csticket') ?? 'default-value';
   const app_secret = searchParams.get("app_secret")
 
   const user = {
@@ -30,50 +37,38 @@ const Profile = () => {
 
   const checkCredentials =  async () => {
     try {
-      if (app_secret == secretKey){
-          console.log("Internally auhorised")
-      }
-
-      else if (returnedCsTicket == null){
-        console.log(returnedCsTicket)
-        console.log(secretKey,'here is secret')
-        navigate('/')
-        throw new Error('csTicket Not provided')
-     }
-
-
-
-
-
-      
-      else if (returnedCsTicket){
-        const decryptedCsTicket = CryptoJS.AES.decrypt(sessionStorage.getItem("encryptedCsTicket"), secretKey).toString(CryptoJS.enc.Utf8);
+      if (!auth){
+        const csTicketSession = sessionStorage.getItem("encryptedCsTicket")
+        if (typeof csTicketSession != 'string'){
+          throw new Error('session ticket not of type String')
+        }
+        const decryptedCsTicket = CryptoJS.AES.decrypt(csTicketSession, secretKey).toString(CryptoJS.enc.Utf8);
         const csTick = decryptedCsTicket
-        
+
         if (csTick != returnedCsTicket){
-         console.log(csTick)
-         console.log(returnedCsTicket)
-         console.log(secretKey,'here is secret')
-         navigate('/')
-         throw new Error('The csticket stored in session does not match')
-      }
-      }
-      
-
-
+          console.log(csTick)
+          console.log(returnedCsTicket)
+          console.log(secretKey,'here is secret')
+          navigate('/')
+          throw new Error('The csticket stored in session does not match')
+       }
+       setAuth(true)
+     }  
+     
       // console.log(returnedCsTicket)
       // console.log(secretKey,'here is secret')
-        toggleLogin() // Here we toggle login so that in all our other components we check if isLoggedIn is true if not we navigate them to the home page to lock them out
-        updateUserCredentials(userNa,fullNa)
+      // toggleLogin() // Here we toggle login so that in all our other components we check if isLoggedIn is true if not we navigate them to the home page to lock them out
+      // updateUserCredentials(userNa,fullNa)
 
-
-
-
+      
     }catch (error){
       console.error(error)
     }
 
   };
+
+
+
 
 
   //Example listings 

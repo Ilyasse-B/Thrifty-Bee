@@ -1,16 +1,22 @@
 //This will be a navigation bar component used on all pages
 import "./navbar.css";
-import { useAuth } from "./AuthContext.js"; //import global auth state
+// import { useAuth } from "./AuthContext.js"; //import global auth state
 import { Link, redirect } from "react-router-dom"; // Import Link for navigation
 import React from 'react'
 import { useNavigate, useLocation } from "react-router-dom";
 import logo from "./assets/logo.png";
 import CryptoJS from 'crypto-js';
+import { useDispatch } from "react-redux";
+import { toggle } from "./redux/slices/booleanSlice";
+import { useSelector } from "react-redux";
 
-
-const Navbar = () => {
-  const { isLoggedIn, toggleLogin, updateEncryptedCsTicket, updateUserCredentials, username, fullName, encryptedCsTicket } = useAuth(); // Get login state and function
+const Navbar = ({GlobalState}) => {
+  //const { isLoggedIn, toggleLogin, updateEncryptedCsTicket, updateUserCredentials, username, fullName, encryptedCsTicket } = useAuth(); // Get login state and function
   const navigate = useNavigate(); // Navigation function
+  const dispatch = useDispatch();
+  const booleanValue = useSelector((state) => state.boolean.value);
+  const {auth, setAuth} = GlobalState
+
   const location = useLocation(); // Get current page
   const secretKey = process.env.REACT_APP_APP_SECRET
 
@@ -36,7 +42,7 @@ const Navbar = () => {
       const redirect_url = data.auth_url
       const csTick = data.cs_ticket
       const encryptedCsTicket = CryptoJS.AES.encrypt(csTick, secretKey).toString();
-      updateEncryptedCsTicket(encryptedCsTicket)
+      sessionStorage.setItem('encryptedCsTicket', encryptedCsTicket)
 
       window.location = redirect_url
 
@@ -60,16 +66,15 @@ const Navbar = () => {
         <button className="nav-button" onClick={() => handleNavigation("/listing")}>Listing (Temporary)</button>
         <button className="nav-button" onClick={() => handleNavigation("/")}>Search</button>
         <button className="login-button" onClick={() => {
-          if (!isLoggedIn){
+          if (!auth){
             authenticateViaCAS()
             // toggleLogin(); I have removed this so that we only toggle when the person has successfuly loged in. Look at Profile.js line 25
-
           } else{
-            navigate(`/profile/?app_secret=${secretKey}&csticket=${true}`)
+            navigate(`/profile`)
           }
-          console.log(isLoggedIn)
+          console.log(auth)
           }}>
-          {isLoggedIn ? "Dashboard" : "Login"}
+          {auth ? "Dashboard" : "Login"}
         </button>
       </div>
 
