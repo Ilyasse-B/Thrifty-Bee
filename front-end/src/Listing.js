@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import "./listing.css";
 import uploadIcon from "./assets/photoupload.png";
 
@@ -6,14 +7,73 @@ const CreateListing = () => {
   const [image, setImage] = useState(uploadIcon);
   const [category, setCategory] = useState(""); // New state for category
   const [condition, setCondition] = useState(""); // New state for condition
+  const [imageFile, setImageFile] = useState(null); // Store file for later upload
+  const [name, setName] = useState("");
+  const [price, setPrice] = useState("");
+  const [successMessage, setSuccessMessage] = useState("");
+  const navigate = useNavigate();
 
   const handleImageUpload = (event) => {
     const file = event.target.files[0];
     if (file) {
       const imageUrl = URL.createObjectURL(file);
-      setImage(imageUrl);
+      setImage(imageUrl); // Show preview
+      setImageFile(file); // Store file for upload
     }
   }
+
+  // Simulated function to "upload" the image and get a URL
+  const uploadImageAndGetURL = async () => {
+    if (!imageFile) return null;
+    
+    // Simulate an image upload by returning a placeholder URL
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        resolve(`https://example.com/uploads/${imageFile.name}`);
+      }, 1000);
+    });
+  };
+
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+
+    // Upload the image first
+    const imageURL = await uploadImageAndGetURL();
+    if (!imageURL) {
+      setSuccessMessage("Error uploading image.");
+      return;
+    }
+
+    const listingData = {
+      user_id: 1, // Static for now
+      listing_name: name,
+      image: imageURL, // Pass uploaded image URL
+      price: price,
+    };
+
+    try {
+      const response = await fetch("http://localhost:5000/create_listing", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(listingData),
+      });
+
+      if (response.ok) {
+        setSuccessMessage("Item uploaded successfully, redirecting to Dashboard...");
+        
+        // Wait 3 seconds then redirect to Profile.js
+        setTimeout(() => {
+          navigate("/profile");
+        }, 3000);
+      } else {
+        setSuccessMessage("Error uploading item. Please try again.");
+      }
+    } catch (error) {
+      setSuccessMessage("Failed to connect to server.");
+    }
+  };
 
   return (
     <div className="container">
@@ -36,17 +96,24 @@ const CreateListing = () => {
         />
       </div>
 
-      <form className="form-container">
+      <form className="form-container" onSubmit={handleSubmit}>
         {/* name label and text box */}
         <div className="form-group">
           <label>Name</label>
-          <input type="text" placeholder="Enter the Item Name" className="input" />
+          <input 
+          type="text" placeholder="Enter the Item Name" className="input" 
+          value = {name}
+          onChange={(e) => setName(e.target.value)}
+            required/>
         </div>
 
         {/* price label and text box */}
         <div className="form-group price">
           <label>Price</label>
-          <input type="text" placeholder="e.g £5" className="input" />
+          <input type="text" placeholder="e.g £5" className="input"
+          value={price}
+          onChange={(e) => setPrice(e.target.value)}
+          required/>
         </div>
 
         {/* description label and text box */}
@@ -80,8 +147,11 @@ const CreateListing = () => {
         </div>
 
         <div className="submit-button-container">
-          <button className="submit-button">Submit</button>
+          <button className="submit-button" type="submit">Submit</button>
         </div>
+
+        {/* Success Message */}
+        {successMessage && <p className="success-message">{successMessage}</p>}
       </form>
     </div>
   )

@@ -4,7 +4,7 @@ import "./profile.css";
 const Profile = () => {
   // Example user data - will need to be updated with information from CAS login
   const user = {
-    id: 2,
+    id: 1,
     name: "John Smith",
     email: "john.smith@student.manchester.ac.uk",
   };

@@ -7,7 +7,7 @@ class UserModel(db.Model):
 
 
 
-    id = db.Column(db.Integer, primary_key=True , nullable=False, unqiue = True)
+    id = db.Column(db.Integer, primary_key=True , nullable=False, unique = True)
     first_name = db.Column(db.String(100), nullable=False)
     last_name = db.Column(db.String(100), nullable=False)
     #username = db.Column(db.String(100), nullable=False, unique = True)

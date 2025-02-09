@@ -177,13 +177,22 @@ def get_product():
 @app.route('/create_listing', methods=['POST'])
 def create_listing():
 
-    listing_data = request.get_json
+    listing_data = request.get_json()
     user_id = listing_data.get('user_id')
     name = listing_data.get('listing_name')
     image = listing_data.get('image')
     price = listing_data.get('price')
-    #condition= request.args.get('email_address', type=str)
+    #condition= request.args.get('condition', type=str)
+    #category= request.args.get('category', type=str)
+    #description= request.args.get('description', type=str)
+
+    if not name or not price or not image:  # Validate required fields
+        return make_response({"message": "Missing required fields"}, 400)
+    
+
 
     new_listing = ListingsModel(user_id = user_id, listing_name = name, image = image  ,price = price)
     db.session.add(new_listing)
     db.session.commit()
+
+    return make_response({"message": "Item uploaded successfully"}, 201)
