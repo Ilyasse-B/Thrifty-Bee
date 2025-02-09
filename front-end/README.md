@@ -116,3 +116,46 @@ This section has moved here: [https://facebook.github.io/create-react-app/docs/d
 ### `npm run build` fails to minify
 
 This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+
+
+# Authorisation and Authentication:
+
+## STEPS WITH EXPLANATION:
+
+
+### REDIRECT INITIATION: We generate an alpahanumeric code called a csticket from our flask serverand construct a redirect url according to this from http://studentnet.cs.manchester.ac.uk/authenticate/?url=https://7b95-31-205-0-5.ngrok-free.app/profile&csticket=CSTICKET&version=3&command=validate (First Part of URL till the ? refrences uoms authentication link
+### the question mark means the query parameters begin; each query parameter has a key and value of the from key=value.
+### The url query parameter that is referenced is our site profile page because that is where we want the user to go after thry login
+### )
+
+### REDIRECT USER:If you look at Profile.js you will see this line of code window.location = redirect_url this is where we redirect the user to the link we constructed in our backend.
+
+### CONFIRM THE USER'S CREDENTIALS: We send a request to our flask backend making sure we include the user data we have of the user; to see how this is implemented look at Profile.js and you will see and look at the commenting(we can only have data of a user via query parameters or by session data). Our Flask backend then checks our tansfers our user data to the uoms api and basically asks it are these credentials that of a user that has logged in and has an active session, if not our backend returns a 401; and this is why if you look at protected components you will see we check for this status code and re route them to the home page
+
+
+## HOW TO SET UP FOR DEVELOPMENT:
+
+### Step1:
+#### You have to setup ngrok. It is very easy just search up ngrok.com make an account and then follow the immediate instructions they give you on how to map a local port a public url
+### Step2:
+#### Run the React app: npm install | npm start
+
+### Step3:
+#### React app should be running on port 3000 so then run the ngrok command to map port 3000 to a public url. It should be something like ngrok http 3000
+
+### Step4:
+#### Paste in the public url that ngrok gives you into your browser- it should look like https://7b95-31-205-0-5.ngrok-free.app
+
+### Step5:
+### replace the the part of the url from right after the '=' that comes before 'url' till right before '/profile' with the url that ngrok gave you so the url given the variable name 'redirect_url' should look like this:
+### 'http://studentnet.cs.manchester.ac.uk/authenticate/?url=[YOUR URL FROM NGROK]/profile&csticket={cs_ticket}&version=3&command=validate'
+
+## Please Communicate if there be any issue with the authorisation and authentication described above!
+
+
+
+
+
+
+
+

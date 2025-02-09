@@ -1,67 +1,87 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useRef} from 'react'
 import { useSearchParams } from "react-router-dom";
-import { useAuth } from "./AuthContext.js"; //import global auth state
 import { useNavigate } from "react-router-dom";
-import CryptoJS from 'crypto-js';
 import "./profile.css";
 import CuttingBoard from "./assets/Image.png";
-import { useDispatch } from "react-redux";
-import { toggle } from "./redux/slices/booleanSlice";
-import { useSelector } from 'react-redux';
 
 
-const Profile = ({GlobalState}) => {
-  const dispatch = useDispatch();
-  const booleanValue = useSelector((state) => state.boolean.value);
 
-  //const { toggleLogin, isLoggedIn, updateEncryptedCsTicket, updateUserCredentials, username, fullName, encryptedCsTicket } = useAuth();
-  const [searchParams] = useSearchParams();
-  const navigate = useNavigate();
-  const secretKey = process.env.REACT_APP_APP_SECRET
-  const {auth, setAuth} = GlobalState
 
-  const fullNa = searchParams.get("fullname");
-  const userNa = searchParams.get("username");
-  const returnedCsTicket = searchParams.get('csticket') ?? 'default-value';
-  const app_secret = searchParams.get("app_secret")
 
-  const user = {
-    name: fullNa,
-    email: "example.user@manchester.ac.uk",
-  };
 
+
+
+const Profile = () => {
+     // This is where a user will be brought to after logging in since it this page is spceified as the location
+     // to bring the users credentials when they have logged in successfully
+
+
+      const [searchParams] = useSearchParams();
+      const navigate = useNavigate();
+
+
+
+
+
+
+  // The useEffect hook make sure that the function inside of it runs only on the first render because
+  // the dependecy array is empty
   useEffect(() => {
-     checkCredentials()
+    //We get the users credentials that we will give to the server from sessionStorage only if any of the query parameters
+    // when entering this page are null
+    //--> So in this case we are making sure that the session data we have is correct according to the university API
+    if (searchParams.get("fullname") === null || searchParams.get("username") === null || searchParams.get('csticket') === null) {
+      const fullName = sessionStorage.getItem('fullName') || 'Name';
+      const username = sessionStorage.getItem('username') || 'username'
+      const csTicket = sessionStorage.getItem('csTicket') || 'csticket';
 
-  },[])
+      fetchData(fullName, username, csTicket);
 
-  const checkCredentials =  async () => {
+
+  }
+  //--> In this case we assume the user is comming from the uni api, the api gives user data in query parameters
+  else{
+    const fullName = searchParams.get("fullname") || "Full Name";
+    const username = searchParams.get("username") || "Username";
+    const csTicket = searchParams.get('csticket') || 'default-value';
+
+    sessionStorage.setItem('fullName', fullName)
+    sessionStorage.setItem('username', username)
+    sessionStorage.setItem('csTicket', csTicket)
+
+    fetchData(fullName,username,csTicket);
+  }
+
+
+  },[]) // ---> DEPENDENCY ARRAY-empty so that we only check on the initial  data
+
+
+  // This function is mimicking(it is just an example; fetch to the route you want) a fetch to a protected route; if it goes through successfuly we know that the
+  // the user is logged in
+  const fetchData =  async (fullName,username,csTicket) => {
+
+
     try {
-      if (!auth){
-        const csTicketSession = sessionStorage.getItem("encryptedCsTicket")
-        if (typeof csTicketSession != 'string'){
-          throw new Error('session ticket not of type String')
-        }
-        const decryptedCsTicket = CryptoJS.AES.decrypt(csTicketSession, secretKey).toString(CryptoJS.enc.Utf8);
-        const csTick = decryptedCsTicket
+      const response = await fetch(`http://127.0.0.1:5000/protected?full_name=${fullName}&username=${username}&cs_ticket=${csTicket}`)
+      if (response.status == 401){ // 401 means not authorised so jump
+        throw new Error('User Not Authorised') // jump to catch skip the rest of the code
 
-        if (csTick != returnedCsTicket){
-          console.log(csTick)
-          console.log(returnedCsTicket)
-          console.log(secretKey,'here is secret')
-          navigate('/')
-          throw new Error('The csticket stored in session does not match')
-       }
-       setAuth(true)
-     }  
-     
-      // console.log(returnedCsTicket)
-      // console.log(secretKey,'here is secret')
-      // toggleLogin() // Here we toggle login so that in all our other components we check if isLoggedIn is true if not we navigate them to the home page to lock them out
-      // updateUserCredentials(userNa,fullNa)
+      }
+      if (response.status == 500){
+        throw new Error('Internal Server Error: Try again later') // This should not happen and debugging on the backend would need to be done
+                                                                  // on the server
+      }
 
-      
+      const data = await response.text();
+
+
+
+
+
+
     }catch (error){
+      // Take the user back to the home page they are not authorised
+      navigate('/')
       console.error(error)
     }
 
@@ -70,8 +90,7 @@ const Profile = ({GlobalState}) => {
 
 
 
-
-  //Example listings 
+  //Example listings
   const [listings, setListings] = useState([
     {id: 1, title: "Item One", price: "£0.00", image: CuttingBoard},
     {id: 2, title: "Item Two", price: "£0.00", image: CuttingBoard },
@@ -87,8 +106,9 @@ const Profile = ({GlobalState}) => {
     <div className = "profile-container">
     <div className = "user-info">
       <h2>Profile</h2>
-      <p><strong>Name: </strong>{user.name}</p>
-      <p><strong>Email: </strong>{user.email}</p>
+      <p><strong>Name: </strong>{sessionStorage.getItem('fullName')}</p>
+      <p><strong>Email: </strong>firstName.lastname@student.manchester.ac.uk</p>
+      Are you
     </div>
 
 
@@ -106,7 +126,7 @@ const Profile = ({GlobalState}) => {
           </button>
           <button className="edit-button">
           Edit
-          </button> 
+          </button>
           </div>
           </div>
         ))}

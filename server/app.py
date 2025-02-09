@@ -1,4 +1,5 @@
 from flask import Flask, request, make_response
+import requests
 from models.index import db
 from flask_cors import CORS
 from sqlalchemy import and_
@@ -48,17 +49,58 @@ if __name__ == '__main__':
     app.run(debug=True)
 
 
+@app.before_request
+def check_login():
+
+
+
+    if request.endpoint != 'start_login':
+
+            try:
+                print('I run')
+                app_url = 'therxa' # the app_url does not matter for student validation
+                cs_ticket= request.args.get('cs_ticket')
+                username = request.args.get('username')
+                full_name = request.args.get('full_name')
+                first_name = full_name.split(' ')[0]
+                last_name = full_name.split(' ')[1]
+                print(cs_ticket)
+                print(username)
+                print(full_name)
+                auth_url = f'https://studentnet.cs.manchester.ac.uk/authenticate/?url={app_url}&csticket={cs_ticket}&version=3&command=confirm&username={username}&fullname={first_name}+{last_name}'
+                response = requests.get(auth_url)
+                if response.text != 'true':
+                    return make_response('invalid credntials', 401)
+            except:
+                 return make_response('Invalid user Credentials',401)
+
+
+
+
+
+
+
+
+
 
 @app.route('/intiate_login', methods=['GET'])
-def teachers():
+def start_login():
     cs_ticket = uuid.uuid4().hex[:12]
-    redirect_url = f'http://studentnet.cs.manchester.ac.uk/authenticate/?url=https://0766-130-88-226-30.ngrok-free.app/profile&csticket={cs_ticket}&version=3&command=validate'
+    redirect_url = f'http://studentnet.cs.manchester.ac.uk/authenticate/?url=https://7b95-31-205-0-5.ngrok-free.app/profile&csticket={cs_ticket}&version=3&command=validate'
 
     res = {
         "auth_url": redirect_url,
-        "cs_ticket":cs_ticket
+
     }
-
-
-
     return make_response(res)
+
+@app.route('/protected', methods=['GET'])
+def check_login():
+    return make_response('I return',200)
+
+
+
+
+
+
+
