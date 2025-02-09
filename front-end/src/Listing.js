@@ -1,9 +1,11 @@
 import React, { useState } from "react";
 import "./listing.css";
-import uploadIcon from "../assets/photoupload.png";
+import uploadIcon from "./assets/photoupload.png";
 
 const CreateListing = () => {
   const [image, setImage] = useState(uploadIcon);
+  const [category, setCategory] = useState(""); // New state for category
+  const [condition, setCondition] = useState(""); // New state for condition
 
   const handleImageUpload = (event) => {
     const file = event.target.files[0];
@@ -53,16 +55,28 @@ const CreateListing = () => {
           <textarea placeholder="Describe your item" className="textarea"></textarea>
         </div>
 
-        {/* category label and text box */}
+        {/* Category Dropdown */}
         <div className="form-group category">
           <label>Category</label>
-          <input type="text" placeholder="e.g Clothing" className="input" />
+          <select className="input" value={category} onChange={(e) => setCategory(e.target.value)}>
+            <option value="">Select a category</option>
+            <option value="Electronics">Electronics</option>
+            <option value="Clothing">Clothing</option>
+            <option value="Books">Books</option>
+            <option value="Other">Other</option>
+          </select>
         </div>
 
-        {/* condition label and text box */}
+        {/* Condition Dropdown */}
         <div className="form-group condition">
           <label>Condition</label>
-          <input type="text" placeholder="e.g Used" className="input" />
+          <select className="input" value={condition} onChange={(e) => setCondition(e.target.value)}>
+            <option value="">Select a condition</option>
+            <option value="New">New</option>
+            <option value="Like New">Like New</option>
+            <option value="Used">Used</option>
+            <option value="For Parts">For Parts</option>
+          </select>
         </div>
 
         <div className="submit-button-container">
