@@ -13,41 +13,40 @@ const CreateListing = () => {
   const [successMessage, setSuccessMessage] = useState("");
   const navigate = useNavigate();
 
-  const handleImageUpload = (event) => {
+  const handleImageUpload = async (event) => {
     const file = event.target.files[0];
-    if (file) {
-      const imageUrl = URL.createObjectURL(file);
-      setImage(imageUrl); // Show preview
-      setImageFile(file); // Store file for upload
+    if (!file) return;
+
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("upload_preset", "thriftybee_temp"); // Set up in Cloudinary
+    formData.append("cloud_name", "dcyac4u2x");
+
+    try {
+      const response = await fetch("https://api.cloudinary.com/v1_1/dcyac4u2x/image/upload", {
+        method: "POST",
+        body: formData
+      });
+
+      const data = await response.json();
+      setImage(data.secure_url); // Store public image URL
+    } catch (error) {
+      console.error("Error uploading image:", error);
     }
   }
-
-  // Simulated function to "upload" the image and get a URL
-  const uploadImageAndGetURL = async () => {
-    if (!imageFile) return null;
-    
-    // Simulate an image upload by returning a placeholder URL
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        resolve(`https://example.com/uploads/${imageFile.name}`);
-      }, 1000);
-    });
-  };
-
+  
   const handleSubmit = async (event) => {
     event.preventDefault();
 
-    // Upload the image first
-    const imageURL = await uploadImageAndGetURL();
-    if (!imageURL) {
-      setSuccessMessage("Error uploading image.");
+    if (!image || image === uploadIcon) {
+      setSuccessMessage("Please upload an image.");
       return;
     }
 
     const listingData = {
       user_id: 1, // Static for now
       listing_name: name,
-      image: imageURL, // Pass uploaded image URL
+      image: image, // Pass uploaded image URL
       price: price,
     };
 
