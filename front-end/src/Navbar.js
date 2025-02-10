@@ -2,6 +2,7 @@
 import "./navbar.css";
 // import { useAuth } from "./AuthContext.js"; //import global auth state
 import React, {useState, useEffect} from 'react'
+import React from 'react'
 import { useNavigate, useLocation } from "react-router-dom";
 import logo from "./assets/logo.png";
 
