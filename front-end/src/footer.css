@@ -14,7 +14,7 @@
     flex-direction: row;
     align-items: flex-start;
     justify-content: space-between;
-    gap: 2rem;
+    gap: auto;
 }
 
 .main-heading {
