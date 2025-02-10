@@ -6,7 +6,6 @@ import Navbar from './Navbar.js';
 
 import Profile from "./Profile.js"; // Import Profile page
 import Listing from "./Listing.js"; // Import Listing page
-import { useAuth } from "./AuthContext"; // Import login state
 import Footer from "./Footer.js";
 
 function App() {

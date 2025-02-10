@@ -72,7 +72,7 @@ const Profile = () => {
 
   // Fetch user listings dynamically
   useEffect(() => {
-    fetch(`http://127.0.0.1:5000/user_listings?user_id=${user.id}?full_name=${fullName}&username=${username}&cs_ticket=${csTicket}`)
+    fetch(`http://127.0.0.1:5000/user_listings?user_id=${user.id}&full_name=${sessionStorage.getItem('fullName')}&username=${sessionStorage.getItem('username')}&cs_ticket=${sessionStorage.getItem('csTicket')}`)
       .then((response) => response.json())
       .then((data) => {
         if (data.listings) {
@@ -86,7 +86,7 @@ const Profile = () => {
 
   // Ability to delete listings on the profile page
   const deleteListing = (id) => {
-    fetch(`http://127.0.0.1:5000/delete_listing/${id}?full_name=${fullName}&username=${username}&cs_ticket=${csTicket}`, {
+    fetch(`http://127.0.0.1:5000/delete_listing/${id}?full_name=${sessionStorage.getItem('fullName')}&username=${sessionStorage.getItem('username')}&cs_ticket=${sessionStorage.getItem('csTicket')}`, {
       method: "DELETE",
     })
       .then((response) => response.json())
