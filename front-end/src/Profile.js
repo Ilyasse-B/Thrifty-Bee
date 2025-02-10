@@ -10,6 +10,8 @@ const Profile = () => {
     id: 1,
     name: "John Smith",
     email: "john.smith@student.manchester.ac.uk",
+    username: "h72634js",
+    number: "0772948920"
   };
 
   //Example listings 
@@ -46,8 +48,15 @@ const Profile = () => {
     <div className = "profile-container">
     <div className = "user-info">
       <h2>Profile</h2>
-      <p><strong>Name: </strong>{user.name}</p>
-      <p><strong>Email: </strong>{user.email}</p>
+      <div className="user-details-grid">
+        <div className="user-detail"><strong>Name:</strong> {user.name}</div>
+        <div className="user-detail"><strong>Username:</strong> {user.username}</div>
+        <div className="user-detail"><strong>Email:</strong> {user.email}</div>
+        <div className="user-detail"><strong>Phone Number:</strong> {user.number}</div>
+      </div>
+      <div className="edit-button-container">
+        <button className="edit-details-button">Edit Details</button>
+      </div>
     </div>
 
     {/* Listing Section */}
