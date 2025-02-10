@@ -41,3 +41,39 @@
   border-radius: 4px;
   cursor: pointer;
 }
+
+.create-listing-button-container {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 20px;
+  margin-top: 40px;
+  padding-top: 20px;
+}
+
+.create-listing-button {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  padding: 10px 15px;
+  font-size: 16px;
+  cursor: pointer;
+  border-radius: 5px;
+  transition: background-color 0.3s ease;
+}
+
+.create-listing-button:hover {
+  background-color: #0056b3;
+}
+
+.listing-title {
+  font-size: 24px;
+  font-weight: bold;
+  margin-bottom: 15px;
+}
+
+.listing-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+}

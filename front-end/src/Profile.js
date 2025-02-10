@@ -1,7 +1,10 @@
 import React, {useState, useEffect} from 'react';
+import { useNavigate } from "react-router-dom";
 import "./profile.css";
 
 const Profile = () => {
+  const navigate = useNavigate(); // Initialize navigation
+
   // Example user data - will need to be updated with information from CAS login
   const user = {
     id: 1,
@@ -39,6 +42,7 @@ const Profile = () => {
   };
 
   return (
+    // Profile section
     <div className = "profile-container">
     <div className = "user-info">
       <h2>Profile</h2>
@@ -46,8 +50,15 @@ const Profile = () => {
       <p><strong>Email: </strong>{user.email}</p>
     </div>
 
-
+    {/* Listing Section */}
     <div className = "listing-section">
+      <div className="listing-header">  {/* New flex container for title & button */}
+      <h2 className="listing-title">Manage Your Listings</h2>
+      <button className="create-listing-button" onClick={() => navigate("/listing")}>
+        Create New Listing
+      </button>
+      </div>
+
       {listings.length > 0? (
         <div className= "listing-grid">
         {listings.map((listing) => (
@@ -70,7 +81,7 @@ const Profile = () => {
         <p>No listings yet!</p>
       )}
     </div>
-    </div>
+  </div>
   );
 };
 
