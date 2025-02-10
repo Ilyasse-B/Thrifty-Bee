@@ -108,7 +108,6 @@ const Navbar = () => {
       {/* Right Side - Navigation Links */}
       <div className="nav-right">
         <button className="nav-button">Help</button>
-        <button className="nav-button" onClick={() => handleNavigation("/listing")}>Listing (Temporary)</button>
         <button className="nav-button" onClick={() => handleNavigation("/")}>Search</button>
         <button className="login-button" onClick={() => {
           if (!auth){ // The login button should authenticate the user(send them to uom's login page) only when auth is false
