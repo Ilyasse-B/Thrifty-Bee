@@ -186,12 +186,12 @@ def get_user_info():
     return make_response({"user": user_data}, 200)
 
 def make_profile(username,f_name,l_name):
-    newUser = UserModel(first_name = f_name, last_name = l_name, username = username)
+    newUser = UserModel(first_name = f_name, last_name = l_name, username = username, phone_number = "", email_address = "")
     db.session.add(newUser)
     db.session.commit()
 
     #need to add something here to continue execution of program
-    
+
 
 
 # @app.route('/delete_user/<int:user_id>', methods=['DELETE'])
