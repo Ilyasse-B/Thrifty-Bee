@@ -7,7 +7,9 @@ const Item = ({id, name, image, price}) => {
   const navigate = useNavigate();
 
   const handleClick = () => {
-  navigate(`/product/?id=${id}`);
+  navigate("/product", {
+    state: { id, name, image, price },
+  });
   };
   return (
     <div className="item-main-container">
