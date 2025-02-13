@@ -65,16 +65,16 @@ const Home = () => {
           </select>
         </div>
       </div>
-      
+
       {/* Dynamic Product Display */}
       <div id="all-product-container">
         {products.map(product => (
-          <Item 
-            key={product.id} 
-            id={product.id} 
-            name={product.listing_name} 
-            image={product.image} 
-            price={product.price} 
+          <Item
+            key={product.id}
+            id={product.id}
+            name={product.listing_name}
+            image={product.image}
+            price={product.price}
           />
         ))}
       </div>

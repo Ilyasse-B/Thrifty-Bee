@@ -67,7 +67,7 @@ const Profile = () => {
     number: "0772948920"
   };
 
-  //Example listings 
+  //Example listings
   const [listings, setListings] = useState([]);
 
   // Fetch user listings dynamically
@@ -134,7 +134,7 @@ const Profile = () => {
           </button>
           <button className="edit-button">
           Edit
-          </button> 
+          </button>
           </div>
           </div>
         ))}
