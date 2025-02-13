@@ -231,16 +231,16 @@ def create_listing():
     name = listing_data.get('listing_name')
     image = listing_data.get('image')
     price = listing_data.get('price')
-    condition= request.args.get('condition', type=str)
-    category= request.args.get('category', type=str)
-    description= request.args.get('description', type=str)
+    condition= listing_data.get('condition')
+    category= listing_data.get('category')
+    description= listing_data.get('description')
 
     if not name or not price or not image:  # Validate required fields
         return make_response({"message": "Missing required fields"}, 400)
     
 
 
-    new_listing = ListingsModel(user_id = user_id, listing_name = name, image = image  ,price = price)
+    new_listing = ListingsModel(user_id = user_id, listing_name = name, image = image  ,price = price, condition = condition, category = category, description = description)
     db.session.add(new_listing)
     db.session.commit()
 

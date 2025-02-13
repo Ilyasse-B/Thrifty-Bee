@@ -129,7 +129,7 @@ const Profile = () => {
     <div className = "listing-section">
       <div className="listing-header">  {/* New flex container for title & button */}
       <h2 className="listing-title">Manage Your Listings</h2>
-      <button className="create-listing-button" onClick={() => navigate("/listing")}>
+      <button className="create-listing-button" onClick={() => navigate(`/listing?user_id=${userId}`)}>
         Create New Listing
       </button>
       </div>
