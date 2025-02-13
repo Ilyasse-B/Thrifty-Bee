@@ -3,14 +3,39 @@ import './home.css';
 import Item from "./Item";
 
 const Home = () => {
-  const [products, setProducts] = useState([]); // State to store fetched items
+  const [products, setProducts] = useState([]); // State to store all fetched items
+  const [searchTerm, setSearchTerm] = useState(''); // State for search input
+  const [filteredProducts, setFilteredProducts] = useState([]); // State for displayed products
 
   useEffect(() => {
-    fetch("http://127.0.0.1:5000/listings") // URL of Flask API
+    fetch("http://127.0.0.1:5000/listings") // Original fetch method
       .then(response => response.json())
-      .then(data => setProducts(data.listings)) // Store fetched data in state
+      .then(data => {
+        setProducts(data.listings); // Store fetched data in state
+        setFilteredProducts(data.listings); // Initially show all products
+      })
       .catch(error => console.error("Error fetching listings:", error));
   }, []);
+
+  // Handle search input change
+  const handleSearchChange = (e) => {
+    const term = e.target.value;
+    setSearchTerm(term);
+    
+    if (term.trim() === '') {
+      // When search is empty, show all products
+      setFilteredProducts(products);
+    } else {
+      const filtered = products.filter(product => {
+        return product && 
+               product.listing_name && 
+               typeof product.listing_name === 'string' &&
+               product.listing_name.toLowerCase().includes(term.toLowerCase());
+      });
+      
+      setFilteredProducts(filtered);
+    }
+  };
 
   return (
     <div className="home-container">
@@ -22,7 +47,7 @@ const Home = () => {
         {/* Search Section */}
         <div className="search-section">
           <span className="label">Search</span>
-          <input type="text" className="search-box" placeholder="Search for items..." />
+          <input type="text" className="search-box" placeholder="Search for items..." value={searchTerm} onChange={handleSearchChange} />
         </div>
 
         {/* Filters Section */}
@@ -68,15 +93,19 @@ const Home = () => {
       
       {/* Dynamic Product Display */}
       <div id="all-product-container">
-        {products.map(product => (
-          <Item 
-            key={product.id} 
-            id={product.id} 
-            name={product.listing_name} 
-            image={product.image} 
-            price={product.price} 
-          />
-        ))}
+        {filteredProducts.length > 0 ? (
+          filteredProducts.map(product => (
+            <Item 
+              key={product.id || `item-${Math.random()}`} 
+              id={product.id} 
+              name={product.listing_name} 
+              image={product.image} 
+              price={product.price} 
+            />
+          ))
+        ) : (
+          <p>No products found</p>
+        )}
       </div>
     </div>
 
@@ -84,3 +113,4 @@ const Home = () => {
 };
 
 export default Home;
+
