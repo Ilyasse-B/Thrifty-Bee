@@ -190,6 +190,8 @@ def make_profile(username,f_name,l_name):
     db.session.add(newUser)
     db.session.commit()
 
+    return UserModel.query.filter_by(username=username).first()
+
     #need to add something here to continue execution of program
 
 
