@@ -111,7 +111,10 @@ def get_listings():
             "id": listing.id,
             "listing_name": listing.listing_name,
             "image": listing.image,
-            "price": listing.price
+            "price": listing.price,
+            "condition": listing.condition,
+            "category": listing.category,
+            "description": listing.description
         }
         for listing in listings
     ]
@@ -131,7 +134,11 @@ def get_user_listings():
             "id": listing.id,
             "title": listing.listing_name,
             "image": listing.image,
-            "price": listing.price
+            "price": listing.price,
+            "condition": listing.condition,
+            "category": listing.category,
+            "description": listing.description
+            
         }
         for listing in listings
     ]
@@ -153,34 +160,38 @@ def delete_listing(listing_id):
 
 @app.route('/get_profile', methods=['GET', 'POST'])
 def get_user_info():
-    email_a = request.args.get('email_address', type=str)  #getting email address 
+    username = request.args.get('username', type=str)  #getting email address 
 
-    if not email_a:
-        return make_response({"message": "email is required"}, 400) 
+    if not username:
+        return make_response({"message": "username is required"}, 400) 
 
-    user = UserModel.query.filter_by(email_address=email_a).first()
+    user = UserModel.query.filter_by(username=username).first()
     if not user:
         first_name = request.args.get('first_name', type = str)
         last_name = request.args.get('last_name', type =str)
-        user = make_profile(email_a,first_name,last_name)
+        user = make_profile(username,first_name,last_name)
 
     user_data = [
         {
             "first_name": user.first_name,
             "last_name": user.last_name,
-            "email": user.email_address
-            #"number": user.phone_number
+            "username": user.username,
+            "email_address": user.email_address,
+            "phone_number":user.phone_number
+
+
         }
     ]
     
     return make_response({"user": user_data}, 200)
 
-def make_profile(email_a,f_name,l_name):
-    newUser = UserModel(first_name = f_name, last_name = l_name, email_address = email_a)
+def make_profile(username,f_name,l_name):
+    newUser = UserModel(first_name = f_name, last_name = l_name, username = username)
     db.session.add(newUser)
     db.session.commit()
 
-    return UserModel.query.filter_by(email_address=email_a).first()
+    #need to add something here to continue execution of program
+    
 
 
 # @app.route('/delete_user/<int:user_id>', methods=['DELETE'])
@@ -210,10 +221,10 @@ def get_product():
             "id": listing.id,
             "listing_name": listing.listing_name,
             "image": listing.image,
-            "price": listing.price
-            #"condition": listing.condition
-            #"category": listing.category
-            #"description": listing.description
+            "price": listing.price,
+            "condition": listing.condition,
+            "category": listing.category,
+            "description": listing.description
         }
         for listing in listings
     ]
@@ -227,9 +238,9 @@ def create_listing():
     name = listing_data.get('listing_name')
     image = listing_data.get('image')
     price = listing_data.get('price')
-    #condition= request.args.get('condition', type=str)
-    #category= request.args.get('category', type=str)
-    #description= request.args.get('description', type=str)
+    condition= request.args.get('condition', type=str)
+    category= request.args.get('category', type=str)
+    description= request.args.get('description', type=str)
 
     if not name or not price or not image:  # Validate required fields
         return make_response({"message": "Missing required fields"}, 400)
