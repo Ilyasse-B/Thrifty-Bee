@@ -43,14 +43,9 @@ with app.app_context():
         
         if not (inspector.has_table("user_table")):
             db.create_all()
-
-            userOne = UserModel(first_name = "John", last_name = "Smith", email_address = "john.smith@student.manchester.ac.uk")
-            db.session.add(userOne)
-            userTwo = UserModel(first_name = "Jenny", last_name = "Smith", email_address = "jenny.smith@student.manchester.ac.uk")
-            db.session.add(userTwo)
-            listing_one = ListingsModel ( user_id = 1, listing_name = "Chopping Board", image ="https://img.freepik.com/free-photo/wood-cutting-board_1203-3148.jpg?t=st=1738937016~exp=1738940616~hmac=ffa2367ba27fed36015963353d65c4a50973931a35202392a1943abdc630938b&w=996", price = 3.00)
+            listing_one = ListingsModel ( user_id = 1, listing_name = "Chopping Board", image ="https://img.freepik.com/free-photo/wood-cutting-board_1203-3148.jpg?t=st=1738937016~exp=1738940616~hmac=ffa2367ba27fed36015963353d65c4a50973931a35202392a1943abdc630938b&w=996", price = 3.00, condition = "Like New", category = "Other", description = "Hand-made wooden chopping board")
             db.session.add(listing_one)
-            listing_two = ListingsModel(user_id = 2, listing_name = "Sofa", image = "https://img.freepik.com/free-photo/beautiful-interior-room-design-concept_23-2148786485.jpg?t=st=1738937245~exp=1738940845~hmac=d22d78f604dc8709293d294ab81ca42fe70a578bd3ad9c18f5a389bf064ccd31&w=996"  ,price = 20.50)
+            listing_two = ListingsModel(user_id = 1, listing_name = "Sofa", image = "https://img.freepik.com/free-photo/beautiful-interior-room-design-concept_23-2148786485.jpg?t=st=1738937245~exp=1738940845~hmac=d22d78f604dc8709293d294ab81ca42fe70a578bd3ad9c18f5a389bf064ccd31&w=996"  ,price = 20.50, condition = "Used", category = "Other", description = "Grey sofa made from real wool")
             db.session.add(listing_two)
             db.session.commit()
 
@@ -65,9 +60,6 @@ routes = ['create_listing','get_product','make_profile','get_user_info','delete_
 
 @app.before_request
 def check_login():
-
-
-
     if request.endpoint not in routes:
 
             try:
@@ -91,7 +83,7 @@ def check_login():
 @app.route('/intiate_login', methods=['GET'])
 def start_login():
     cs_ticket = uuid.uuid4().hex[:12]
-    redirect_url = f'http://studentnet.cs.manchester.ac.uk/authenticate/?url=https://d37b-130-88-226-30.ngrok-free.app/profile&csticket={cs_ticket}&version=3&command=validate'
+    redirect_url = f'http://studentnet.cs.manchester.ac.uk/authenticate/?url=https://d681-86-9-200-131.ngrok-free.app/profile&csticket={cs_ticket}&version=3&command=validate'
 
     res = {
         "auth_url": redirect_url,
@@ -173,13 +165,12 @@ def get_user_info():
 
     user_data = [
         {
+            "user_id": user.id,
             "first_name": user.first_name,
             "last_name": user.last_name,
             "username": user.username,
             "email_address": user.email_address,
             "phone_number":user.phone_number
-
-
         }
     ]
     

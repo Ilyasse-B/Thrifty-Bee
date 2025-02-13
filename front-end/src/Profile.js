@@ -4,75 +4,87 @@ import { useNavigate } from "react-router-dom";
 import "./profile.css";
 
 const Profile = () => {
-     // This is where a user will be brought to after logging in since it this page is spceified as the location
-     // to bring the users credentials when they have logged in successfully
+  // This is where a user will be brought to after logging in since it this page is spceified as the location
+  // to bring the users credentials when they have logged in successfully
 
-      const navigate = useNavigate(); // Initialize navigation
-      const [searchParams] = useSearchParams();
+  const navigate = useNavigate(); // Initialize navigation
+  const [searchParams] = useSearchParams();
+
+  const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
+  const [userId, setUserId] = useState(null); // Store user ID for listing retrieval
+
+  const [listings, setListings] = useState([]);
 
   // The useEffect hook make sure that the function inside of it runs only on the first render because
   // the dependecy array is empty
   useEffect(() => {
-    //We get the users credentials that we will give to the server from sessionStorage only if any of the query parameters
-    // when entering this page are null
-    //--> So in this case we are making sure that the session data we have is correct according to the university API
+  //We get the users credentials that we will give to the server from sessionStorage only if any of the query parameters
+  // when entering this page are null
+  //--> So in this case we are making sure that the session data we have is correct according to the university API
     if (searchParams.get("fullname") === null || searchParams.get("username") === null || searchParams.get('csticket') === null) {
-      const fullName = sessionStorage.getItem('fullName') || 'Name';
-      const username = sessionStorage.getItem('username') || 'username'
-      const csTicket = sessionStorage.getItem('csTicket') || 'csticket';
+    const fullName = sessionStorage.getItem('fullName') || 'Name';
+    const username = sessionStorage.getItem('username') || 'username'
+    const csTicket = sessionStorage.getItem('csTicket') || 'csticket';
 
-      fetchData(fullName, username, csTicket);
-  }
-  //--> In this case we assume the user is comming from the uni api, the api gives user data in query parameters
-  else{
-    const fullName = searchParams.get("fullname") || "Full Name";
-    const username = searchParams.get("username") || "Username";
-    const csTicket = searchParams.get('csticket') || 'default-value';
+    fetchData(fullName, username, csTicket);}
 
-    sessionStorage.setItem('fullName', fullName)
-    sessionStorage.setItem('username', username)
-    sessionStorage.setItem('csTicket', csTicket)
+    //--> In this case we assume the user is comming from the uni api, the api gives user data in query parameters
+    else{
+      const fullName = searchParams.get("fullname") || "Full Name";
+      const username = searchParams.get("username") || "Username";
+      const csTicket = searchParams.get('csticket') || 'default-value';
 
-    fetchData(fullName,username,csTicket);
-  }
+      sessionStorage.setItem('fullName', fullName)
+      sessionStorage.setItem('username', username)
+      sessionStorage.setItem('csTicket', csTicket)
 
-  },[]) // ---> DEPENDENCY ARRAY-empty so that we only check on the initial  data
+      fetchData(fullName,username,csTicket);
+    }},[]) // ---> DEPENDENCY ARRAY-empty so that we only check on the initial  data
 
   // This function is mimicking(it is just an example; fetch to the route you want) a fetch to a protected route; if it goes through successfuly we know that the
   // the user is logged in
   const fetchData =  async (fullName,username,csTicket) => {
     try {
-      const response = await fetch(`http://127.0.0.1:5000/protected?full_name=${fullName}&username=${username}&cs_ticket=${csTicket}`)
-      if (response.status == 401){ // 401 means not authorised so jump
+      const authResponse = await fetch(`http://127.0.0.1:5000/protected?full_name=${fullName}&username=${username}&cs_ticket=${csTicket}`)
+      if (authResponse.status == 401){ // 401 means not authorised so jump
         throw new Error('User Not Authorised') // jump to catch skip the rest of the code
 
       }
-      if (response.status == 500){
+      if (authResponse.status == 500){
         throw new Error('Internal Server Error: Try again later') // This should not happen and debugging on the backend would need to be done
                                                                   // on the server
       }
-      const data = await response.text();
+
+      // Fetch user profile details (email, phone)
+      const profileResponse = await fetch(
+        `http://127.0.0.1:5000/get_profile?username=${username}&first_name=${fullName.split(" ")[0]}&last_name=${fullName.split(" ")[1]}`
+      );
+
+      if (!profileResponse.ok) {
+        throw new Error("Error fetching user profile");
+      }
+
+      const profileData = await profileResponse.json();
+
+      if (profileData.user && profileData.user.length > 0) {
+        const user = profileData.user[0];
+        setEmail(profileData.user[0].email_address || "Not Provided");
+        setPhone(profileData.user[0].phone_number || "Not Provided");
+        setUserId(user.user_id);
+      }
     }catch (error){
       // Take the user back to the home page they are not authorised
       navigate('/')
       console.error(error)
     }
+
   };
-
-
-  // Example user data - will need to be updated with information from CAS login
-  const user = {
-    id: 1,
-    email: "john.smith@student.manchester.ac.uk",
-    number: "0772948920"
-  };
-
-  //Example listings 
-  const [listings, setListings] = useState([]);
 
   // Fetch user listings dynamically
   useEffect(() => {
-    fetch(`http://127.0.0.1:5000/user_listings?user_id=${user.id}&full_name=${sessionStorage.getItem('fullName')}&username=${sessionStorage.getItem('username')}&cs_ticket=${sessionStorage.getItem('csTicket')}`)
+    if (userId){
+      fetch(`http://127.0.0.1:5000/user_listings?user_id=${userId}&full_name=${sessionStorage.getItem('fullName')}&username=${sessionStorage.getItem('username')}&cs_ticket=${sessionStorage.getItem('csTicket')}`)
       .then((response) => response.json())
       .then((data) => {
         if (data.listings) {
@@ -82,7 +94,8 @@ const Profile = () => {
         }
       })
       .catch((error) => console.error("Error fetching listings:", error));
-  }, [user.id]);
+    }
+  }, [userId]);
 
   // Ability to delete listings on the profile page
   const deleteListing = (id) => {
@@ -104,8 +117,8 @@ const Profile = () => {
       <div className="user-details-grid">
         <div className="user-detail"><strong>Name:</strong> {sessionStorage.getItem('fullName')}</div>
         <div className="user-detail"><strong>Username:</strong> {sessionStorage.getItem('username')}</div>
-        <div className="user-detail"><strong>Email:</strong> {user.email}</div>
-        <div className="user-detail"><strong>Phone Number:</strong> {user.number}</div>
+        <div className="user-detail"><strong>Email:</strong> {email}</div>
+        <div className="user-detail"><strong>Phone Number:</strong> {phone}</div>
       </div>
       <div className="edit-button-container">
         <button className="edit-details-button">Edit Details</button>
