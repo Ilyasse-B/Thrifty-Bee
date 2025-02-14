@@ -16,7 +16,7 @@ const Item = ({id, name, image, price, category, condition, description, user_id
       <img src={image} alt={name} id="only-image"/>
       <h4 id="product-text">{name}</h4>
       <div className="item-main-container inner">
-        <h5 className="Description-text">Description</h5>
+        <h5 className="Description-text">{category} | {condition}</h5>
         <button type="button" id="see-more-btn" onClick={handleClick}>See more</button>
         <h5 className="Description-text bold">£{price.toFixed(2)}</h5>
       </div>

@@ -35,33 +35,38 @@
     text-align: left;
     font-weight: 525;
     padding:0%;
-
-
-
 }
+
 #desc{
     color:#828282;
     font-weight: 500;
 
 
 }
-.buy-btn{
-    background-color: black;
+
+.buy-btn {
+    background-color: #660099;
     color: white;
-    width:fit-content;
-    height: fit-content;
-    padding-inline: 2.5vw;
-    padding-block: .75vw;
-    /* padding-block: 1vh; */
+    font-family: 'Arial', sans-serif;
+    font-size: 1rem;
+    padding: 10px 20px;
     border-radius: 10px;
-    /* box-shadow: none; */
-    /* border:  solid black; */
+    cursor: pointer;
+    transition: background 0.3s ease-in-out;
 }
-.buy-btn.contact{
-    background-color: #828282;
-    /* border:  solid #828282; */
-    padding-inline: 1.5vw;
+
+.buy-btn:hover {
+    background-color: #922ce6;
 }
+
+.contact {
+    background-color: #660099;
+}
+
+.contact:hover {
+    background-color: #922ce6;
+}
+
 #note{
     font-weight: 500;
     color:#828282;

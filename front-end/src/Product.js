@@ -40,20 +40,17 @@ const Product = () => {
         <p>{description}</p>
 
         <button type="button" className="buy-btn">Buy Now</button>
-        <a>or</a>
-        <button type="button" className="buy-btn contact" onClick={fetchSellerInfo}>
-                    Contact Seller
-                </button>
+        <span>or</span>
+        <button type="button" className="buy-btn contact" onClick={fetchSellerInfo}>Contact Seller</button>
 
-                {/* Display Seller Info */}
-                {showSeller && sellerInfo && (
-                    <div id="seller-info">
-                        <h4>Seller Information:</h4>
-                        <p><strong>Name:</strong> {sellerInfo.first_name}</p>
-                        <p><strong>Email:</strong> {sellerInfo.email}</p>
-                        <p><strong>Phone:</strong> {sellerInfo.phone_number || "Not provided"}</p>
-                    </div>
-                )}
+        {/* Display Seller Info */}
+        {showSeller && sellerInfo && (
+          <div id="seller-info">
+            <h4>Seller Information:</h4>
+            <p><strong>Name:</strong> {sellerInfo.first_name}</p>
+            <p><strong>Email:</strong> {sellerInfo.email || "Not Provided"}</p>
+            <p><strong>Phone:</strong> {sellerInfo.phone_number || "Not provided"}</p>
+          </div>)}
         <h6 id="note">Contact the seller by clicking the button above</h6>
       </div>
     </div>
