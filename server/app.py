@@ -83,7 +83,7 @@ def check_login():
 @app.route('/intiate_login', methods=['GET'])
 def start_login():
     cs_ticket = uuid.uuid4().hex[:12]
-    redirect_url = f'http://studentnet.cs.manchester.ac.uk/authenticate/?url=https://1b25-86-9-200-131.ngrok-free.app/profile&csticket={cs_ticket}&version=3&command=validate'
+    redirect_url = f'http://studentnet.cs.manchester.ac.uk/authenticate/?url=https://4612-86-9-200-131.ngrok-free.app/profile&csticket={cs_ticket}&version=3&command=validate'
 
     res = {
         "auth_url": redirect_url,
@@ -284,30 +284,32 @@ def create_listing():
 
 @app.route('/edit_listing/<int:id>', methods=['PATCH'])
 def change_listing(id):
-    listing = ListingsModel.query.filter_by(id = id)
+    listing = ListingsModel.query.filter_by(id = id).first()
     if not listing:
-        return make_response('user not found', 404)
+        return make_response('Listing not found', 404)
     else:
         data = request.json
         new_listing_name = data.get('listing_name')
         new_listing_image = data.get('listing_image')
         new_listing_price = data.get('listing_price')
+
         if not new_listing_name or not new_listing_image or not new_listing_price:
             return make_response('listing_name, listing_image, listing_price are required', 400)
-        else:
-            listing.listing_name = new_listing_name
-            listing.image = new_listing_image
-            listing.price = new_listing_price
-            listing_to_ret = {
-                "id":listing.id,
-                "listing_name":listing.listing_name,
-                "image":listing.image,
-                "price":listing.price,
+        
+        listing.listing_name = new_listing_name
+        listing.image = new_listing_image
+        listing.price = new_listing_price
 
+        db.session.commit()
+
+        response_dict = {
+        "status": 'Successful',
+        "listing": {
+            "id": listing.id,
+            "listing_name": listing.listing_name,
+            "image": listing.image,
+            "price": listing.price,
             }
-            respon_dict = {
-                "status":'Successful',
-                "user":listing_to_ret
-            }
-            db.session.commit()
-            return make_response(respon_dict)
+        }
+        
+        return make_response(response_dict, 200)
