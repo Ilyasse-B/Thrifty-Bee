@@ -2,12 +2,16 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./listing.css";
 import uploadIcon from "./assets/photoupload.png";
+import { useSearchParams } from "react-router-dom";
 
 const CreateListing = () => {
+  const [searchParams] = useSearchParams();
+  const userId = searchParams.get("user_id"); // Extract user_id
+
   const [image, setImage] = useState(uploadIcon);
-  const [category, setCategory] = useState(""); // New state for category
-  const [condition, setCondition] = useState(""); // New state for condition
-  const [imageFile, setImageFile] = useState(null); // Store file for later upload
+  const [category, setCategory] = useState("");
+  const [description, setDescription] = useState("");
+  const [condition, setCondition] = useState("");
   const [name, setName] = useState("");
   const [price, setPrice] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
@@ -44,10 +48,13 @@ const CreateListing = () => {
     }
 
     const listingData = {
-      user_id: 1, // Static for now
+      user_id: userId,
       listing_name: name,
-      image: image, // Pass uploaded image URL
+      image: image, 
       price: price,
+      condition: condition,
+      category: category,
+      description: description,
     };
 
     try {
@@ -118,13 +125,16 @@ const CreateListing = () => {
         {/* description label and text box */}
         <div className="form-group description">
           <label>Description</label>
-          <textarea placeholder="Describe your item" className="textarea"></textarea>
+          <textarea placeholder="Describe your item" className="textarea" value={description}
+            onChange={(e) => setDescription(e.target.value)}></textarea>
         </div>
 
         {/* Category Dropdown */}
         <div className="form-group category">
           <label>Category</label>
-          <select className="input" value={category} onChange={(e) => setCategory(e.target.value)}>
+          <select className="input" value={category} onChange={(e) => {
+            console.log("Selected Category:", e.target.value);
+            setCategory(e.target.value)}}>
             <option value="">Select a category</option>
             <option value="Electronics">Electronics</option>
             <option value="Clothing">Clothing</option>
