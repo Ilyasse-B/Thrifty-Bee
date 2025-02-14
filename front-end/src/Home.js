@@ -2,10 +2,23 @@ import React, {useEffect, useState} from 'react';
 import './home.css';
 import Item from "./Item";
 
+// Helper function moved outside the component
+const getPriceRangeValues = (range) => {
+  switch (range) {
+    case '£0 - £10': return [0, 10];
+    case '£10 - £50': return [10, 50];
+    case '£50 - £100': return [50, 100];
+    case '£100+': return [100, Infinity];
+    default: return [0, Infinity];
+  }
+};
+
 const Home = () => {
   const [products, setProducts] = useState([]); // State to store all fetched items
   const [searchTerm, setSearchTerm] = useState(''); // State for search input
   const [filteredProducts, setFilteredProducts] = useState([]); // State for displayed products
+  const [priceRange, setPriceRange] = useState('Price Range'); // State for price range filter
+  const [sortOrder, setSortOrder] = useState('Sort By'); // State for sorting order
 
   useEffect(() => {
     fetch("http://127.0.0.1:5000/listings") // Original fetch method
@@ -17,24 +30,58 @@ const Home = () => {
       .catch(error => console.error("Error fetching listings:", error));
   }, []);
 
+  // Filter products based on current search term and price range
+  const filterProducts = () => {
+    let result = [...products];
+    
+    // Apply search filter
+    if (searchTerm.trim() !== '') {
+      result = result.filter(product => {
+        return product && 
+               product.listing_name && 
+               typeof product.listing_name === 'string' &&
+               product.listing_name.toLowerCase().includes(searchTerm.toLowerCase());
+      });
+    }
+    
+    // Apply price range filter
+    if (priceRange !== 'Price Range') {
+      const [min, max] = getPriceRangeValues(priceRange);
+      result = result.filter(product => {
+        return product && 
+               product.price !== undefined && 
+               product.price >= min && 
+               (max === Infinity || product.price <= max);
+      });
+    }
+    
+    setFilteredProducts(result);
+  };
+
+  // Apply filters whenever search term or price range changes
+  useEffect(() => {
+    if (products.length > 0) {
+      filterProducts();
+    }
+  }, [searchTerm, priceRange]); // Respond to changes in search or price range
+
+  useEffect(() => {
+    // When products are loaded, apply any existing filters
+    if (products.length > 0) {
+      filterProducts();
+    }
+  }, [products]); // Respond to changes in products (initial load)
+
   // Handle search input change
   const handleSearchChange = (e) => {
     const term = e.target.value;
     setSearchTerm(term);
-    
-    if (term.trim() === '') {
-      // When search is empty, show all products
-      setFilteredProducts(products);
-    } else {
-      const filtered = products.filter(product => {
-        return product && 
-               product.listing_name && 
-               typeof product.listing_name === 'string' &&
-               product.listing_name.toLowerCase().includes(term.toLowerCase());
-      });
-      
-      setFilteredProducts(filtered);
-    }
+  };
+
+  // Handle price range change
+  const handlePriceRangeChange = (e) => {
+    const range = e.target.value;
+    setPriceRange(range);
   };
 
   return (
@@ -61,7 +108,11 @@ const Home = () => {
               <option>Books</option>
               <option>Other</option>
             </select>
-            <select className="dropdown">
+            <select 
+              className="dropdown"
+              value={priceRange}
+              onChange={handlePriceRangeChange}
+            >
               <option>Price Range</option>
               <option>£0 - £10</option>
               <option>£10 - £50</option>
@@ -108,7 +159,6 @@ const Home = () => {
         )}
       </div>
     </div>
-
   );
 };
 
