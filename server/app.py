@@ -38,9 +38,9 @@ migrate = Migrate(app, db)
 #Create Database
 with app.app_context():
     try:
-        engine = db.engine  
+        engine = db.engine
         inspector = inspect(engine)
-        
+
         if not (inspector.has_table("user_table")):
             db.create_all()
 
@@ -135,28 +135,28 @@ def get_user_listings():
         }
         for listing in listings
     ]
-    
+
     return make_response({"listings": listings_data}, 200)
 
 @app.route('/delete_listing/<int:listing_id>', methods=['DELETE'])
 def delete_listing(listing_id):
     listing = ListingsModel.query.get(listing_id)
-    
+
     if not listing:
         return make_response({"message": "Listing not found"}, 404)
-    
+
     db.session.delete(listing)
     db.session.commit()
-    
+
     return make_response({"message": "Listing deleted successfully"}, 200)
 
 
 @app.route('/get_profile', methods=['GET', 'POST'])
 def get_user_info():
-    email_a = request.args.get('email_address', type=str)  #getting email address 
+    email_a = request.args.get('email_address', type=str)  #getting email address
 
     if not email_a:
-        return make_response({"message": "email is required"}, 400) 
+        return make_response({"message": "email is required"}, 400)
 
     user = UserModel.query.filter_by(email_address=email_a).first()
     if not user:
@@ -172,8 +172,9 @@ def get_user_info():
             #"number": user.phone_number
         }
     ]
-    
+
     return make_response({"user": user_data}, 200)
+
 
 def make_profile(email_a,f_name,l_name):
     newUser = UserModel(first_name = f_name, last_name = l_name, email_address = email_a)
@@ -182,17 +183,50 @@ def make_profile(email_a,f_name,l_name):
 
     return UserModel.query.filter_by(email_address=email_a).first()
 
+@app.route('/edit_profile/<string:username>', methods=['PATCH'])
+def change_profile(username):
+    user = UserModel.query.filter_by(username = username)
+    if not user:
+        return make_response('user not found', 404)
+    else:
+        data = request.json
+        new_email = data.get('email')
+        new_phone_num = data.get('phone_number')
+        if not new_email or not new_phone_num:
+            return make_response('email and phone number not given', 400)
+        else:
+            user.email_address = new_email
+            user.phone_number = new_phone_num
+            user_to_ret = {
+                "id":user.id,
+                "first_name":user.first_name,
+                "last_name":user.last_name,
+                "email_address":user.email_address,
+                "phone_num":user.phone_nummber
+
+            }
+            respon_dict = {
+                "status":'Successful',
+                "user":user_to_ret
+            }
+            db.session.commit()
+            return make_response(respon_dict)
+
+
+
+
+
 
 # @app.route('/delete_user/<int:user_id>', methods=['DELETE'])
 # def delete_user(user_id):
 #     user= user.query.filter_by(email_address=email_a)
-    
+
 #     if not user:
 #         return make_response({"message": "User not found"}, 404)
-    
+
 #     db.session.delete(user)
 #     db.session.commit()
-    
+
 #     return redirect(url_for('Ended'))
 
 # @app.route('/Ended')
@@ -233,7 +267,10 @@ def create_listing():
 
     if not name or not price or not image:  # Validate required fields
         return make_response({"message": "Missing required fields"}, 400)
-    
+
+
+
+
 
 
     new_listing = ListingsModel(user_id = user_id, listing_name = name, image = image  ,price = price)
@@ -241,3 +278,33 @@ def create_listing():
     db.session.commit()
 
     return make_response({"message": "Item uploaded successfully"}, 201)
+
+@app.route('/edit_listing/<int:id>', methods=['PATCH'])
+def change_listing(id):
+    listing = ListingsModel.query.filter_by(id = id)
+    if not listing:
+        return make_response('user not found', 404)
+    else:
+        data = request.json
+        new_listing_name = data.get('listing_name')
+        new_listing_image = data.get('listing_image')
+        new_listing_price = data.get('listing_price')
+        if not new_listing_name or not new_listing_image or not new_listing_price:
+            return make_response('listing_name, listing_image, listing_price are required', 400)
+        else:
+            listing.listing_name = new_listing_name
+            listing.image = new_listing_image
+            listing.price = new_listing_price
+            listing_to_ret = {
+                "id":listing.id,
+                "listing_name":listing.listing_name,
+                "image":listing.image,
+                "price":listing.price,
+
+            }
+            respon_dict = {
+                "status":'Successful',
+                "user":listing_to_ret
+            }
+            db.session.commit()
+            return make_response(respon_dict)
