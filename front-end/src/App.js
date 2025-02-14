@@ -8,6 +8,7 @@ import Profile from "./Profile.js"; // Import Profile page
 import Listing from "./Listing.js"; // Import Listing page
 import Footer from "./Footer.js";
 import Product from "./Product.js";
+import EditProduct from "./EditProduct.js";
 
 function App() {
 
@@ -21,12 +22,9 @@ function App() {
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/listing" element={<Listing />}  />
-        {/* Redirect to Profile when logged in, otherwise stay on Home */}
         <Route path="/profile" element={<Profile />}  />
-        {/* <Route path="/profile" element={isLoggedIn ? <Profile /> : <Navigate to="/" />} /> */}
-
         <Route path="/product" element={<Product />} />
-
+        <Route path="/edit-product" element={<EditProduct />} /> 
       </Routes>
       <Footer/>
     </div>

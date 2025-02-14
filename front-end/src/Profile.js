@@ -192,13 +192,14 @@ const Profile = () => {
           <button className="delete-button" onClick={() => deleteListing(listing.id)}>
           Delete
           </button>
-          <button className="edit-button">
-          Edit
+          <button
+            className="edit-button" onClick={() => navigate("/edit-product", { state: { listing } })}>
+            Edit
           </button>
           </div>
-          </div>
-        ))}
         </div>
+        ))}
+      </div>
       ) : (
         <p>No listings yet!</p>
       )}

@@ -20,6 +20,18 @@
 
 .user-detail {
   font-size: 16px;
+  display: flex;
+  flex-direction: column;
+}
+
+.user-detail input {
+  padding: 8px;
+  font-size: 16px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  width: 100%;
+  max-width: 300px;
+  margin-top: 5px;
 }
 
 .success-message {
@@ -77,9 +89,12 @@
 }
 
 .button-group button {
-  padding: 0.5rem 1rem;
-  border-radius: 4px;
+  padding: 10px 15px;
+  border: none;
+  border-radius: 5px;
+  font-size: 16px;
   cursor: pointer;
+  transition: background-color 0.3s ease;
 }
 
 .create-listing-button-container {
@@ -116,4 +131,23 @@
   justify-content: space-between;
   align-items: center;
   margin-bottom: 15px;
+}
+
+.edit-button {
+  background-color: #007bff; /* Blue */
+  color: white;
+}
+
+.edit-button:hover {
+  background-color: #0056b3;
+}
+
+/* Delete button with dark red styling */
+.delete-button {
+  background-color: #b22222; /* Dark Red */
+  color: white;
+}
+
+.delete-button:hover {
+  background-color: #8b0000; /* Darker Red */
 }
