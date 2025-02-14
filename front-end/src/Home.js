@@ -30,8 +30,8 @@ const Home = () => {
       .catch(error => console.error("Error fetching listings:", error));
   }, []);
 
-  // Filter products based on current search term and price range
-  const filterProducts = () => {
+  // Filter and sort products
+  const filterAndSortProducts = () => {
     let result = [...products];
     
     // Apply search filter
@@ -54,6 +54,13 @@ const Home = () => {
                (max === Infinity || product.price <= max);
       });
     }
+
+    // Apply sorting
+    if (sortOrder === 'Price: Low to High') {
+      result.sort((a, b) => (a.price || 0) - (b.price || 0));
+    } else if (sortOrder === 'Price: High to Low') {
+      result.sort((a, b) => (b.price || 0) - (a.price || 0));
+    }
     
     setFilteredProducts(result);
   };
@@ -61,14 +68,14 @@ const Home = () => {
   // Apply filters whenever search term or price range changes
   useEffect(() => {
     if (products.length > 0) {
-      filterProducts();
+      filterAndSortProducts();
     }
-  }, [searchTerm, priceRange]); // Respond to changes in search or price range
+  }, [searchTerm, priceRange, sortOrder]); // Respond to changes in search or price range
 
   useEffect(() => {
     // When products are loaded, apply any existing filters
     if (products.length > 0) {
-      filterProducts();
+      filterAndSortProducts();
     }
   }, [products]); // Respond to changes in products (initial load)
 
@@ -83,6 +90,12 @@ const Home = () => {
     const range = e.target.value;
     setPriceRange(range);
   };
+
+    // Handle sort order change
+    const handleSortOrderChange = (e) => {
+      const order = e.target.value;
+      setSortOrder(order);
+    };
 
   return (
     <div className="home-container">
@@ -131,8 +144,12 @@ const Home = () => {
 
         {/* Sort Section */}
         <div className="sort-section">
-          <span className="label">Sort</span>
-          <select className="dropdown">
+        <span className="label">Sort</span>
+          <select 
+            className="dropdown"
+            value={sortOrder}
+            onChange={handleSortOrderChange}
+          >
             <option>Sort By</option>
             <option>Price: Low to High</option>
             <option>Price: High to Low</option>
