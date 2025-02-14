@@ -12,9 +12,9 @@ class ListingsModel(db.Model):
     listing_name = db.Column(db.String(200), nullable=False, unique = True)
     image = db.Column(db.String(500), nullable=False, unique = True)
     price = db.Column(db.Float, nullable=False)
-    #condition = db.Column(db.String(200), nullable=False)
-    #category = db.Column(db.String(200), nullable=False)
-    #description = db.Column(db.String(200), nullable=False)
+    condition = db.Column(db.String(200), nullable=False)
+    category = db.Column(db.String(200), nullable=False)
+    description = db.Column(db.String(200), nullable=False)
 
 
     def __repr__(self):

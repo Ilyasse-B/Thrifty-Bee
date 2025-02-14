@@ -10,8 +10,8 @@ class UserModel(db.Model):
     id = db.Column(db.Integer, primary_key=True , nullable=False, unique = True)
     first_name = db.Column(db.String(100), nullable=False)
     last_name = db.Column(db.String(100), nullable=False)
-    #username = db.Column(db.String(100), nullable=False, unique = True)
-    #phone_number = db.Column(db.String(100), nullable=False)
+    username = db.Column(db.String(100), nullable=False, unique = True)
+    phone_number = db.Column(db.String(100), nullable=False)
     email_address = db.Column(db.String(200), nullable=False, unique = True)
 
 

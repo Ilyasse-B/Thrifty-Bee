@@ -6,7 +6,7 @@
   
   /* Search title styling */
   .search-title {
-    color: #FFF07C;
+    color: #DCE145;
     font-size: 3rem;
     margin-bottom: 20px;
   }
@@ -22,10 +22,12 @@
   
   /* Label styling */
   .label {
-    color: #9E2CED;
-    font-size: 1.5rem;
+    color: #660099;
+    font-size: 1.75rem;
     display: block; /* Ensures it's above the input/dropdowns */
-    margin-bottom: 5px;
+    margin-bottom: 10px;
+    font-weight: bold;
+    font-family: 'Arial', sans-serif;
   }
   
   /* Search box styling */
