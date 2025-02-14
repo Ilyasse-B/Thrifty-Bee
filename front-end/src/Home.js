@@ -168,7 +168,10 @@ const Home = () => {
               id={product.id} 
               name={product.listing_name} 
               image={product.image} 
-              price={product.price} 
+              price={product.price}
+              category={product.category} 
+              condition={product.condition} 
+              description={product.description}
             />
           ))
         ) : (
