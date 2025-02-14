@@ -22,6 +22,12 @@
   font-size: 16px;
 }
 
+.success-message {
+  color: green;
+  font-weight: bold;
+  margin-top: 10px;
+}
+
 .edit-details-button {
   margin: 20px;
   background-color: #28a745;

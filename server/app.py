@@ -56,7 +56,7 @@ with app.app_context():
 if __name__ == '__main__':
     app.run(debug=True)
 
-routes = ['get_seller_info','create_listing','get_product','make_profile','get_user_info','delete_listing','get_user_listings','get_listings','start_login']
+routes = ['change_listing', 'change_profile', 'get_seller_info','create_listing','get_product','make_profile','get_user_info','delete_listing','get_user_listings','get_listings','start_login']
 
 @app.before_request
 def check_login():
@@ -205,39 +205,20 @@ def get_seller_info():
 
     return make_response({"seller": seller_data}, 200)
 
-@app.route('/edit_profile/<string:username>', methods=['PATCH'])
+@app.route('/edit_profile/<username>', methods=['PATCH'])
 def change_profile(username):
-    user = UserModel.query.filter_by(username = username)
+    data = request.get_json()
+    user = UserModel.query.filter_by(username=username).first()
+
     if not user:
-        return make_response('user not found', 404)
-    else:
-        data = request.json
-        new_email = data.get('email')
-        new_phone_num = data.get('phone_number')
-        if not new_email or not new_phone_num:
-            return make_response('email and phone number not given', 400)
-        else:
-            user.email_address = new_email
-            user.phone_number = new_phone_num
-            user_to_ret = {
-                "id":user.id,
-                "first_name":user.first_name,
-                "last_name":user.last_name,
-                "email_address":user.email_address,
-                "phone_num":user.phone_nummber
+        return make_response({"message": "User not found"}, 404)
 
-            }
-            respon_dict = {
-                "status":'Successful',
-                "user":user_to_ret
-            }
-            db.session.commit()
-            return make_response(respon_dict)
+    user.email_address = data.get("email", user.email_address)
+    user.phone_number = data.get("phone_number", user.phone_number)
 
+    db.session.commit()
 
-
-
-
+    return make_response({"message": "Profile updated successfully"}, 200)
 
 # @app.route('/delete_user/<int:user_id>', methods=['DELETE'])
 # def delete_user(user_id):

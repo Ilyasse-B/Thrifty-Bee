@@ -15,6 +15,10 @@ const Profile = () => {
   const [userId, setUserId] = useState(null); // Store user ID for listing retrieval
 
   const [listings, setListings] = useState([]);
+  const [isEditing, setIsEditing] = useState(false);
+  const [statusMessage, setStatusMessage] = useState("");
+
+  const username = sessionStorage.getItem("username");
 
   // The useEffect hook make sure that the function inside of it runs only on the first render because
   // the dependecy array is empty
@@ -81,6 +85,35 @@ const Profile = () => {
 
   };
 
+  const handleEditClick = () => {
+    setIsEditing(true);
+  };
+
+  const handleSaveClick = async () => {
+    const updatedDetails = { email, phone_number: phone };
+
+    try {
+      const response = await fetch(`http://127.0.0.1:5000/edit_profile/${username}`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(updatedDetails),
+      });
+
+      if (!response.ok) throw new Error("Failed to update profile");
+
+      setStatusMessage("Details saved successfully!");
+
+      setTimeout(() => {
+        setStatusMessage("");
+        setIsEditing(false);
+      }, 2000);
+    } catch (error) {
+      console.error("Error updating profile:", error);
+    }
+  };
+
   // Fetch user listings dynamically
   useEffect(() => {
     if (userId){
@@ -117,12 +150,26 @@ const Profile = () => {
       <div className="user-details-grid">
         <div className="user-detail"><strong>Name:</strong> {sessionStorage.getItem('fullName')}</div>
         <div className="user-detail"><strong>Username:</strong> {sessionStorage.getItem('username')}</div>
-        <div className="user-detail"><strong>Email:</strong> {email}</div>
-        <div className="user-detail"><strong>Phone Number:</strong> {phone}</div>
+
+        <div className="user-detail">
+          <strong>Email:</strong>{" "}
+          {isEditing ? (
+            <input type="text" value={email} onChange={(e) => setEmail(e.target.value)} />) : (email)}
+        </div>
+
+        <div className="user-detail">
+          <strong>Phone Number:</strong>{" "}
+          {isEditing ? (<input type="text" value={phone} onChange={(e) => setPhone(e.target.value)} />) : (phone)}
+        </div>
       </div>
+      
       <div className="edit-button-container">
-        <button className="edit-details-button">Edit Details</button>
+          {isEditing ? (
+            <button className="edit-details-button" onClick={handleSaveClick}>Save Changes</button>)
+            :
+            (<button className="edit-details-button" onClick={handleEditClick}>Edit Details</button>)}
       </div>
+      {statusMessage && <p className="success-message">{statusMessage}</p>}
     </div>
 
     {/* Listing Section */}
