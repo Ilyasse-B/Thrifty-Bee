@@ -172,6 +172,7 @@ const Home = () => {
               category={product.category} 
               condition={product.condition} 
               description={product.description}
+              user_id = {product.user_id}
             />
           ))
         ) : (

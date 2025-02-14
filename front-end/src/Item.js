@@ -3,12 +3,12 @@ import React, { use } from 'react'
 import "./item.css"
 import { useNavigate } from "react-router-dom";
 
-const Item = ({id, name, image, price, category, condition, description}) => {
+const Item = ({id, name, image, price, category, condition, description, user_id}) => {
   const navigate = useNavigate();
 
   const handleClick = () => {
   navigate("/product", {
-    state: { id, name, image, price, category, condition, description },
+    state: { id, name, image, price, category, condition, description, user_id },
   });
   };
   return (

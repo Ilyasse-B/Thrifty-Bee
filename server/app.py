@@ -56,7 +56,7 @@ with app.app_context():
 if __name__ == '__main__':
     app.run(debug=True)
 
-routes = ['create_listing','get_product','make_profile','get_user_info','delete_listing','get_user_listings','get_listings','start_login']
+routes = ['get_seller_info','create_listing','get_product','make_profile','get_user_info','delete_listing','get_user_listings','get_listings','start_login']
 
 @app.before_request
 def check_login():
@@ -106,7 +106,8 @@ def get_listings():
             "price": listing.price,
             "condition": listing.condition,
             "category": listing.category,
-            "description": listing.description
+            "description": listing.description,
+            "user_id": listing.user_id
         }
         for listing in listings
     ]
@@ -185,6 +186,24 @@ def make_profile(username,f_name,l_name):
 
     #need to add something here to continue execution of program
 
+@app.route('/get_seller_info', methods=['GET'])
+def get_seller_info():
+    user_id = request.args.get('user_id', type=int)
+
+    if not user_id:
+        return make_response({"message": "User ID is required"}, 400)
+
+    user = UserModel.query.filter_by(id=user_id).first()
+    if not user:
+        return make_response({"message": "User not found"}, 404)
+
+    seller_data = {
+        "first_name": user.first_name,
+        "email": user.email_address,
+        "phone_number": user.phone_number
+    }
+
+    return make_response({"seller": seller_data}, 200)
 
 
 # @app.route('/delete_user/<int:user_id>', methods=['DELETE'])
