@@ -19,9 +19,11 @@ const Home = () => {
   const [filteredProducts, setFilteredProducts] = useState([]); // State for displayed products
   const [priceRange, setPriceRange] = useState('Price Range'); // State for price range filter
   const [sortOrder, setSortOrder] = useState('Sort By'); // State for sorting order
+  const [category, setCategory] = useState('Category'); //State for category filter
+  const [condition, setCondition] = useState('Condition'); //State for condition filter
 
   useEffect(() => {
-    fetch("http://127.0.0.1:5000/listings") // Original fetch method
+    fetch("http://127.0.0.1:5000/listings")
       .then(response => response.json())
       .then(data => {
         setProducts(data.listings); // Store fetched data in state
@@ -55,6 +57,24 @@ const Home = () => {
       });
     }
 
+    //Apply category filter
+    if (category !== 'Category'){
+      result = result.filter(product => {
+        return product &&
+              product.category &&
+              product.category == category;
+      });
+    }
+
+    //Apply condition filter
+    if (condition !== 'Condition') {
+      result = result.filter(product => {
+        return product && 
+               product.condition && 
+               product.condition === condition;
+      });
+    }
+
     // Apply sorting
     if (sortOrder === 'Price: Low to High') {
       result.sort((a, b) => (a.price || 0) - (b.price || 0));
@@ -70,14 +90,14 @@ const Home = () => {
     if (products.length > 0) {
       filterAndSortProducts();
     }
-  }, [searchTerm, priceRange, sortOrder]); // Respond to changes in search or price range
+  }, [searchTerm, priceRange, sortOrder, category, condition]); // Respond to changes in search or price range
 
   useEffect(() => {
     // When products are loaded, apply any existing filters
     if (products.length > 0) {
       filterAndSortProducts();
     }
-  }, [products]); // Respond to changes in products (initial load)
+  }, [products]); // Respond to changes in products
 
   // Handle search input change
   const handleSearchChange = (e) => {
@@ -97,6 +117,18 @@ const Home = () => {
       setSortOrder(order);
     };
 
+    //Handle category change
+    const handleCategoryChange = (e) => {
+      const selectedCategory = e.target.value;
+      setCategory(selectedCategory);
+    };
+
+    //Handle condition change
+    const handleConditionChange = (e) => {
+      const selectedCondition = e.target.value;
+      setCondition(selectedCondition);
+    };
+
   return (
     <div className="home-container">
       {/* Search Title */}
@@ -114,7 +146,9 @@ const Home = () => {
         <div className="filters-section">
           <span className="label">Filters</span>
           <div className="filter-dropdowns">
-            <select className="dropdown">
+            <select className="dropdown"
+              value={category}
+              onChange={handleCategoryChange}>
               <option>Category</option>
               <option>Electronics</option>
               <option>Clothing</option>
@@ -132,7 +166,10 @@ const Home = () => {
               <option>£50 - £100</option>
               <option>£100+</option>
             </select>
-            <select className="dropdown">
+            <select 
+              className="dropdown"
+              value={condition}
+              onChange={handleConditionChange}>
               <option>Condition</option>
               <option>New</option>
               <option>Like New</option>
