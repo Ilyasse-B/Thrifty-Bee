@@ -63,7 +63,7 @@ def check_login():
     if request.endpoint not in routes:
 
             try:
-                print('I run')
+
                 app_url = 'therxa' # the app_url does not matter for student validation
                 cs_ticket= request.args.get('cs_ticket')
                 username = request.args.get('username')
@@ -115,10 +115,12 @@ def get_listings():
 
 @app.route('/user_listings', methods=['GET'])
 def get_user_listings():
-    user_id = request.args.get('user_id', type=int)  # Get user_id from query parameters
+    username = request.args.get('username', type=int)  # Get user_id from query parameters
 
-    if not user_id:
-        return make_response({"message": "User ID is required"}, 400)
+    if not username:
+        return make_response({"message": "username is required"}, 400)
+    user = UserModel.query.filter_by(username=username).first()
+    user_id = user.id
 
     listings = ListingsModel.query.filter_by(user_id=user_id).all()
 
@@ -131,7 +133,7 @@ def get_user_listings():
             "condition": listing.condition,
             "category": listing.category,
             "description": listing.description
-            
+
         }
         for listing in listings
     ]
@@ -153,10 +155,10 @@ def delete_listing(listing_id):
 
 @app.route('/get_profile', methods=['GET', 'POST'])
 def get_user_info():
-    username = request.args.get('username', type=str)  #getting email address 
+    username = request.args.get('username', type=str)  #getting email address
 
     if not username:
-        return make_response({"message": "username is required"}, 400) 
+        return make_response({"message": "username is required"}, 400)
 
     user = UserModel.query.filter_by(username=username).first()
     if not user:
@@ -188,12 +190,12 @@ def make_profile(username,f_name,l_name):
 
 @app.route('/get_seller_info', methods=['GET'])
 def get_seller_info():
-    user_id = request.args.get('user_id', type=int)
+    username = request.args.get('username', type=int)
 
-    if not user_id:
-        return make_response({"message": "User ID is required"}, 400)
+    if not username:
+        return make_response({"message": "username is required"}, 400)
 
-    user = UserModel.query.filter_by(id=user_id).first()
+    user = UserModel.query.filter_by(username=username).first()
     if not user:
         return make_response({"message": "User not found"}, 404)
 
@@ -260,7 +262,7 @@ def get_product():
 def create_listing():
 
     listing_data = request.get_json()
-    user_id = listing_data.get('user_id')
+    username = listing_data.get('username')
     name = listing_data.get('listing_name')
     image = listing_data.get('image')
     price = listing_data.get('price')
@@ -270,6 +272,11 @@ def create_listing():
 
     if not name or not price or not image:  # Validate required fields
         return make_response({"message": "Missing required fields"}, 400)
+
+    user = UserModel.query().filter_by(username=username).first()
+    if not user:
+        return make_response('User not found')
+    user_id = user.id
 
 
 
@@ -295,7 +302,7 @@ def change_listing(id):
 
         if not new_listing_name or not new_listing_image or not new_listing_price:
             return make_response('listing_name, listing_image, listing_price are required', 400)
-        
+
         listing.listing_name = new_listing_name
         listing.image = new_listing_image
         listing.price = new_listing_price
@@ -311,5 +318,5 @@ def change_listing(id):
             "price": listing.price,
             }
         }
-        
+
         return make_response(response_dict, 200)
