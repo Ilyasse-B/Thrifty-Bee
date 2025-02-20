@@ -9,6 +9,7 @@ import Listing from "./Listing.js"; // Import Listing page
 import Footer from "./Footer.js";
 import Product from "./Product.js";
 import EditProduct from "./EditProduct.js";
+import Purchase from "./Purchase.js";
 
 function App() {
 
@@ -24,7 +25,8 @@ function App() {
         <Route path="/listing" element={<Listing />}  />
         <Route path="/profile" element={<Profile />}  />
         <Route path="/product" element={<Product />} />
-        <Route path="/edit-product" element={<EditProduct />} /> 
+        <Route path="/edit-product" element={<EditProduct />} />
+        <Route path="/purchase" element={<Purchase />} />
       </Routes>
       <Footer/>
     </div>

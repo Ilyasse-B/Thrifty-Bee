@@ -1,10 +1,11 @@
 import React, {useState} from 'react';
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import "./product.css"
 
 
 const Product = () => {
     const location = useLocation();
+    const navigate = useNavigate();
     const { id, name, image, price, category, condition, description, user_id } = location.state || {};
 
     const [sellerInfo, setSellerInfo] = useState(null);
@@ -27,6 +28,12 @@ const Product = () => {
       }
     };
 
+    const handleBuyNow = () => {
+      navigate("/purchase", {
+        state: {id, name, price, image}
+      });
+    };
+
   return (
     <div id="product-main-con">
       <div id="image-con">
@@ -39,7 +46,7 @@ const Product = () => {
         <h4 id="desc">Sellers Description</h4>
         <p>{description}</p>
 
-        <button type="button" className="buy-btn">Buy Now</button>
+        <button type="button" className="buy-btn" onClick={handleBuyNow}>Buy Now</button>
         <span>or</span>
         <button type="button" className="buy-btn contact" onClick={fetchSellerInfo}>Contact Seller</button>
 
@@ -51,7 +58,7 @@ const Product = () => {
             <p><strong>Email:</strong> {sellerInfo.email || "Not Provided"}</p>
             <p><strong>Phone:</strong> {sellerInfo.phone_number || "Not provided"}</p>
           </div>)}
-        <h6 id="note">Contact the seller by clicking the button above</h6>
+        <h6 id="note">Contact the seller by clicking the button above if you would like to offer a new price</h6>
       </div>
     </div>
   )
