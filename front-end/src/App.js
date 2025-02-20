@@ -10,6 +10,8 @@ import Footer from "./Footer.js";
 import Product from "./Product.js";
 import EditProduct from "./EditProduct.js";
 import Purchase from "./Purchase.js";
+import Help from "./Help.js";
+import About from  "./About.js";
 
 function App() {
 
@@ -27,6 +29,8 @@ function App() {
         <Route path="/product" element={<Product />} />
         <Route path="/edit-product" element={<EditProduct />} />
         <Route path="/purchase" element={<Purchase />} />
+        <Route path="/help" element={<Help />} />
+        <Route path="/about" element={<About />} />
       </Routes>
       <Footer/>
     </div>
