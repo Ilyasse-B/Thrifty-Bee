@@ -28,7 +28,7 @@ const About = () => {
           <div id="content">
             <div id="header">The Concept:</div>
             <div id="details">
-              A campus-focused marketplace for students​.
+              A campus-focused marketplace for students​
             Enables students to buy, sell, or swap items directly with each other​.
             </div>
 
