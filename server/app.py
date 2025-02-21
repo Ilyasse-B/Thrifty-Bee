@@ -32,7 +32,7 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db.init_app(app)
 # Initialize Flask-Migrate
 
-CORS(app)
+cors = CORS(app)
 migrate = Migrate(app, db)
 
 #Create Database
@@ -83,7 +83,7 @@ def check_login():
 @app.route('/intiate_login', methods=['GET'])
 def start_login():
     cs_ticket = uuid.uuid4().hex[:12]
-    redirect_url = f'http://studentnet.cs.manchester.ac.uk/authenticate/?url=https://9e48-130-88-226-30.ngrok-free.app/profile&csticket={cs_ticket}&version=3&command=validate'
+    redirect_url = f'http://studentnet.cs.manchester.ac.uk/authenticate/?url=https://eada-130-88-226-8.ngrok-free.app/profile&csticket={cs_ticket}&version=3&command=validate'
 
     res = {
         "auth_url": redirect_url,
@@ -260,6 +260,8 @@ def get_product():
 
 @app.route('/create_listing', methods=['POST'])
 def create_listing():
+
+
 
     listing_data = request.get_json()
     username = listing_data.get('username')
