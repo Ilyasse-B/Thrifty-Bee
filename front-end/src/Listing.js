@@ -58,7 +58,7 @@ const CreateListing = () => {
     };
 
     try {
-      const response = await fetch(`http://localhost:5000/create_listing/?username=${username}&first_name=${fullName.split(" ")[0]}&last_name=${fullName.split(" ")[1]}`, {
+      const response = await fetch("http://localhost:5000/create_listing", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

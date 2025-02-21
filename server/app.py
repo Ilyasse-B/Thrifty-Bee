@@ -83,7 +83,7 @@ def check_login():
 @app.route('/intiate_login', methods=['GET'])
 def start_login():
     cs_ticket = uuid.uuid4().hex[:12]
-    redirect_url = f'http://studentnet.cs.manchester.ac.uk/authenticate/?url=https://eada-130-88-226-8.ngrok-free.app/profile&csticket={cs_ticket}&version=3&command=validate'
+    redirect_url = f'http://studentnet.cs.manchester.ac.uk/authenticate/?url=https://a46e-130-88-226-30.ngrok-free.app/profile&csticket={cs_ticket}&version=3&command=validate'
 
     res = {
         "auth_url": redirect_url,
@@ -115,7 +115,7 @@ def get_listings():
 
 @app.route('/user_listings', methods=['GET'])
 def get_user_listings():
-    username = request.args.get('username', type=int)  # Get user_id from query parameters
+    username = request.args.get('username', type=str)  # Get user_id from query parameters
 
     if not username:
         return make_response({"message": "username is required"}, 400)
@@ -190,7 +190,7 @@ def make_profile(username,f_name,l_name):
 
 @app.route('/get_seller_info', methods=['GET'])
 def get_seller_info():
-    username = request.args.get('username', type=int)
+    username = request.args.get('username', type=str)
 
     if not username:
         return make_response({"message": "username is required"}, 400)
@@ -275,7 +275,7 @@ def create_listing():
     if not name or not price or not image:  # Validate required fields
         return make_response({"message": "Missing required fields"}, 400)
 
-    user = UserModel.query().filter_by(username=username).first()
+    user = UserModel.query.filter_by(username=username).first()
     if not user:
         return make_response('User not found')
     user_id = user.id
