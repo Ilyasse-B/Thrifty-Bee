@@ -14,11 +14,11 @@ from models.UserModel import UserModel
 from models.UserRolesModel import UserRolesModel
 from models.ListingsModel import ListingsModel
 from models.MessagesModel import MessagesModel
-import uuid
+#import uuid
 
-import uuid
+#import uuid
 
-import uuid
+#import uuid
 
 
 # Initialize Flask app
@@ -107,7 +107,9 @@ def get_listings():
             "condition": listing.condition,
             "category": listing.category,
             "description": listing.description,
-            "user_id": listing.user_id
+            "user_id": listing.user_id,
+            #"pending": listing.pending,
+            #"sold": listing.sold
         }
         for listing in listings
     ]
@@ -131,6 +133,8 @@ def get_user_listings():
             "condition": listing.condition,
             "category": listing.category,
             "description": listing.description
+            #"pending": listing.pending,
+            #"sold": listing.sold
             
         }
         for listing in listings
@@ -251,6 +255,8 @@ def get_product():
             "condition": listing.condition,
             "category": listing.category,
             "description": listing.description
+            #"pending": listing.pending,
+            #"sold": listing.sold
         }
         for listing in listings
     ]
@@ -267,6 +273,8 @@ def create_listing():
     condition= listing_data.get('condition')
     category= listing_data.get('category')
     description= listing_data.get('description')
+    #pending = False
+    #sold = False
 
     if not name or not price or not image:  # Validate required fields
         return make_response({"message": "Missing required fields"}, 400)
