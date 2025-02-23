@@ -12,6 +12,8 @@ import EditProduct from "./EditProduct.js";
 import Purchase from "./Purchase.js";
 import Help from "./Help.js";
 import About from  "./About.js";
+import Chat from './Chat.js';
+import Notifications from './Notifications.js';
 
 function App() {
   return (
@@ -27,6 +29,8 @@ function App() {
         <Route path="/purchase" element={<Purchase />} />
         <Route path="/help" element={<Help />} />
         <Route path="/about" element={<About />} />
+        <Route path="/chat" element={<Chat />} />
+        <Route path="/notifications" element={<Notifications />} />
       </Routes>
       <Footer/>
     </div>
