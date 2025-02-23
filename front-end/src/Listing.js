@@ -38,7 +38,7 @@ const CreateListing = () => {
       console.error("Error uploading image:", error);
     }
   }
-  
+
   const handleSubmit = async (event) => {
     event.preventDefault();
 
@@ -48,9 +48,9 @@ const CreateListing = () => {
     }
 
     const listingData = {
-      user_id: userId,
+      username: sessionStorage.getItem('username'),
       listing_name: name,
-      image: image, 
+      image: image,
       price: price,
       condition: condition,
       category: category,
@@ -68,7 +68,7 @@ const CreateListing = () => {
 
       if (response.ok) {
         setSuccessMessage("Item uploaded successfully, redirecting to Dashboard...");
-        
+
         // Wait 3 seconds then redirect to Profile.js
         setTimeout(() => {
           navigate("/profile");
@@ -106,8 +106,8 @@ const CreateListing = () => {
         {/* name label and text box */}
         <div className="form-group">
           <label>Name</label>
-          <input 
-          type="text" placeholder="Enter the Item Name" className="input" 
+          <input
+          type="text" placeholder="Enter the Item Name" className="input"
           value = {name}
           onChange={(e) => setName(e.target.value)}
             required/>

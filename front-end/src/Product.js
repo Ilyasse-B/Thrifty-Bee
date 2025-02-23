@@ -24,7 +24,7 @@ const Product = () => {
       setContactSellerError("");
       if (!showSeller) {
           try {
-              const response = await fetch(`http://127.0.0.1:5000/get_seller_info?user_id=${user_id}`);
+              const response = await fetch(`http://127.0.0.1:5000/get_seller_info?username=${sessionStorage.getItem('username')}`);
               const data = await response.json();
               if (response.ok) {
                   setSellerInfo(data.seller);
