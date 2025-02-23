@@ -91,7 +91,6 @@ const Profile = () => {
 
   const handleSaveClick = async () => {
     const updatedDetails = { email, phone_number: phone };
-
     try {
       const response = await fetch(`http://127.0.0.1:5000/edit_profile/${username}`, {
         method: "PATCH",

@@ -14,10 +14,6 @@ import Help from "./Help.js";
 import About from  "./About.js";
 
 function App() {
-
-
-
-
   return (
     <div>
 

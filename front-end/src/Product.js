@@ -2,7 +2,6 @@ import React, {useState} from 'react';
 import { useLocation, useNavigate } from "react-router-dom";
 import "./product.css"
 
-
 const Product = () => {
     const location = useLocation();
     const navigate = useNavigate();
@@ -13,14 +12,12 @@ const Product = () => {
     const [buyNowError, setBuyNowError] = useState("");
     const [contactSellerError, setContactSellerError] = useState("");
 
-
     const fetchSellerInfo = async () => {
       const username = sessionStorage.getItem("username");
       if (!username) {
         setContactSellerError("You must be logged in to contact this seller");
         return;
       }
-      
       setContactSellerError("");
       if (!showSeller) {
           try {
@@ -44,7 +41,6 @@ const Product = () => {
         setBuyNowError("You must be logged in to Buy an item");
         return;
       }
-
       setBuyNowError("");
       navigate("/purchase", {
         state: {id, name, price, image}
