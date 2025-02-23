@@ -4,7 +4,6 @@
     padding-inline: 5vw;
     padding-block: 1vw;
     gap:10vw
-
 }
 #image-con{
     width:35vw;
@@ -40,8 +39,6 @@
 #desc{
     color:#828282;
     font-weight: 500;
-
-
 }
 
 .buy-btn {
@@ -70,6 +67,4 @@
 #note{
     font-weight: 500;
     color:#828282;
-
-
 }

@@ -91,7 +91,6 @@ const Profile = () => {
 
   const handleSaveClick = async () => {
     const updatedDetails = { email, phone_number: phone };
-
     try {
       const response = await fetch(`http://127.0.0.1:5000/edit_profile/${username}`, {
         method: "PATCH",
@@ -117,7 +116,7 @@ const Profile = () => {
   // Fetch user listings dynamically
   useEffect(() => {
     if (userId){
-      fetch(`http://127.0.0.1:5000/user_listings?user_id=${userId}&full_name=${sessionStorage.getItem('fullName')}&username=${sessionStorage.getItem('username')}&cs_ticket=${sessionStorage.getItem('csTicket')}`)
+      fetch(`http://127.0.0.1:5000/user_listings?username=${sessionStorage.getItem('username')}`)
       .then((response) => response.json())
       .then((data) => {
         if (data.listings) {
