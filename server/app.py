@@ -1,12 +1,11 @@
 from flask import Flask, request, make_response
+from flask_migrate import Migrate
 import requests
 from models.index import db
 from flask_cors import CORS
-from sqlalchemy import and_, create_engine, inspect
+from sqlalchemy import inspect
 from sqlalchemy.exc import OperationalError
 
-from flask_migrate import Migrate
-#from models.DummyModel import DummyModel
 from models.ChatsModel import ChatsModel
 from models.RolesModel import RolesModel
 from models.TransactionsModel import TransactionsModel
@@ -14,11 +13,7 @@ from models.UserModel import UserModel
 from models.UserRolesModel import UserRolesModel
 from models.ListingsModel import ListingsModel
 from models.MessagesModel import MessagesModel
-#import uuid
-
-#import uuid
-
-#import uuid
+import uuid
 
 
 # Initialize Flask app
@@ -30,12 +25,12 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 # Initialize SQLAlchemy
 db.init_app(app)
-# Initialize Flask-Migrate
 
+# Initialize Flask-Migrate
 CORS(app)
 migrate = Migrate(app, db)
 
-#Create Database
+#Create & populate Database
 with app.app_context():
     try:
         engine = db.engine
@@ -82,7 +77,7 @@ def check_login():
 
 @app.route('/intiate_login', methods=['GET'])
 def start_login():
-    cs_ticket = uuid.uuid4().hex[:12]
+    cs_ticket = uuid.uuid4().hex[:12]                                         # ngrok Link here 
     redirect_url = f'http://studentnet.cs.manchester.ac.uk/authenticate/?url=https://9e48-130-88-226-30.ngrok-free.app/profile&csticket={cs_ticket}&version=3&command=validate'
 
     res = {
@@ -95,9 +90,10 @@ def start_login():
 def check_login():
     return make_response('I return',200)
 
+# Route for fetching all listings in the database for the search page
 @app.route('/listings', methods=['GET'])
 def get_listings():
-    listings = ListingsModel.query.all()  # Fetch all listings
+    listings = ListingsModel.query.all()
     listings_data = [
         {
             "id": listing.id,
@@ -115,6 +111,7 @@ def get_listings():
     ]
     return make_response({"listings": listings_data}, 200)
 
+# Route for fetching logged in user's listings that they created for the Dashboard page
 @app.route('/user_listings', methods=['GET'])
 def get_user_listings():
     user_id = request.args.get('user_id', type=int)  # Get user_id from query parameters
@@ -142,6 +139,7 @@ def get_user_listings():
 
     return make_response({"listings": listings_data}, 200)
 
+# Route for deleting listings from the dashboard page
 @app.route('/delete_listing/<int:listing_id>', methods=['DELETE'])
 def delete_listing(listing_id):
     listing = ListingsModel.query.get(listing_id)
@@ -154,7 +152,7 @@ def delete_listing(listing_id):
 
     return make_response({"message": "Listing deleted successfully"}, 200)
 
-
+# Route for getting user details for the Dashboard page
 @app.route('/get_profile', methods=['GET', 'POST'])
 def get_user_info():
     username = request.args.get('username', type=str)  #getting email address 
@@ -181,6 +179,7 @@ def get_user_info():
 
     return make_response({"user": user_data}, 200)
 
+# This function below will run if the user does not yet exist in the database
 def make_profile(username,f_name,l_name):
     newUser = UserModel(first_name = f_name, last_name = l_name, username = username, phone_number = "", email_address = "")
     db.session.add(newUser)
@@ -190,6 +189,7 @@ def make_profile(username,f_name,l_name):
 
     #need to add something here to continue execution of program
 
+# This route get's seller's contact info for the Product page
 @app.route('/get_seller_info', methods=['GET'])
 def get_seller_info():
     user_id = request.args.get('user_id', type=int)
@@ -209,6 +209,7 @@ def get_seller_info():
 
     return make_response({"seller": seller_data}, 200)
 
+# This route is used to edit a user's contact details from the Profile page
 @app.route('/edit_profile/<username>', methods=['PATCH'])
 def change_profile(username):
     data = request.get_json()
@@ -239,7 +240,7 @@ def change_profile(username):
 # @app.route('/Ended')
 #     return "Successfully deleted account"
 
-
+# This route fetches details of a single item for the Product page
 @app.route('/product_listing',methods=['GET'])
 def get_product():
     product = request.args.get('listing_id', type = int)
@@ -262,6 +263,7 @@ def get_product():
     ]
     return make_response({"listings": listings_data}, 200)
 
+# This route creates a new listing in the database for the Dashboard page
 @app.route('/create_listing', methods=['POST'])
 def create_listing():
 
@@ -279,17 +281,13 @@ def create_listing():
     if not name or not price or not image:  # Validate required fields
         return make_response({"message": "Missing required fields"}, 400)
 
-
-
-
-
-
     new_listing = ListingsModel(user_id = user_id, listing_name = name, image = image  ,price = price, condition = condition, category = category, description = description)
     db.session.add(new_listing)
     db.session.commit()
 
     return make_response({"message": "Item uploaded successfully"}, 201)
 
+# This route is used to edit a listing from the Dashboard page
 @app.route('/edit_listing/<int:id>', methods=['PATCH'])
 def change_listing(id):
     listing = ListingsModel.query.filter_by(id = id).first()
