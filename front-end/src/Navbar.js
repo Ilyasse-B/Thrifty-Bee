@@ -23,18 +23,17 @@ const Navbar = () => {
     // I request to the protected rout because if it comes back successul then I know the user is logged in
     try {
       const response = await fetch(`http://127.0.0.1:5000/protected?full_name=${fullName}&username=${username}&cs_ticket=${csTicket}`)
-      if (response.status == 401){
+      if (response.status === 401){
         setAuth(false) // set auth to be false because this means the user is not logged in
         throw new Error('User Not Authorised')
 
       }
-      if (response.status == 500){
+      if (response.status === 500){
         setAuth(false) // set auth to be false because this means the user is not logged in
         throw new Error('Internal Server Error: Try again later') // This should not happen and debugging on the backend would need to be done
                                                                   // on the server
       }
 
-      const data = await response.text();
       setAuth(true)
       navigate(`/profile`)
 

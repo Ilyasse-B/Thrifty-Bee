@@ -6,7 +6,6 @@ import { useSearchParams } from "react-router-dom";
 
 const CreateListing = () => {
   const [searchParams] = useSearchParams();
-  const userId = searchParams.get("user_id"); // Extract user_id
 
   const [image, setImage] = useState(uploadIcon);
   const [category, setCategory] = useState("");
