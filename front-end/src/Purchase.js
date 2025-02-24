@@ -19,11 +19,9 @@ const Purchase = () => {
 
   return (
     <>
-
       <header className="header">
         <h1>Complete Your Purchase</h1>
       </header>
-
 
       <div className="purchase-container">
         <div className="purchase-content">
@@ -34,11 +32,9 @@ const Purchase = () => {
             className="product-image"
           />
 
-
           <div className="product-details">
             <h2>{name || "Product Name"}</h2>
             <p className="price">£{price ? price.toFixed(2) : ""}</p>
-
 
             <label>Select Payment Method</label>
             <select
@@ -50,7 +46,6 @@ const Purchase = () => {
               <option value="Cash">Cash</option>
               <option value="Card">Card</option>
             </select>
-
 
             <button className="buy-button" disabled={!paymentMethod}>Buy Now</button>
             <p className="info-text">{getInfoText()}</p>

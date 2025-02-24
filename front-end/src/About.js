@@ -12,7 +12,7 @@ const About = () => {
       <div id="aboutimagecon">
         <img
         src={aboutframe}
-        alt="about image"
+        alt="about"
         id="aboutimage"
         />
 

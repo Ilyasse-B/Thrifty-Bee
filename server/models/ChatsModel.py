@@ -9,7 +9,10 @@ class ChatsModel(db.Model):
     id = db.Column(db.Integer, primary_key=True, nullable=False)
     listing_id = db.Column(db.Integer,db.ForeignKey('listings_table.id'), nullable=False)
     active = db.Column(db.Boolean, nullable=False)
-
+    #May not need this line only because listings akready contains that person's user id - user_to_sell = db.Column(db.Integer,db.ForeignKey('user_table.id') , nullable=False)) 
+    #user_to_buy = db.Column(db.Integer,db.ForeignKey('user_table.id') , nullable=False))
+    #seller_confirmed = (db.Boolean, nullable=False)
+    #buyer_confirmed = (db.Boolean, nullable=False)
 
 
     def __repr__(self):

@@ -1,10 +1,17 @@
 import React from 'react';
-import {useState} from 'react';
+import {useState, useEffect} from 'react';
+import { useLocation } from 'react-router-dom';
 import './help.css';
 
 const Help = () => {
-
+  const location = useLocation();
+  const queryParams = new URLSearchParams(location.search);
+  const initialSection = queryParams.get('section') || 'help';
   const [activeSection, setActiveSection] = useState('help');
+
+  useEffect(() => {
+    setActiveSection(initialSection);
+  }, [initialSection]);
 
   const renderContent = () => {
     switch (activeSection) {

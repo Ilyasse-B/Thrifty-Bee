@@ -1,11 +1,9 @@
-
 .container {
   display: flex;
   flex-direction: column;
   align-items: center;
   padding: 1.5rem;
 }
-
 
 .form-container {
   display: grid;
@@ -17,7 +15,6 @@
   align-items: start;
 }
 
-
 .form-group {
   margin: 0; 
   padding: 0;
@@ -28,7 +25,6 @@
   font-weight: bold; 
   color: #333; 
 }
-
 
 .title {
   font-size: 38px; 
@@ -43,7 +39,6 @@
   margin-top: 0; 
   color: #999999; 
 }
-
 
 .input, .textarea {
   width: 100%; 
@@ -122,4 +117,3 @@
   border-radius: 8px;
   object-fit: cover; 
 }
-
