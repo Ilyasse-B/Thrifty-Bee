@@ -88,7 +88,7 @@ const Product = () => {
                     <button
                         type="button"
                         className="fav-btn"
-                        onClick={handleFav}{/*make a request to toggle the isfavorited   */}
+                        onClick={handleFav}/*make a request to toggle the isfavorited   */
 
 
                     >
