@@ -59,3 +59,8 @@ gap: 1vh;
 #see-more-btn:hover {
     background-color: #922ce6;
 }
+#btnsdiv{
+    display: flex;
+    flex-direction: row;
+    gap:2vw;
+}
