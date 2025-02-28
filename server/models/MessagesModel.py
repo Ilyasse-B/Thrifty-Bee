@@ -15,7 +15,7 @@ class MessagesModel(db.Model):
     user_id = db.Column (db.Integer,db.ForeignKey('user_table.id'),nullable=False)
     content = db.Column(db.Boolean, nullable=False)
     timestamp = db.Column(db.DateTime, nullable=False)
-    read = db.Column(db.Boolean, nullable=False)
+    #read = db.Column(db.Boolean, nullable=False)
 
 
 

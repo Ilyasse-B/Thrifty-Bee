@@ -328,3 +328,257 @@ def change_listing(id):
         }
 
         return make_response(response_dict, 200)
+
+#This route creates a new chat from contact seller
+@app.route('/create_chat', methods=['POST'])
+def create_chat():
+    chat_data = request.get_json()
+    listing_id = chat_data.get('listing_id')
+    active = True
+    #user_to_sell = chat_data.get('user_sell_id')
+    user_to_buy = chat_data.get('user_buy_id')
+    seller_confirmed = False
+    buyer_confirmed = False
+
+    if not listing_id or not user_to_buy:  # Validate required fields
+        return make_response({"message": "Missing required fields"}, 400)
+
+    user_buy = UserModel.query.filter_by(username=user_to_buy).first()
+    if not user_buy:
+        return make_response('User not found')
+    user_buy_id = user_buy.id
+
+    new_chat = ChatsModel(listing_id = listing_id, active = active , user_to_buy = user_buy_id, seller_confirmed= seller_confirmed, buyer_confirmed = buyer_confirmed)
+    db.session.add(new_chat)
+    db.session.commit()
+
+    return make_response({"message": "Chat created successfully"}, 201)
+
+#This route edits a chat
+@app.route('/edit_chat/<int:id>',methods = ['PATCH'])
+def edit_chat(id):
+    chat = ChatsModel.query.filter_by(id = id).first()
+    if not chat:
+        return make_response('Chat not found', 404)
+    else:
+        data = request.json()
+        n_active = data.get('active')
+        n_seller_confirmed =data.get('seller_confirmed')
+        n_buyer_confirmed = data.get('buyer_confirmed')
+
+    if not n_active or n_seller_confirmed or n_buyer_confirmed :
+        return make_response('need extra information ', 400)
+
+    chat.active = n_active
+    chat.seller_confirmed = n_seller_confirmed
+    chat.buyer_confirmed = n_buyer_confirmed
+
+    db.session.commit()
+
+    response_dict = {
+    "status": 'Successful',
+    "Chat": {
+        "id": chat.id,
+        "listing_id": chat.listing_id,
+        "user_buy_id" : chat.user_buy_id,
+        "active" : chat.active,
+        "seller_confirmed" : chat.seller_confirmed,
+        "buyer_confirmed" : chat.buyer_confirmed
+
+        }
+    }
+
+    return make_response(response_dict, 200)
+
+
+#This route deletes a chat when sale falls through / sale goes through
+@app.route('/delete_chat/<int:id>',methods = ['DELETE'])
+def delete_chat(id):
+    chat = ChatsModel.query.filter_by(id = id).first()
+
+    if not chat:
+        return make_response({"message": "chat not found"}, 404)
+
+    db.session.delete(chat)
+    db.session.commit()
+
+    return make_response({"message": "chat deleted successfully"}, 200)
+
+
+#This route creates a message
+@app.route('/create_message',methods = ['POST'])
+def create_message():
+    message_data = request.get_json()
+    chat_id = message_data.get('chat_id')
+    username = message_data.get('username')
+    content = message_data.get('content')
+    timestamp = message_data.get('timestamp')
+    #read = message_data.get('read')
+
+    user = UserModel.query.filter_by(username=username).first()
+    if not user:
+        return make_response('User not found')
+    user_id = user.id
+
+    new_message = MessagesModel(chat_id = chat_id, user_id = user_id, content = content, timestamp = timestamp)
+    db.session.add(new_message)
+    db.session.commit()
+
+    
+
+#This route edits message
+@app.route('/get_message_chat/<int:id>',methods=["PATCH"])
+def edit_message(id):
+    message = MessagesModel.query.filter_by(id = id).first()
+    if not message:
+        return make_response('Message not found', 404)
+    else:
+        data = request.json()
+        new_content = data.get('content')
+
+        if not new_content:
+            return make_response('new_content', 400)
+
+        message.content = new_content
+        
+
+        db.session.commit()
+
+        response_dict = {
+        "status": 'Successful',
+        "Message": {
+            "id": message.id,
+            "user_id" : messages.user_id,
+            "content" : messages.content,
+            "timestamp" : messages.timestamp,
+            "read" : messages.read
+
+            }
+        }
+
+        return make_response(response_dict, 200)
+
+
+#This route fetches all message for a chat
+@app.route('/get_message_chat',methods=["GET"])
+def get_messages():
+    chat = request.args.get('chat_id', type = int)
+
+    if not chat:
+        return make_response({"message": "chat id is required"}, 400)
+    
+    messages = MessagesModel.query.filter_by(chat_id=chat).order_by(MessagesModel.timestamp.asc()).all()
+    
+
+    chat_data = [
+        {
+            "id" : messages.id,
+            "user_id" : messages.user_id,
+            "content" : messages.content,
+            "timestamp" : messages.timestamp,
+            "read" : messages.read
+            
+        }
+        for chat in chats
+    ]
+
+    return make_response({"messages in chat": chat_data}, 200)
+ 
+
+#This route create a favourite for a specific listing
+@app.route('/create_favourite', methods =['POST'] )
+def create_favourite():
+    favourite_data = request.get_json()
+    username = favourite_data.get("username")
+    listing_id = favourite_data.get("listing_id")
+
+    if not listing_id or not user_to_buy:  # Validate required fields
+        return make_response({"message": "Missing required fields"}, 400)
+
+    user = UserModel.query.filter_by(username=username).first()
+    if not user:
+        return make_response('User not found')
+    user_id = user.id
+
+    new_favourite = FavouritesModel(user_id = user_id, listing_id = listing_id)
+    db.session.add(new_favourite)
+    db.session.commit()
+
+    return make_response({"message": "Favourite Model created successfully"}, 201)
+
+
+
+
+#This route checks if already a favourite
+@app.route('/check_favorite/', methods = ["GET"])
+def check_favourite():
+    username = request.args.get('username', type=str) 
+    listings_id = request.args.get('listings_id', type=int) 
+
+    if not username:
+        return make_response({"message": "username is required"}, 400)
+    
+    user = UserModel.query.filter_by(username=username).first()
+    if not user:
+        return make_response('User not found')
+    user_id = user.id
+
+    favourite = FavouritesModel.query.filter_by(user_id=user_id, listings_id = listings_id).first()
+
+    if favourite:
+        return make_response({"message": "Is a favourite"}, 200) 
+    else:
+        return make_response({"message": "Not a favourite"}, 200) 
+
+
+
+
+#This route fetches favourtie for profile page
+@app.route('/fetch_favourites', methods = ["GET"])
+def fetch_favourites():
+    username = request.args.get('username', type=str) 
+
+    if not username:
+        return make_response({"message": "username is required"}, 400)
+    
+    user = UserModel.query.filter_by(username=username).first()
+    if not user:
+        return make_response({"message": "User not found"}, 404)
+
+    user_id = user.id
+
+    favourites = FavouritesModel.query.filter_by(user_id=user_id).all()
+
+    favourites_data = [
+        {
+            "listing.id": favourites.listings_id
+            
+        }
+        for favourite in favourites
+    ]
+
+    return make_response({"favourites": favourites_data}, 200)
+
+
+
+#This route deletes favourite for profile page
+@app.route('/delete_favourites/<username>/<int:listing_id>',methods = ['DELETE'])
+def delete_favourites(username, listing_id):
+    user = UserModel.query.filter_by(username=username).first()
+
+    if not user:
+        return make_response({"message":"User not found"})
+    user_id = user.id
+
+    favourites = FavouritesModel.query.filter_by(user_id=user_id,listings_id = listing_id).first()
+
+    if not favourites:
+        return make_response({"message": "Favourite not found"}, 404)
+
+    db.session.delete(favourite)
+    db.session.commit()
+
+    return make_response({"message": "Favourites deleted successfully"}, 200)
+
+
+
