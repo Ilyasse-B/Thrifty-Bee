@@ -183,7 +183,14 @@ const Profile = () => {
             (<button className="edit-details-button" onClick={handleEditClick}>Edit Details</button>)}
       </div>
       {statusMessage && <p className="success-message">{statusMessage}</p>}
+      
+      {/* Notifications Button */}
+      <button className="notifications-button" onClick={() => navigate("/notifications")}>
+          Notifications
+        </button>
     </div>
+    
+    
 
     {/* Listing Section */}
     <div className = "listing-section">

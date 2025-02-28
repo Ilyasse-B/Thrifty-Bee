@@ -1,0 +1,72 @@
+.notifications-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 20px;
+  }
+  
+  .notifications-title {
+    font-size: 28px;
+    font-weight: bold;
+    color: #660099;
+    font-family: 'Arial', sans-serif;
+    margin-bottom: 20px;
+  }
+  
+  .chats-list {
+    width: 60%;
+    max-width: 600px;
+  }
+  
+  .chat-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background-color: white;
+    padding: 15px;
+    margin-bottom: 10px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+  
+  .chat-item:hover {
+    background-color: #f0f0f0;
+  }
+  
+  .chat-image {
+    width: 50px;
+    height: 50px;
+    border-radius: 5px;
+    object-fit: cover;
+  }
+  
+  .chat-product-name {
+    flex: 1;
+    text-align: center;
+    font-size: 16px;
+    font-weight: bold;
+  }
+  
+  .chat-user {
+    font-size: 14px;
+    color: #555;
+  }
+
+  .notifications-button {
+    background-color: #660099;
+    color: white;
+    padding: 10px 20px;
+    font-size: 16px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    margin-top: 15px;
+  }
+  
+  .notifications-button:hover {
+    background-color: #922ce6;
+  }
+  
