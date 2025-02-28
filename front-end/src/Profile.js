@@ -2,6 +2,8 @@ import { useSearchParams } from "react-router-dom";
 import React, {useState, useEffect} from 'react';
 import { useNavigate } from "react-router-dom";
 import "./profile.css";
+import './home.css';
+import Favorite from "./Favorite";
 
 const Profile = () => {
   // This is where a user will be brought to after logging in since it this page is spceified as the location
@@ -17,6 +19,8 @@ const Profile = () => {
   const [listings, setListings] = useState([]);
   const [isEditing, setIsEditing] = useState(false);
   const [statusMessage, setStatusMessage] = useState("");
+  const [favorites, setFavorites] = useState([]);
+
 
   const username = sessionStorage.getItem("username");
 
@@ -84,6 +88,16 @@ const Profile = () => {
     }
 
   };
+  useEffect(() => {
+      fetch("http://127.0.0.1:5000/listings")
+      // instead of listings it needs to be favorite
+        .then(response => response.json())
+        .then(data => {
+          setFavorites(data.listings); // Store fetched data in state
+
+        })
+        .catch(error => console.error("Error fetching favorites:", error));
+    }, []);
 
   const handleEditClick = () => {
     setIsEditing(true);
@@ -161,7 +175,7 @@ const Profile = () => {
           {isEditing ? (<input type="text" value={phone} onChange={(e) => setPhone(e.target.value)} />) : (phone)}
         </div>
       </div>
-      
+
       <div className="edit-button-container">
           {isEditing ? (
             <button className="edit-details-button" onClick={handleSaveClick}>Save Changes</button>)
@@ -192,7 +206,7 @@ const Profile = () => {
           Delete
           </button>
           <button
-            className="edit-button" onClick={() => navigate("/edit-product", { state: { listing } })}>
+            className="edit-button" onClick={() => navigate("/edit-favorite", { state: { listing } })}>
             Edit
           </button>
           </div>
@@ -203,6 +217,34 @@ const Profile = () => {
         <p>No listings yet!</p>
       )}
     </div>
+    {/* Favorites Section */}
+    <div >
+        <h2 className="listing-title">Favorited Items</h2>
+
+
+        <div id="all-favorite-container">
+        {favorites.length > 0 ? (
+          favorites.map(favorite => (
+            <Favorite
+              key={favorite.id || `item-${Math.random()}`}
+              id={favorite.id}
+              name={favorite.listing_name}
+              image={favorite.image}
+              price={favorite.price}
+              category={favorite.category}
+              condition={favorite.condition}
+              description={favorite.description}
+              user_id = {favorite.user_id}
+            />
+
+          ))
+        ) : (
+          <p>No favorites </p>
+        )}
+      </div>
+
+      </div>
+
   </div>
   );
 };

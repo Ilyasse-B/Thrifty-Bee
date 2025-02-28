@@ -1,7 +1,8 @@
 import React, {useState} from 'react';
 import { useLocation, useNavigate } from "react-router-dom";
 import "./product.css"
-
+import Heart from './Heart.js';
+import FavHeart from './FavHeart.js';
 const Product = () => {
     const location = useLocation();
     const navigate = useNavigate();
@@ -11,9 +12,12 @@ const Product = () => {
     const [showSeller, setShowSeller] = useState(false);
     const [buyNowError, setBuyNowError] = useState("");
     const [contactSellerError, setContactSellerError] = useState("");
+    const [isFavorited, setIsFavorited] = useState(false); // State to track favorite status from backend
+
+    const username = sessionStorage.getItem("username");
 
     const fetchSellerInfo = async () => {
-      const username = sessionStorage.getItem("username");
+
       if (!username) {
         setContactSellerError("You must be logged in to contact this seller");
         return;
@@ -47,6 +51,12 @@ const Product = () => {
       });
     };
 
+
+    const handleFav=() =>{
+      setIsFavorited(!isFavorited)
+      {/*make a request to toggle the isfavorited   */}
+    }
+
   return (
     <div id="product-main-con">
       <div id="image-con">
@@ -73,10 +83,26 @@ const Product = () => {
             <p><strong>Email:</strong> {sellerInfo.email || "Not Provided"}</p>
             <p><strong>Phone:</strong> {sellerInfo.phone_number || "Not provided"}</p>
           </div>)}
+        {/* Favorite Button */}
+        {username && (
+                    <button
+                        type="button"
+                        className="fav-btn"
+                        onClick={handleFav}/*make a request to toggle the isfavorited   */
+
+
+                    >
+                       {!isFavorited ? <Heart/>:<FavHeart/>}
+
+
+                    </button>
+                )}
         <h6 id="note">Contact the seller by clicking the button above if you would like to offer a new price</h6>
       </div>
+
     </div>
   )
 }
+
 
 export default Product

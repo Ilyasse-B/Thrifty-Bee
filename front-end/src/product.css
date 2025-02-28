@@ -68,3 +68,9 @@
     font-weight: 500;
     color:#828282;
 }
+.fav-btn{
+    border:none;
+    background-color: none;
+    all: unset;
+
+}
