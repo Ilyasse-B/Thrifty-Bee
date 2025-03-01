@@ -13,6 +13,7 @@ from models.UserModel import UserModel
 from models.UserRolesModel import UserRolesModel
 from models.ListingsModel import ListingsModel
 from models.MessagesModel import MessagesModel
+from models.FavouritesModel import FavouritesModel
 import uuid
 
 
@@ -78,7 +79,7 @@ def check_login():
 @app.route('/intiate_login', methods=['GET'])
 def start_login():
     cs_ticket = uuid.uuid4().hex[:12]                                         # ngrok Link here 
-    redirect_url = f'http://studentnet.cs.manchester.ac.uk/authenticate/?url=https://9e48-130-88-226-30.ngrok-free.app/profile&csticket={cs_ticket}&version=3&command=validate'
+    redirect_url = f'http://studentnet.cs.manchester.ac.uk/authenticate/?url=https://8588-86-9-200-131.ngrok-free.app/profile&csticket={cs_ticket}&version=3&command=validate'
 
     res = {
         "auth_url": redirect_url,
@@ -448,10 +449,10 @@ def edit_message(id):
         "status": 'Successful',
         "Message": {
             "id": message.id,
-            "user_id" : messages.user_id,
-            "content" : messages.content,
-            "timestamp" : messages.timestamp,
-            "read" : messages.read
+            "user_id" : message.user_id,
+            "content" : message.content,
+            "timestamp" : message.timestamp,
+            "read" : message.read
 
             }
         }
@@ -477,13 +478,46 @@ def get_messages():
             "content" : messages.content,
             "timestamp" : messages.timestamp,
             "read" : messages.read
-            
         }
-        for chat in chats
+        for chat in chat
     ]
 
     return make_response({"messages in chat": chat_data}, 200)
  
+ # This route fetches all the chats for a specific user
+@app.route('/user_chats', methods=['GET'])
+def get_user_chats():
+    username = request.args.get('username')
+
+    if not username:
+        return make_response({"error": "Username is required"}, 400)
+
+    # Find the user's ID
+    user = UserModel.query.filter_by(username=username).first()
+    if not user:
+        return make_response({"error": "User not found"}, 404)
+
+    user_id = user.id
+
+    # Fetch all chats where the user is either the buyer or the seller
+    chats = ChatsModel.query.filter(
+        (ChatsModel.user_to_buy == user_id) | (ChatsModel.user_to_sell == user_id)
+    ).all()
+
+    chat_data = [
+        {
+            "other_person": UserModel.query.get(chat.user_to_sell).first_name
+            if chat.user_to_buy == user_id
+            else UserModel.query.get(chat.user_to_buy).first_name,
+            "listing_name": ListingsModel.query.get(chat.listing_id).listing_name,
+            "listing_image": ListingsModel.query.get(chat.listing_id).image
+        }
+        for chat in chats
+        if UserModel.query.get(chat.user_to_sell) and UserModel.query.get(chat.user_to_buy) and ListingsModel.query.get(chat.listing_id)
+    ]
+
+    return make_response({"chats": chat_data}, 200)
+
 
 #This route create a favourite for a specific listing
 @app.route('/create_favourite', methods =['POST'] )
