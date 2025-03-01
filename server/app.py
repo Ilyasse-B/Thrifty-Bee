@@ -99,7 +99,7 @@ with app.app_context():
 if __name__ == '__main__':
     app.run(debug=True)
 
-routes = ['get_user_chats', 'change_listing', 'change_profile', 'get_seller_info','create_listing','get_product','make_profile','get_user_info','delete_listing','get_user_listings','get_listings','start_login']
+routes = ['create_chat','edit_chat','delete_chat','create_message','edit_message','get_messages','create_favourite','check_favourite','fetch_favourites','delete_favourites','get_user_chats', 'change_listing', 'change_profile', 'get_seller_info','create_listing','get_product','make_profile','get_user_info','delete_listing','get_user_listings','get_listings','start_login']
 
 @app.before_request
 def check_login():
@@ -573,7 +573,7 @@ def create_favourite():
     username = favourite_data.get("username")
     listing_id = favourite_data.get("listing_id")
 
-    if not listing_id or not user_to_buy:  # Validate required fields
+    if not listing_id or not username:  # Validate required fields
         return make_response({"message": "Missing required fields"}, 400)
 
     user = UserModel.query.filter_by(username=username).first()
@@ -651,9 +651,9 @@ def delete_favourites(username, listing_id):
         return make_response({"message":"User not found"})
     user_id = user.id
 
-    favourites = FavouritesModel.query.filter_by(user_id=user_id,listings_id = listing_id).first()
+    favourite = FavouritesModel.query.filter_by(user_id=user_id,listings_id = listing_id).first()
 
-    if not favourites:
+    if not favourite:
         return make_response({"message": "Favourite not found"}, 404)
 
     db.session.delete(favourite)
