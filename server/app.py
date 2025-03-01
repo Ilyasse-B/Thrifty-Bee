@@ -42,7 +42,7 @@ with app.app_context():
 
             # Create test listings
             listing_one = ListingsModel(
-                user_id=1,
+                user_id=3,
                 listing_name="Chopping Board",
                 image="https://img.freepik.com/free-photo/wood-cutting-board_1203-3148.jpg?t=st=1738937016~exp=1738940616~hmac=ffa2367ba27fed36015963353d65c4a50973931a35202392a1943abdc630938b&w=996",
                 price=3.00,
@@ -53,7 +53,7 @@ with app.app_context():
             db.session.add(listing_one)
 
             listing_two = ListingsModel(
-                user_id=1,
+                user_id=3,
                 listing_name="Sofa",
                 image="https://img.freepik.com/free-photo/beautiful-interior-room-design-concept_23-2148786485.jpg?t=st=1738937245~exp=1738940845~hmac=d22d78f604dc8709293d294ab81ca42fe70a578bd3ad9c18f5a389bf064ccd31&w=996",
                 price=20.50,
@@ -83,7 +83,7 @@ with app.app_context():
             chat = ChatsModel(
                 listing_id=sofa_listing.id,
                 active=True,
-                user_to_sell=1,
+                user_to_sell=3,
                 user_to_buy=2,
                 seller_confirmed=False,
                 buyer_confirmed=False
@@ -99,7 +99,7 @@ with app.app_context():
 if __name__ == '__main__':
     app.run(debug=True)
 
-routes = ['change_listing', 'change_profile', 'get_seller_info','create_listing','get_product','make_profile','get_user_info','delete_listing','get_user_listings','get_listings','start_login']
+routes = ['get_user_chats', 'change_listing', 'change_profile', 'get_seller_info','create_listing','get_product','make_profile','get_user_info','delete_listing','get_user_listings','get_listings','start_login']
 
 @app.before_request
 def check_login():

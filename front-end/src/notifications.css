@@ -14,8 +14,8 @@
   }
   
   .chats-list {
-    width: 60%;
-    max-width: 600px;
+    width: 80%;
+    max-width: 800px;
   }
   
   .chat-item {
@@ -23,9 +23,9 @@
     align-items: center;
     justify-content: space-between;
     background-color: white;
-    padding: 15px;
-    margin-bottom: 10px;
-    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 15px;
+    border-radius: 10px;
     border: 1px solid #ccc;
     cursor: pointer;
     transition: background-color 0.3s ease;
@@ -36,8 +36,8 @@
   }
   
   .chat-image {
-    width: 50px;
-    height: 50px;
+    width: 60px;
+    height: 60px;
     border-radius: 5px;
     object-fit: cover;
   }
@@ -45,12 +45,12 @@
   .chat-product-name {
     flex: 1;
     text-align: center;
-    font-size: 16px;
+    font-size: 18px;
     font-weight: bold;
   }
   
   .chat-user {
-    font-size: 14px;
+    font-size: 16px;
     color: #555;
   }
 
