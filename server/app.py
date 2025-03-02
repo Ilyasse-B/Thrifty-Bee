@@ -383,7 +383,7 @@ def create_chat():
     chat_data = request.get_json()
     listing_id = chat_data.get('listing_id')
     active = True
-    #user_to_sell = chat_data.get('user_sell_id')
+    user_to_sell = chat_data.get('user_sell_id')
     user_to_buy = chat_data.get('user_buy_id')
     seller_confirmed = False
     buyer_confirmed = False
@@ -396,7 +396,14 @@ def create_chat():
         return make_response('User not found')
     user_buy_id = user_buy.id
 
-    new_chat = ChatsModel(listing_id = listing_id, active = active , user_to_buy = user_buy_id, seller_confirmed= seller_confirmed, buyer_confirmed = buyer_confirmed)
+    user_sell = UserModel.query.filter_by(username=user_to_sell).first()
+    if not user_sell:
+        return make_response('User not found')
+    user_sell_id = user_sell.id
+
+
+
+    new_chat = ChatsModel(listing_id = listing_id, active = active , user_to_sell = user_to_sell ,user_to_buy = user_buy_id, seller_confirmed= seller_confirmed, buyer_confirmed = buyer_confirmed)
     db.session.add(new_chat)
     db.session.commit()
 
@@ -428,6 +435,7 @@ def edit_chat(id):
     "Chat": {
         "id": chat.id,
         "listing_id": chat.listing_id,
+        "user_sell_id": chat.user_sell_id,
         "user_buy_id" : chat.user_buy_id,
         "active" : chat.active,
         "seller_confirmed" : chat.seller_confirmed,
