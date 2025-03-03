@@ -169,7 +169,7 @@ def check_login():
 @app.route('/intiate_login', methods=['GET'])
 def start_login():
     cs_ticket = uuid.uuid4().hex[:12]                                         # ngrok Link here 
-    redirect_url = f'http://studentnet.cs.manchester.ac.uk/authenticate/?url=https://8588-86-9-200-131.ngrok-free.app/profile&csticket={cs_ticket}&version=3&command=validate'
+    redirect_url = f'http://studentnet.cs.manchester.ac.uk/authenticate/?url=https://ffe7-86-9-200-131.ngrok-free.app/profile&csticket={cs_ticket}&version=3&command=validate'
 
     res = {
         "auth_url": redirect_url,
@@ -425,32 +425,36 @@ def change_listing(id):
 def create_chat():
     chat_data = request.get_json()
     listing_id = chat_data.get('listing_id')
-    active = True
-    user_to_sell = chat_data.get('user_sell_id')
-    user_to_buy = chat_data.get('user_buy_id')
-    seller_confirmed = False
-    buyer_confirmed = False
+    username = chat_data.get('username')
 
-    if not listing_id or not user_to_buy:  # Validate required fields
+    if not listing_id or not username:
         return make_response({"message": "Missing required fields"}, 400)
 
-    user_buy = UserModel.query.filter_by(username=user_to_buy).first()
+    # Get user_to_buy ID from username
+    user_buy = UserModel.query.filter_by(username=username).first()
     if not user_buy:
-        return make_response('User not found')
+        return make_response({"message": "User not found"}, 404)
     user_buy_id = user_buy.id
 
-    user_sell = UserModel.query.filter_by(username=user_to_sell).first()
-    if not user_sell:
-        return make_response('User not found')
-    user_sell_id = user_sell.id
+    # Get user_to_sell ID from the listing
+    listing = ListingsModel.query.filter_by(id=listing_id).first()
+    if not listing:
+        return make_response({"message": "Listing not found"}, 404)
+    user_sell_id = listing.user_id
 
-
-
-    new_chat = ChatsModel(listing_id = listing_id, active = active , user_to_sell = user_to_sell ,user_to_buy = user_buy_id, seller_confirmed= seller_confirmed, buyer_confirmed = buyer_confirmed)
+    # Create a new chat
+    new_chat = ChatsModel(
+        listing_id=listing_id,
+        active=True,
+        user_to_sell=user_sell_id,
+        user_to_buy=user_buy_id,
+        seller_confirmed=False,
+        buyer_confirmed=False
+    )
     db.session.add(new_chat)
     db.session.commit()
 
-    return make_response({"message": "Chat created successfully"}, 201)
+    return make_response({"chat_id": new_chat.id}, 201)
 
 #This route edits a chat
 @app.route('/edit_chat/<int:id>',methods = ['PATCH'])
