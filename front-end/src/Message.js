@@ -1,9 +1,16 @@
-import React from 'react'
+import React from 'react';
+import './message.css';
 
-const Message = () => {
+const Message = ({ text, sender, timestamp, isCurrentUser }) => {
   return (
-    <div>Message</div>
-  )
-}
+    <div className={`message-wrapper ${isCurrentUser ? 'current-user' : 'other-user'}`}>
+      <p className="message-sender">{sender}</p>
+      <div className={`message-bubble ${isCurrentUser ? 'current-user-bubble' : 'other-user-bubble'}`}>
+        <p className="message-text">{text}</p>
+        <p className="message-time">{timestamp}</p>
+      </div>
+    </div>
+  );
+};
 
-export default Message
+export default Message;

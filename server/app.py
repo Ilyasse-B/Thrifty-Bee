@@ -13,8 +13,10 @@ from models.UserModel import UserModel
 from models.UserRolesModel import UserRolesModel
 from models.ListingsModel import ListingsModel
 from models.MessagesModel import MessagesModel
+from models.FavouritesModel import FavouritesModel
 import uuid
 
+from datetime import datetime
 
 # Initialize Flask app
 app = Flask(__name__)
@@ -38,10 +40,99 @@ with app.app_context():
 
         if not (inspector.has_table("user_table")):
             db.create_all()
-            listing_one = ListingsModel ( user_id = 1, listing_name = "Chopping Board", image ="https://img.freepik.com/free-photo/wood-cutting-board_1203-3148.jpg?t=st=1738937016~exp=1738940616~hmac=ffa2367ba27fed36015963353d65c4a50973931a35202392a1943abdc630938b&w=996", price = 3.00, condition = "Like New", category = "Other", description = "Hand-made wooden chopping board")
+
+            # Create test listings
+            listing_one = ListingsModel(
+                user_id=3,
+                listing_name="Chopping Board",
+                image="https://img.freepik.com/free-photo/wood-cutting-board_1203-3148.jpg?t=st=1738937016~exp=1738940616~hmac=ffa2367ba27fed36015963353d65c4a50973931a35202392a1943abdc630938b&w=996",
+                price=3.00,
+                condition="Like New",
+                category="Other",
+                description="Hand-made wooden chopping board"
+            )
             db.session.add(listing_one)
-            listing_two = ListingsModel(user_id = 1, listing_name = "Sofa", image = "https://img.freepik.com/free-photo/beautiful-interior-room-design-concept_23-2148786485.jpg?t=st=1738937245~exp=1738940845~hmac=d22d78f604dc8709293d294ab81ca42fe70a578bd3ad9c18f5a389bf064ccd31&w=996"  ,price = 20.50, condition = "Used", category = "Other", description = "Grey sofa made from real wool")
+
+            listing_two = ListingsModel(
+                user_id=3,
+                listing_name="Sofa",
+                image="https://img.freepik.com/free-photo/beautiful-interior-room-design-concept_23-2148786485.jpg?t=st=1738937245~exp=1738940845~hmac=d22d78f604dc8709293d294ab81ca42fe70a578bd3ad9c18f5a389bf064ccd31&w=996",
+                price=20.50,
+                condition="Used",
+                category="Other",
+                description="Grey sofa made from real wool"
+            )
             db.session.add(listing_two)
+
+            # Create a test user with ID 2
+            user_two = UserModel(
+                id=2,
+                first_name="John",
+                last_name="Doe",
+                username="johndoe",
+                phone_number="1234567890",
+                email_address="johndoe@example.com"
+            )
+            db.session.add(user_two)
+
+            db.session.commit()
+
+            # Get the listing ID of "Sofa"
+            sofa_listing = ListingsModel.query.filter_by(listing_name="Sofa").first()
+
+            # Create a chat between user 1 (seller) and user 2 (buyer)
+            chat = ChatsModel(
+                listing_id=sofa_listing.id,
+                active=True,
+                user_to_sell=3,
+                user_to_buy=2,
+                seller_confirmed=False,
+                buyer_confirmed=False
+            )
+            db.session.add(chat)
+
+            db.session.commit()
+
+            # Get the chat ID for the sofa listing
+            sofa_chat = ChatsModel.query.filter_by(listing_id=sofa_listing.id).first()
+
+            # Add test messages
+            message_1 = MessagesModel(
+                chat_id=sofa_chat.id,
+                user_id=2,  # John
+                content="Hi, is the sofa still available?",
+                timestamp= datetime.strptime("2024-03-01 10:15:30", "%Y-%m-%d %H:%M:%S"),
+                read=False
+            )
+            db.session.add(message_1)
+
+            message_2 = MessagesModel(
+                chat_id=sofa_chat.id,
+                user_id=3,  # Seller
+                content="Yes, it's still available!",
+                timestamp=datetime.strptime("2024-03-01 10:15:30", "%Y-%m-%d %H:%M:%S"),
+                read=False
+            )
+            db.session.add(message_2)
+
+            message_3 = MessagesModel(
+                chat_id=sofa_chat.id,
+                user_id=2,  # John
+                content="Great! Could I come by tomorrow to see it?",
+                timestamp=datetime.strptime("2024-03-01 10:15:30", "%Y-%m-%d %H:%M:%S"),
+                read=False
+            )
+            db.session.add(message_3)
+
+            message_4 = MessagesModel(
+                chat_id=sofa_chat.id,
+                user_id=3,  # Seller
+                content="Sure, what time works for you?",
+                timestamp=datetime.strptime("2024-03-01 10:15:30", "%Y-%m-%d %H:%M:%S"),
+                read=False
+            )
+            db.session.add(message_4)
+
             db.session.commit()
 
     except OperationalError as e:
@@ -51,7 +142,7 @@ with app.app_context():
 if __name__ == '__main__':
     app.run(debug=True)
 
-routes = ['change_listing', 'change_profile', 'get_seller_info','create_listing','get_product','make_profile','get_user_info','delete_listing','get_user_listings','get_listings','start_login']
+routes = ['get_chat_users','create_chat','edit_chat','delete_chat','create_message','edit_message','get_messages','create_favourite','check_favourite','fetch_favourites','delete_favourites','get_user_chats', 'change_listing', 'change_profile', 'get_seller_info','create_listing','get_product','make_profile','get_user_info','delete_listing','get_user_listings','get_listings','start_login']
 
 @app.before_request
 def check_login():
@@ -78,7 +169,7 @@ def check_login():
 @app.route('/intiate_login', methods=['GET'])
 def start_login():
     cs_ticket = uuid.uuid4().hex[:12]                                         # ngrok Link here 
-    redirect_url = f'http://studentnet.cs.manchester.ac.uk/authenticate/?url=https://9e48-130-88-226-30.ngrok-free.app/profile&csticket={cs_ticket}&version=3&command=validate'
+    redirect_url = f'http://studentnet.cs.manchester.ac.uk/authenticate/?url=https://ffe7-86-9-200-131.ngrok-free.app/profile&csticket={cs_ticket}&version=3&command=validate'
 
     res = {
         "auth_url": redirect_url,
@@ -134,7 +225,7 @@ def get_user_listings():
             "description": listing.description
             #"pending": listing.pending,
             #"sold": listing.sold
-            
+
         }
         for listing in listings
     ]
@@ -328,3 +419,367 @@ def change_listing(id):
         }
 
         return make_response(response_dict, 200)
+
+#This route creates a new chat from contact seller
+@app.route('/create_chat', methods=['POST'])
+def create_chat():
+    chat_data = request.get_json()
+    listing_id = chat_data.get('listing_id')
+    username = chat_data.get('username')
+
+    if not listing_id or not username:
+        return make_response({"message": "Missing required fields"}, 400)
+
+    # Get user_to_buy ID from username
+    user_buy = UserModel.query.filter_by(username=username).first()
+    if not user_buy:
+        return make_response({"message": "User not found"}, 404)
+    user_buy_id = user_buy.id
+
+    # Get user_to_sell ID from the listing
+    listing = ListingsModel.query.filter_by(id=listing_id).first()
+    if not listing:
+        return make_response({"message": "Listing not found"}, 404)
+    user_sell_id = listing.user_id
+
+    # Create a new chat
+    new_chat = ChatsModel(
+        listing_id=listing_id,
+        active=True,
+        user_to_sell=user_sell_id,
+        user_to_buy=user_buy_id,
+        seller_confirmed=False,
+        buyer_confirmed=False
+    )
+    db.session.add(new_chat)
+    db.session.commit()
+
+    return make_response({"chat_id": new_chat.id}, 201)
+
+#This route edits a chat
+@app.route('/edit_chat/<int:id>',methods = ['PATCH'])
+def edit_chat(id):
+    chat = ChatsModel.query.filter_by(id = id).first()
+    if not chat:
+        return make_response('Chat not found', 404)
+    else:
+        data = request.json()
+        n_active = data.get('active')
+        n_seller_confirmed =data.get('seller_confirmed')
+        n_buyer_confirmed = data.get('buyer_confirmed')
+
+    if not n_active or n_seller_confirmed or n_buyer_confirmed :
+        return make_response('need extra information ', 400)
+
+    chat.active = n_active
+    chat.seller_confirmed = n_seller_confirmed
+    chat.buyer_confirmed = n_buyer_confirmed
+
+    db.session.commit()
+
+    response_dict = {
+    "status": 'Successful',
+    "Chat": {
+        "id": chat.id,
+        "listing_id": chat.listing_id,
+        "user_sell_id": chat.user_sell_id,
+        "user_buy_id" : chat.user_buy_id,
+        "active" : chat.active,
+        "seller_confirmed" : chat.seller_confirmed,
+        "buyer_confirmed" : chat.buyer_confirmed
+
+        }
+    }
+
+    return make_response(response_dict, 200)
+
+
+#This route deletes a chat when sale falls through / sale goes through
+@app.route('/delete_chat/<int:id>',methods = ['DELETE'])
+def delete_chat(id):
+    chat = ChatsModel.query.filter_by(id = id).first()
+
+    if not chat:
+        return make_response({"message": "chat not found"}, 404)
+
+    db.session.delete(chat)
+    db.session.commit()
+
+    return make_response({"message": "chat deleted successfully"}, 200)
+
+
+#This route creates a message
+@app.route('/create_message',methods = ['POST'])
+def create_message():
+    message_data = request.get_json()
+    chat_id = message_data.get('chat_id')
+    username = message_data.get('username')
+    content = message_data.get('content')
+    timestamp_str = message_data.get('timestamp')
+    #read = message_data.get('read')
+
+    # Convert timestamp string to a Python datetime object
+    try:
+        timestamp = datetime.fromisoformat(timestamp_str.replace("Z", "+00:00"))  
+    except ValueError:
+        return make_response({"error": "Invalid timestamp format"}, 400)
+    
+    user = UserModel.query.filter_by(username=username).first()
+    if not user:
+        return make_response('User not found')
+    user_id = user.id
+
+    new_message = MessagesModel(chat_id = chat_id, user_id = user_id, content = content, timestamp = timestamp, read = False)
+    db.session.add(new_message)
+    db.session.commit()
+
+    return make_response({"success": "Message sent"}, 201)
+
+    
+
+#This route edits message
+@app.route('/get_message_chat/<int:id>',methods=["PATCH"])
+def edit_message(id):
+    message = MessagesModel.query.filter_by(id = id).first()
+    if not message:
+        return make_response('Message not found', 404)
+    else:
+        data = request.json()
+        new_content = data.get('content')
+
+        if not new_content:
+            return make_response('new_content', 400)
+
+        message.content = new_content
+
+
+        db.session.commit()
+
+        response_dict = {
+        "status": 'Successful',
+        "Message": {
+            "id": message.id,
+            "user_id" : message.user_id,
+            "content" : message.content,
+            "timestamp" : message.timestamp,
+            "read" : message.read
+
+            }
+        }
+
+        return make_response(response_dict, 200)
+
+
+#This route fetches all message for a chat
+@app.route('/get_message_chat',methods=["GET"])
+def get_messages():
+    chat_id = request.args.get('chat_id', type = int)
+
+    if not chat_id:
+        return make_response({"message": "chat id is required"}, 400)
+    
+    messages = MessagesModel.query.filter_by(chat_id=chat_id).order_by(MessagesModel.timestamp.asc()).all()
+    
+
+    chat_data = [
+        {
+            "id" : message.id,
+            "user_id" : message.user_id,
+            "content" : message.content,
+            "timestamp" : message.timestamp,
+            "read" : message.read
+        }
+        for message in messages
+    ]
+
+    return make_response({"messages": chat_data}, 200)
+
+# This route get's the user id's of the user's in a chat
+@app.route('/get_chat_users', methods=['GET'])
+def get_chat_users():
+    username = request.args.get('username')
+    other_person_name = request.args.get('other_person_name')
+
+    if not username or not other_person_name:
+        return make_response({"error": "Both username and other_person_name are required"}, 400)
+
+    user = UserModel.query.filter_by(username=username).first()
+    other_person = UserModel.query.filter_by(first_name=other_person_name).first()
+
+    if not user or not other_person:
+        return make_response({"error": "User not found"}, 404)
+
+    return make_response({
+        "user_id": user.id,
+        "other_person_id": other_person.id
+    }, 200)
+
+ 
+ # This route fetches all the chats for a specific user
+@app.route('/user_chats', methods=['GET'])
+def get_user_chats():
+    username = request.args.get('username')
+
+    if not username:
+        return make_response({"error": "Username is required"}, 400)
+
+    # Find the user's ID
+    user = UserModel.query.filter_by(username=username).first()
+    if not user:
+        return make_response({"error": "User not found"}, 404)
+
+    user_id = user.id
+
+    # Fetch all chats where the user is either the buyer or the seller
+    chats = ChatsModel.query.filter(
+        (ChatsModel.user_to_buy == user_id) | (ChatsModel.user_to_sell == user_id)
+    ).all()
+
+    chat_data = [
+        {
+            "chat_id": chat.id,
+            "other_person": UserModel.query.get(chat.user_to_sell).first_name
+            if chat.user_to_buy == user_id
+            else UserModel.query.get(chat.user_to_buy).first_name,
+            "listing_name": ListingsModel.query.get(chat.listing_id).listing_name,
+            "listing_image": ListingsModel.query.get(chat.listing_id).image
+        }
+        for chat in chats
+        if UserModel.query.get(chat.user_to_sell) and UserModel.query.get(chat.user_to_buy) and ListingsModel.query.get(chat.listing_id)
+    ]
+
+    return make_response({"chats": chat_data}, 200)
+
+
+#This route create a favourite for a specific listing
+@app.route('/create_favourite', methods =['POST'] )
+def create_favourite():
+    favourite_data = request.get_json()
+    username = favourite_data.get("username")
+    listing_id = favourite_data.get("listing_id")
+
+    if not listing_id or not username:  # Validate required fields
+        return make_response({"message": "Missing required fields"}, 400)
+
+    user = UserModel.query.filter_by(username=username).first()
+    if not user:
+        return make_response('User not found')
+    user_id = user.id
+
+    existing_favourite = FavouritesModel.query.filter_by(user_id=user_id, listings_id=listing_id).first()
+
+    if existing_favourite:
+        return make_response({"message": "favourite already exists"}, 400)
+
+
+    new_favourite = FavouritesModel(user_id = user_id, listings_id = listing_id)
+
+
+    db.session.add(new_favourite)
+    db.session.commit()
+
+    return make_response({"message": "Favourite Model created successfully"}, 201)
+
+
+
+
+#This route checks if already a favourite
+@app.route('/check_favorite', methods = ["GET"])
+def check_favourite():
+    username = request.args.get('username', type=str)
+    listings_id = request.args.get('listings_id', type=int)
+
+    if not username:
+        return make_response({"message": "username is required"}, 400)
+
+    user = UserModel.query.filter_by(username=username).first()
+    listing = ListingsModel.query.filter_by(id=listings_id).first()
+
+    if not listing:
+        return make_response('User not found', 404)
+    if not user:
+        return make_response('User not found', 404)
+
+    user_id = user.id
+    print(user.id)
+    print(listing.id)
+
+    favourite = FavouritesModel.query.filter_by(user_id=user_id, listings_id = listings_id).first()
+
+    if favourite:
+        return make_response({"message": "Is a favourite"}, 200)
+    else:
+        return make_response({"message": "Not a favourite"}, 200)
+
+
+
+
+#This route fetches favourtie for profile page
+@app.route('/fetch_favourites', methods = ["GET"])
+def fetch_favourites():
+    username = request.args.get('username', type=str)
+
+    if not username:
+        return make_response({"message": "username is required"}, 400)
+
+    user = UserModel.query.filter_by(username=username).first()
+    if not user:
+        return make_response({"message": "User not found"}, 404)
+
+    user_id = user.id
+
+    favourites = FavouritesModel.query.filter_by(user_id=user_id).all()
+    listings = []
+
+    for favourite in favourites:
+        listings_id = favourite.listings_id
+        listing = ListingsModel.query.filter_by(id=listings_id).first()
+        listings.append(listing)
+
+
+    listings_data = [
+    {
+        "id": listing.id,
+        "title": listing.listing_name,
+        "image": listing.image,
+        "price": listing.price,
+        "condition": listing.condition,
+        "category": listing.category,
+        "description": listing.description
+
+
+    }
+    for listing in listings
+  ]
+
+
+
+
+
+    return make_response({"favourites": listings_data}, 200)
+
+
+
+#This route deletes favourite for profile page
+@app.route('/delete_favourites/<username>/<int:listing_id>',methods = ['DELETE'])
+def delete_favourites(username, listing_id):
+    user = UserModel.query.filter_by(username=username).first()
+
+
+
+    if not user:
+        return make_response({"message":"User not found"})
+    user_id = user.id
+
+    favourite = FavouritesModel.query.filter_by(user_id=user_id,listings_id = listing_id).first()
+
+    if not favourite:
+        return make_response({"message": "Favourite not found"}, 404)
+
+    db.session.delete(favourite)
+    db.session.commit()
+
+    return make_response({"message": "Favourites deleted successfully"}, 200)
+
+
+
