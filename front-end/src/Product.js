@@ -17,7 +17,8 @@ const Product = () => {
     const username = sessionStorage.getItem("username");
 
     useEffect(() => {
-      checkFav()
+      if (username){
+        checkFav()}
     }, [isFavorited])
 
     const checkFav= async () =>{
