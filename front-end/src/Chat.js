@@ -63,22 +63,60 @@ const Chat = ({ currentUser }) => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
-  const handleSendMessage = (e) => {
+  const handleSendMessage = async (e) => {
     e.preventDefault();
-
+  
     if (newMessage.trim() === '') return;
-
-    const message = {
-      id: Date.now(),
-      text: newMessage,
-      sender: currentUser?.id || 'current_user', // Provide a fallback if currentUser is undefined
-      timestamp: new Date()
+  
+    // Create a timestamp in ISO format
+    const timestamp = new Date().toISOString(); 
+  
+    const messageData = {
+      chat_id: chatId,
+      username: username, 
+      content: newMessage,
+      timestamp: timestamp
     };
-
-    setMessages([...messages, message]);
-    setNewMessage('');
+  
+    try {
+      // Send message to Flask backend
+      const response = await fetch("http://127.0.0.1:5000/create_message", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(messageData),
+      });
+  
+      if (!response.ok) {
+        throw new Error("Failed to send message");
+      }
+  
+      // Fetch messages again to update the chat with the new message
+      const fetchMessages = async () => {
+        try {
+          const response = await fetch(
+            `http://127.0.0.1:5000/get_message_chat?chat_id=${chatId}`
+          );
+          const data = await response.json();
+    
+          if (data.messages) {
+            setMessages(data.messages);
+          }
+        } catch (error) {
+          console.error("Error fetching messages:", error);
+        }
+      };
+  
+      await fetchMessages(); // Refresh chat after sending message
+  
+      setNewMessage(""); // Clear input field
+  
+    } catch (error) {
+      console.error("Error sending message:", error);
+    }
   };
-
+  
   return (
     <div className="chat-container">
       {/* Chat header */}

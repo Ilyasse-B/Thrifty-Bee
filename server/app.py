@@ -511,17 +511,25 @@ def create_message():
     chat_id = message_data.get('chat_id')
     username = message_data.get('username')
     content = message_data.get('content')
-    timestamp = message_data.get('timestamp')
+    timestamp_str = message_data.get('timestamp')
     #read = message_data.get('read')
 
+    # Convert timestamp string to a Python datetime object
+    try:
+        timestamp = datetime.fromisoformat(timestamp_str.replace("Z", "+00:00"))  
+    except ValueError:
+        return make_response({"error": "Invalid timestamp format"}, 400)
+    
     user = UserModel.query.filter_by(username=username).first()
     if not user:
         return make_response('User not found')
     user_id = user.id
 
-    new_message = MessagesModel(chat_id = chat_id, user_id = user_id, content = content, timestamp = timestamp)
+    new_message = MessagesModel(chat_id = chat_id, user_id = user_id, content = content, timestamp = timestamp, read = False)
     db.session.add(new_message)
     db.session.commit()
+
+    return make_response({"success": "Message sent"}, 201)
 
     
 
