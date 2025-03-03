@@ -125,8 +125,8 @@ def check_login():
 
 @app.route('/intiate_login', methods=['GET'])
 def start_login():
-    cs_ticket = uuid.uuid4().hex[:12]                                         # ngrok Link here 
-    redirect_url = f'http://studentnet.cs.manchester.ac.uk/authenticate/?url=https://8588-86-9-200-131.ngrok-free.app/profile&csticket={cs_ticket}&version=3&command=validate'
+    cs_ticket = uuid.uuid4().hex[:12]                                         # ngrok Link here
+    redirect_url = f'http://studentnet.cs.manchester.ac.uk/authenticate/?url=https://d76d-130-88-226-13.ngrok-free.app/profile&csticket={cs_ticket}&version=3&command=validate'
 
     res = {
         "auth_url": redirect_url,
@@ -182,7 +182,7 @@ def get_user_listings():
             "description": listing.description
             #"pending": listing.pending,
             #"sold": listing.sold
-            
+
         }
         for listing in listings
     ]
@@ -480,7 +480,7 @@ def create_message():
     db.session.add(new_message)
     db.session.commit()
 
-    
+
 
 #This route edits message
 @app.route('/get_message_chat/<int:id>',methods=["PATCH"])
@@ -496,7 +496,7 @@ def edit_message(id):
             return make_response('new_content', 400)
 
         message.content = new_content
-        
+
 
         db.session.commit()
 
@@ -522,9 +522,9 @@ def get_messages():
 
     if not chat:
         return make_response({"message": "chat id is required"}, 400)
-    
+
     messages = MessagesModel.query.filter_by(chat_id=chat).order_by(MessagesModel.timestamp.asc()).all()
-    
+
 
     chat_data = [
         {
@@ -538,7 +538,7 @@ def get_messages():
     ]
 
     return make_response({"messages in chat": chat_data}, 200)
- 
+
  # This route fetches all the chats for a specific user
 @app.route('/user_chats', methods=['GET'])
 def get_user_chats():
@@ -589,7 +589,15 @@ def create_favourite():
         return make_response('User not found')
     user_id = user.id
 
-    new_favourite = FavouritesModel(user_id = user_id, listing_id = listing_id)
+    existing_favourite = FavouritesModel.query.filter_by(user_id=user_id, listings_id=listing_id).first()
+
+    if existing_favourite:
+        return make_response({"message": "favourite already exists"}, 400)
+
+
+    new_favourite = FavouritesModel(user_id = user_id, listings_id = listing_id)
+
+
     db.session.add(new_favourite)
     db.session.commit()
 
@@ -599,25 +607,32 @@ def create_favourite():
 
 
 #This route checks if already a favourite
-@app.route('/check_favorite/', methods = ["GET"])
+@app.route('/check_favorite', methods = ["GET"])
 def check_favourite():
-    username = request.args.get('username', type=str) 
-    listings_id = request.args.get('listings_id', type=int) 
+    username = request.args.get('username', type=str)
+    listings_id = request.args.get('listings_id', type=int)
 
     if not username:
         return make_response({"message": "username is required"}, 400)
-    
+
     user = UserModel.query.filter_by(username=username).first()
+    listing = ListingsModel.query.filter_by(id=listings_id).first()
+
+    if not listing:
+        return make_response('User not found', 404)
     if not user:
-        return make_response('User not found')
+        return make_response('User not found', 404)
+
     user_id = user.id
+    print(user.id)
+    print(listing.id)
 
     favourite = FavouritesModel.query.filter_by(user_id=user_id, listings_id = listings_id).first()
 
     if favourite:
-        return make_response({"message": "Is a favourite"}, 200) 
+        return make_response({"message": "Is a favourite"}, 200)
     else:
-        return make_response({"message": "Not a favourite"}, 200) 
+        return make_response({"message": "Not a favourite"}, 200)
 
 
 
@@ -625,11 +640,11 @@ def check_favourite():
 #This route fetches favourtie for profile page
 @app.route('/fetch_favourites', methods = ["GET"])
 def fetch_favourites():
-    username = request.args.get('username', type=str) 
+    username = request.args.get('username', type=str)
 
     if not username:
         return make_response({"message": "username is required"}, 400)
-    
+
     user = UserModel.query.filter_by(username=username).first()
     if not user:
         return make_response({"message": "User not found"}, 404)
@@ -637,16 +652,34 @@ def fetch_favourites():
     user_id = user.id
 
     favourites = FavouritesModel.query.filter_by(user_id=user_id).all()
+    listings = []
 
-    favourites_data = [
-        {
-            "listing.id": favourites.listings_id
-            
-        }
-        for favourite in favourites
-    ]
+    for favourite in favourites:
+        listings_id = favourite.listings_id
+        listing = ListingsModel.query.filter_by(id=listings_id).first()
+        listings.append(listing)
 
-    return make_response({"favourites": favourites_data}, 200)
+
+    listings_data = [
+    {
+        "id": listing.id,
+        "title": listing.listing_name,
+        "image": listing.image,
+        "price": listing.price,
+        "condition": listing.condition,
+        "category": listing.category,
+        "description": listing.description
+
+
+    }
+    for listing in listings
+  ]
+
+
+
+
+
+    return make_response({"favourites": listings_data}, 200)
 
 
 
@@ -654,6 +687,8 @@ def fetch_favourites():
 @app.route('/delete_favourites/<username>/<int:listing_id>',methods = ['DELETE'])
 def delete_favourites(username, listing_id):
     user = UserModel.query.filter_by(username=username).first()
+
+
 
     if not user:
         return make_response({"message":"User not found"})

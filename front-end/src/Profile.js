@@ -20,9 +20,15 @@ const Profile = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [statusMessage, setStatusMessage] = useState("");
   const [favorites, setFavorites] = useState([]);
+  const [favouriteRendervar, setFavouriteRenderVar] = useState(false)
 
 
   const username = sessionStorage.getItem("username");
+
+  function toggleChildRender(){
+
+    setFavouriteRenderVar(!favouriteRendervar)
+  }
 
   // The useEffect hook make sure that the function inside of it runs only on the first render because
   // the dependecy array is empty
@@ -88,20 +94,7 @@ const Profile = () => {
     }
 
   };
-  useEffect(() => {
-      fetch("http://127.0.0.1:5000/listings")
-      // instead of listings it needs to be favorite
-        .then(response => response.json())
-        .then(data => {
-          setFavorites(data.listings); // Store fetched data in state
 
-        })
-        .catch(error => console.error("Error fetching favorites:", error));
-    }, []);
-
-  const handleEditClick = () => {
-    setIsEditing(true);
-  };
 
   const handleSaveClick = async () => {
     const updatedDetails = { email, phone_number: phone };
@@ -155,6 +148,47 @@ const Profile = () => {
       .catch((error) => console.error("Error deleting listing:", error));
   };
 
+
+ // Getting Favourites
+  useEffect(() => {
+    getFavs()
+
+
+
+  }, [favouriteRendervar])
+
+// Function that gets favourites
+  const getFavs= async () =>{
+
+    const response = await fetch(`http://127.0.0.1:5000/fetch_favourites?username=${username}`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    })
+    .then(response => {
+      if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
+      }
+
+      return response.text()
+
+
+    })
+    .then(text => {
+      const data = JSON.parse(text.trim())
+      setFavorites(data.favourites)
+
+
+
+    })
+    .catch(error => console.error(error))
+
+
+
+
+  }
+
   return (
     // Profile section
     <div className = "profile-container">
@@ -180,18 +214,18 @@ const Profile = () => {
           {isEditing ? (
             <button className="edit-details-button" onClick={handleSaveClick}>Save Changes</button>)
             :
-            (<button className="edit-details-button" onClick={handleEditClick}>Edit Details</button>)}
+            (<button className="edit-details-button" >Edit Details</button>)}
       </div>
       {statusMessage && <p className="success-message">{statusMessage}</p>}
-      
+
       {/* Notifications Button */}
       <button className="notifications-button" onClick={() => navigate("/notifications")}>
           Your Chats
         </button>
-        
+
     </div>
-    
-    
+
+
 
     {/* Listing Section */}
     <div className = "listing-section">
@@ -243,6 +277,7 @@ const Profile = () => {
               condition={favorite.condition}
               description={favorite.description}
               user_id = {favorite.user_id}
+              toggleRender = {toggleChildRender}
             />
 
           ))

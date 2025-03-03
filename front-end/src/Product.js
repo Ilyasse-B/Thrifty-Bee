@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import { useLocation, useNavigate } from "react-router-dom";
 import "./product.css"
 import Heart from './Heart.js';
@@ -15,6 +15,44 @@ const Product = () => {
     const [isFavorited, setIsFavorited] = useState(false); // State to track favorite status from backend
 
     const username = sessionStorage.getItem("username");
+
+    useEffect(() => {
+      checkFav()
+
+
+
+    }, [isFavorited])
+
+    const checkFav= async () =>{
+
+      const response = await fetch(`http://127.0.0.1:5000/check_favorite?username=${username}&listings_id=${id}`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      })
+      .then(response => {
+        if (!response.ok) {
+          throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+
+        return response.text()
+
+
+      })
+      .then(text => {
+        const data = JSON.parse(text.trim())
+        if (data.message == "Is a favourite"){
+          setIsFavorited(true)
+        }
+
+      })
+      .catch(error => console.error(error))
+
+
+
+
+    }
 
     const fetchSellerInfo = async () => {
 
@@ -52,9 +90,88 @@ const Product = () => {
     };
 
 
-    const handleFav=() =>{
-      setIsFavorited(!isFavorited)
-      {/*make a request to toggle the isfavorited   */}
+    const handleFav= async () =>{
+      if (isFavorited){
+
+        delFav()
+
+
+
+
+      }
+
+
+
+      else{
+
+
+      const response = await fetch('http://127.0.0.1:5000/create_favourite', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body:JSON.stringify({
+          username: sessionStorage.getItem('username'),
+          listing_id: id
+
+        })
+      })
+      .then(response => {
+        if (!response.ok) {
+          throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+
+
+        setIsFavorited(!isFavorited)
+
+
+      })
+      .catch(error => console.error(error))
+    }
+
+
+
+
+    }
+
+
+
+
+
+    const delFav= async () =>{
+      const username = sessionStorage.getItem('username')
+      const csTick = sessionStorage.getItem('csTicket')
+      const fullName = sessionStorage.getItem('fullName')
+
+      const response = await fetch(`http://127.0.0.1:5000/delete_favourites/${username}/${id}?username=${username}&cs_ticket=${csTick}&full_name=${fullName}`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      })
+      .then(response => {
+        if (!response.ok) {
+          throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+
+        return response.text()
+
+
+      })
+      .then(text => {
+        const data = JSON.parse(text.trim())
+
+        setIsFavorited(!isFavorited)
+
+
+
+
+      })
+      .catch(error => console.error(error))
+
+
+
+
     }
 
   return (
