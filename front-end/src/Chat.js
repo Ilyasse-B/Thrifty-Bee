@@ -7,29 +7,61 @@ const Chat = ({ currentUser }) => {
   const location = useLocation();
   const { chatId, listingName, otherPerson } = location.state || {};
   const [messages, setMessages] = useState([]);
+  const [userId, setUserId] = useState(null);
   const [newMessage, setNewMessage] = useState('');
   const messagesEndRef = useRef(null);
+  const [otherPersonId, setOtherPersonId] = useState(null);
+  const username = sessionStorage.getItem("username");
 
+  // Fetch user and other person IDs
   useEffect(() => {
-    // This is mock messages, will need to be connected to messaging database in the future
-    const mockMessages = [
-      { id: 1, text: 'Hi. I am interested in buying your item', sender: 'example_user', timestamp: new Date(Date.now() - 100000) },
-      { id: 2, text: 'Hi! How can I help? ', sender: 'example_user_two', timestamp: new Date(Date.now() - 80000) },
-      { id: 3, text: 'I think you have priced the item too high. Can I offer £5', sender: 'example_user', timestamp: new Date(Date.now() - 60000) },
-      { id: 4, text: 'Yes that is fine. Where should we meet to arrange payment?', sender: 'example_user_two', timestamp: new Date(Date.now() - 40000) }
-    ];
+    const fetchUserIds = async () => {
+      try {
+        const response = await fetch(
+          `http://127.0.0.1:5000/get_chat_users?username=${username}&other_person_name=${otherPerson}`
+        );
+        const data = await response.json();
 
-    setMessages(mockMessages);
-  }, []);
+        if (data.user_id && data.other_person_id) {
+          setUserId(data.user_id);
+          setOtherPersonId(data.other_person_id);
+        }
+      } catch (error) {
+        console.error("Error fetching user IDs:", error);
+      }
+    };
 
-  // Setting to auto-scroll to the bottom when messages change
+    if (username && otherPerson) {
+      fetchUserIds();
+    }
+  }, [username, otherPerson]);
+
+  // Fetch messages
   useEffect(() => {
-    scrollToBottom();
-  }, [messages]);
+    const fetchMessages = async () => {
+      try {
+        const response = await fetch(
+          `http://127.0.0.1:5000/get_message_chat?chat_id=${chatId}`
+        );
+        const data = await response.json();
 
-  const scrollToBottom = () => {
+        if (data.messages) {
+          setMessages(data.messages);
+        }
+      } catch (error) {
+        console.error("Error fetching messages:", error);
+      }
+    };
+
+    if (chatId) {
+      fetchMessages();
+    }
+  }, [chatId]);
+
+  // Auto-scroll to bottom when messages update
+  useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  };
+  }, [messages]);
 
   const handleSendMessage = (e) => {
     e.preventDefault();
@@ -47,11 +79,6 @@ const Chat = ({ currentUser }) => {
     setNewMessage('');
   };
 
-  // formatting the time
-  const formatTime = (date) => {
-    return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-  };
-
   return (
     <div className="chat-container">
       {/* Chat header */}
@@ -62,17 +89,20 @@ const Chat = ({ currentUser }) => {
       {/* Messages container */}
       <div className="messages-container">
         {messages.map((message) => {
-          // Safe check if currentUser exists before accessing id
-          const isCurrentUser = currentUser ? message.sender === currentUser.id : false;
+          const isCurrentUser = message.user_id === userId;
           
           return (
-            <Message 
-              key={message.id}
-              text={message.text}
-              sender={message.sender}
-              timestamp={formatTime(message.timestamp)}
-              isCurrentUser={isCurrentUser}
-            />
+            <div 
+              key={message.id} 
+              className={`message-wrapper ${isCurrentUser ? 'current-user' : 'other-user'}`}
+            >
+              <Message 
+                text={message.content}
+                sender={isCurrentUser ? "You" : otherPerson}
+                timestamp={new Date(message.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                isCurrentUser={isCurrentUser}
+              />
+            </div>
           );
         })}
         <div ref={messagesEndRef} />
