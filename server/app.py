@@ -561,6 +561,7 @@ def get_user_chats():
 
     chat_data = [
         {
+            "chat_id": chat.id,
             "other_person": UserModel.query.get(chat.user_to_sell).first_name
             if chat.user_to_buy == user_id
             else UserModel.query.get(chat.user_to_buy).first_name,
