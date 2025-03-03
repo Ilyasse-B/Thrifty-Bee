@@ -1,8 +1,11 @@
 import React, { useState, useRef, useEffect } from 'react';
 import './chat.css';
+import { useLocation } from 'react-router-dom';
 import Message from './Message';
 
 const Chat = ({ currentUser }) => {
+  const location = useLocation();
+  const { chatId, listingName, otherPerson } = location.state || {};
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState('');
   const messagesEndRef = useRef(null);
@@ -53,7 +56,7 @@ const Chat = ({ currentUser }) => {
     <div className="chat-container">
       {/* Chat header */}
       <div className="chat-header">
-        <h1>Chat</h1>
+        <h1>Chat with {otherPerson} for {listingName}</h1>
       </div>
       
       {/* Messages container */}
