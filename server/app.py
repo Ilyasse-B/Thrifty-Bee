@@ -16,6 +16,7 @@ from models.MessagesModel import MessagesModel
 from models.FavouritesModel import FavouritesModel
 import uuid
 
+from datetime import datetime
 
 # Initialize Flask app
 app = Flask(__name__)
@@ -92,6 +93,48 @@ with app.app_context():
 
             db.session.commit()
 
+            # Get the chat ID for the sofa listing
+            sofa_chat = ChatsModel.query.filter_by(listing_id=sofa_listing.id).first()
+
+            # Add test messages
+            message_1 = MessagesModel(
+                chat_id=sofa_chat.id,
+                user_id=2,  # John
+                content="Hi, is the sofa still available?",
+                timestamp= datetime.strptime("2024-03-01 10:15:30", "%Y-%m-%d %H:%M:%S"),
+                read=False
+            )
+            db.session.add(message_1)
+
+            message_2 = MessagesModel(
+                chat_id=sofa_chat.id,
+                user_id=3,  # Seller
+                content="Yes, it's still available!",
+                timestamp=datetime.strptime("2024-03-01 10:15:30", "%Y-%m-%d %H:%M:%S"),
+                read=False
+            )
+            db.session.add(message_2)
+
+            message_3 = MessagesModel(
+                chat_id=sofa_chat.id,
+                user_id=2,  # John
+                content="Great! Could I come by tomorrow to see it?",
+                timestamp=datetime.strptime("2024-03-01 10:15:30", "%Y-%m-%d %H:%M:%S"),
+                read=False
+            )
+            db.session.add(message_3)
+
+            message_4 = MessagesModel(
+                chat_id=sofa_chat.id,
+                user_id=3,  # Seller
+                content="Sure, what time works for you?",
+                timestamp=datetime.strptime("2024-03-01 10:15:30", "%Y-%m-%d %H:%M:%S"),
+                read=False
+            )
+            db.session.add(message_4)
+
+            db.session.commit()
+
     except OperationalError as e:
         print(f"Error checking or creating tables: {e}")
 
@@ -99,7 +142,7 @@ with app.app_context():
 if __name__ == '__main__':
     app.run(debug=True)
 
-routes = ['create_chat','edit_chat','delete_chat','create_message','edit_message','get_messages','create_favourite','check_favourite','fetch_favourites','delete_favourites','get_user_chats', 'change_listing', 'change_profile', 'get_seller_info','create_listing','get_product','make_profile','get_user_info','delete_listing','get_user_listings','get_listings','start_login']
+routes = ['get_chat_users','create_chat','edit_chat','delete_chat','create_message','edit_message','get_messages','create_favourite','check_favourite','fetch_favourites','delete_favourites','get_user_chats', 'change_listing', 'change_profile', 'get_seller_info','create_listing','get_product','make_profile','get_user_info','delete_listing','get_user_listings','get_listings','start_login']
 
 @app.before_request
 def check_login():
@@ -518,26 +561,47 @@ def edit_message(id):
 #This route fetches all message for a chat
 @app.route('/get_message_chat',methods=["GET"])
 def get_messages():
-    chat = request.args.get('chat_id', type = int)
+    chat_id = request.args.get('chat_id', type = int)
 
-    if not chat:
+    if not chat_id:
         return make_response({"message": "chat id is required"}, 400)
     
-    messages = MessagesModel.query.filter_by(chat_id=chat).order_by(MessagesModel.timestamp.asc()).all()
+    messages = MessagesModel.query.filter_by(chat_id=chat_id).order_by(MessagesModel.timestamp.asc()).all()
     
 
     chat_data = [
         {
-            "id" : messages.id,
-            "user_id" : messages.user_id,
-            "content" : messages.content,
-            "timestamp" : messages.timestamp,
-            "read" : messages.read
+            "id" : message.id,
+            "user_id" : message.user_id,
+            "content" : message.content,
+            "timestamp" : message.timestamp,
+            "read" : message.read
         }
-        for chat in chat
+        for message in messages
     ]
 
-    return make_response({"messages in chat": chat_data}, 200)
+    return make_response({"messages": chat_data}, 200)
+
+# This route get's the user id's of the user's in a chat
+@app.route('/get_chat_users', methods=['GET'])
+def get_chat_users():
+    username = request.args.get('username')
+    other_person_name = request.args.get('other_person_name')
+
+    if not username or not other_person_name:
+        return make_response({"error": "Both username and other_person_name are required"}, 400)
+
+    user = UserModel.query.filter_by(username=username).first()
+    other_person = UserModel.query.filter_by(first_name=other_person_name).first()
+
+    if not user or not other_person:
+        return make_response({"error": "User not found"}, 404)
+
+    return make_response({
+        "user_id": user.id,
+        "other_person_id": other_person.id
+    }, 200)
+
  
  # This route fetches all the chats for a specific user
 @app.route('/user_chats', methods=['GET'])
