@@ -80,7 +80,6 @@ const Navbar = () => {
         <button className="nav-button" onClick={() => handleNavigation("/help")}>Help</button>
         <button className="nav-button" onClick={() => handleNavigation("/about")}>About</button>
         <button className="nav-button" onClick={() => handleNavigation("/")}>Search</button>
-        <button className = "nav-button" onClick={() => handleNavigation("/chat")}>Chat</button>
         <button className="login-button" onClick={() => {
           if (!auth){
             authenticateViaCAS()

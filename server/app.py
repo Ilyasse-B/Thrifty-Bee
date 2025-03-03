@@ -16,6 +16,7 @@ from models.MessagesModel import MessagesModel
 from models.FavouritesModel import FavouritesModel
 import uuid
 
+from datetime import datetime
 
 # Initialize Flask app
 app = Flask(__name__)
@@ -92,6 +93,48 @@ with app.app_context():
 
             db.session.commit()
 
+            # Get the chat ID for the sofa listing
+            sofa_chat = ChatsModel.query.filter_by(listing_id=sofa_listing.id).first()
+
+            # Add test messages
+            message_1 = MessagesModel(
+                chat_id=sofa_chat.id,
+                user_id=2,  # John
+                content="Hi, is the sofa still available?",
+                timestamp= datetime.strptime("2024-03-01 10:15:30", "%Y-%m-%d %H:%M:%S"),
+                read=False
+            )
+            db.session.add(message_1)
+
+            message_2 = MessagesModel(
+                chat_id=sofa_chat.id,
+                user_id=3,  # Seller
+                content="Yes, it's still available!",
+                timestamp=datetime.strptime("2024-03-01 10:15:30", "%Y-%m-%d %H:%M:%S"),
+                read=False
+            )
+            db.session.add(message_2)
+
+            message_3 = MessagesModel(
+                chat_id=sofa_chat.id,
+                user_id=2,  # John
+                content="Great! Could I come by tomorrow to see it?",
+                timestamp=datetime.strptime("2024-03-01 10:15:30", "%Y-%m-%d %H:%M:%S"),
+                read=False
+            )
+            db.session.add(message_3)
+
+            message_4 = MessagesModel(
+                chat_id=sofa_chat.id,
+                user_id=3,  # Seller
+                content="Sure, what time works for you?",
+                timestamp=datetime.strptime("2024-03-01 10:15:30", "%Y-%m-%d %H:%M:%S"),
+                read=False
+            )
+            db.session.add(message_4)
+
+            db.session.commit()
+
     except OperationalError as e:
         print(f"Error checking or creating tables: {e}")
 
@@ -99,7 +142,7 @@ with app.app_context():
 if __name__ == '__main__':
     app.run(debug=True)
 
-routes = ['create_chat','edit_chat','delete_chat','create_message','edit_message','get_messages','create_favourite','check_favourite','fetch_favourites','delete_favourites','get_user_chats', 'change_listing', 'change_profile', 'get_seller_info','create_listing','get_product','make_profile','get_user_info','delete_listing','get_user_listings','get_listings','start_login']
+routes = ['get_chat_users','create_chat','edit_chat','delete_chat','create_message','edit_message','get_messages','create_favourite','check_favourite','fetch_favourites','delete_favourites','get_user_chats', 'change_listing', 'change_profile', 'get_seller_info','create_listing','get_product','make_profile','get_user_info','delete_listing','get_user_listings','get_listings','start_login']
 
 @app.before_request
 def check_login():
@@ -125,8 +168,8 @@ def check_login():
 
 @app.route('/intiate_login', methods=['GET'])
 def start_login():
-    cs_ticket = uuid.uuid4().hex[:12]                                         # ngrok Link here
-    redirect_url = f'http://studentnet.cs.manchester.ac.uk/authenticate/?url=https://d76d-130-88-226-13.ngrok-free.app/profile&csticket={cs_ticket}&version=3&command=validate'
+    cs_ticket = uuid.uuid4().hex[:12]                                         # ngrok Link here 
+    redirect_url = f'http://studentnet.cs.manchester.ac.uk/authenticate/?url=https://ffe7-86-9-200-131.ngrok-free.app/profile&csticket={cs_ticket}&version=3&command=validate'
 
     res = {
         "auth_url": redirect_url,
@@ -382,32 +425,36 @@ def change_listing(id):
 def create_chat():
     chat_data = request.get_json()
     listing_id = chat_data.get('listing_id')
-    active = True
-    user_to_sell = chat_data.get('user_sell_id')
-    user_to_buy = chat_data.get('user_buy_id')
-    seller_confirmed = False
-    buyer_confirmed = False
+    username = chat_data.get('username')
 
-    if not listing_id or not user_to_buy:  # Validate required fields
+    if not listing_id or not username:
         return make_response({"message": "Missing required fields"}, 400)
 
-    user_buy = UserModel.query.filter_by(username=user_to_buy).first()
+    # Get user_to_buy ID from username
+    user_buy = UserModel.query.filter_by(username=username).first()
     if not user_buy:
-        return make_response('User not found')
+        return make_response({"message": "User not found"}, 404)
     user_buy_id = user_buy.id
 
-    user_sell = UserModel.query.filter_by(username=user_to_sell).first()
-    if not user_sell:
-        return make_response('User not found')
-    user_sell_id = user_sell.id
+    # Get user_to_sell ID from the listing
+    listing = ListingsModel.query.filter_by(id=listing_id).first()
+    if not listing:
+        return make_response({"message": "Listing not found"}, 404)
+    user_sell_id = listing.user_id
 
-
-
-    new_chat = ChatsModel(listing_id = listing_id, active = active , user_to_sell = user_to_sell ,user_to_buy = user_buy_id, seller_confirmed= seller_confirmed, buyer_confirmed = buyer_confirmed)
+    # Create a new chat
+    new_chat = ChatsModel(
+        listing_id=listing_id,
+        active=True,
+        user_to_sell=user_sell_id,
+        user_to_buy=user_buy_id,
+        seller_confirmed=False,
+        buyer_confirmed=False
+    )
     db.session.add(new_chat)
     db.session.commit()
 
-    return make_response({"message": "Chat created successfully"}, 201)
+    return make_response({"chat_id": new_chat.id}, 201)
 
 #This route edits a chat
 @app.route('/edit_chat/<int:id>',methods = ['PATCH'])
@@ -468,19 +515,27 @@ def create_message():
     chat_id = message_data.get('chat_id')
     username = message_data.get('username')
     content = message_data.get('content')
-    timestamp = message_data.get('timestamp')
+    timestamp_str = message_data.get('timestamp')
     #read = message_data.get('read')
 
+    # Convert timestamp string to a Python datetime object
+    try:
+        timestamp = datetime.fromisoformat(timestamp_str.replace("Z", "+00:00"))  
+    except ValueError:
+        return make_response({"error": "Invalid timestamp format"}, 400)
+    
     user = UserModel.query.filter_by(username=username).first()
     if not user:
         return make_response('User not found')
     user_id = user.id
 
-    new_message = MessagesModel(chat_id = chat_id, user_id = user_id, content = content, timestamp = timestamp)
+    new_message = MessagesModel(chat_id = chat_id, user_id = user_id, content = content, timestamp = timestamp, read = False)
     db.session.add(new_message)
     db.session.commit()
 
+    return make_response({"success": "Message sent"}, 201)
 
+    
 
 #This route edits message
 @app.route('/get_message_chat/<int:id>',methods=["PATCH"])
@@ -518,27 +573,48 @@ def edit_message(id):
 #This route fetches all message for a chat
 @app.route('/get_message_chat',methods=["GET"])
 def get_messages():
-    chat = request.args.get('chat_id', type = int)
+    chat_id = request.args.get('chat_id', type = int)
 
-    if not chat:
+    if not chat_id:
         return make_response({"message": "chat id is required"}, 400)
-
-    messages = MessagesModel.query.filter_by(chat_id=chat).order_by(MessagesModel.timestamp.asc()).all()
-
+    
+    messages = MessagesModel.query.filter_by(chat_id=chat_id).order_by(MessagesModel.timestamp.asc()).all()
+    
 
     chat_data = [
         {
-            "id" : messages.id,
-            "user_id" : messages.user_id,
-            "content" : messages.content,
-            "timestamp" : messages.timestamp,
-            "read" : messages.read
+            "id" : message.id,
+            "user_id" : message.user_id,
+            "content" : message.content,
+            "timestamp" : message.timestamp,
+            "read" : message.read
         }
-        for chat in chat
+        for message in messages
     ]
 
-    return make_response({"messages in chat": chat_data}, 200)
+    return make_response({"messages": chat_data}, 200)
 
+# This route get's the user id's of the user's in a chat
+@app.route('/get_chat_users', methods=['GET'])
+def get_chat_users():
+    username = request.args.get('username')
+    other_person_name = request.args.get('other_person_name')
+
+    if not username or not other_person_name:
+        return make_response({"error": "Both username and other_person_name are required"}, 400)
+
+    user = UserModel.query.filter_by(username=username).first()
+    other_person = UserModel.query.filter_by(first_name=other_person_name).first()
+
+    if not user or not other_person:
+        return make_response({"error": "User not found"}, 404)
+
+    return make_response({
+        "user_id": user.id,
+        "other_person_id": other_person.id
+    }, 200)
+
+ 
  # This route fetches all the chats for a specific user
 @app.route('/user_chats', methods=['GET'])
 def get_user_chats():
@@ -561,6 +637,7 @@ def get_user_chats():
 
     chat_data = [
         {
+            "chat_id": chat.id,
             "other_person": UserModel.query.get(chat.user_to_sell).first_name
             if chat.user_to_buy == user_id
             else UserModel.query.get(chat.user_to_buy).first_name,

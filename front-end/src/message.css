@@ -1,0 +1,53 @@
+.message-wrapper {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 10px;
+    max-width: 100%;
+  }
+  
+  .current-user {
+    align-self: flex-end;
+    text-align: right;
+  }
+  
+  .other-user {
+    align-self: flex-start;
+    text-align: left;
+  }
+  
+  .message-sender {
+    font-size: 14px;
+    font-weight: bold;
+    color: #555;
+    margin-bottom: 4px;
+  }
+  
+  .message-bubble {
+    padding: 10px 14px;
+    border-radius: 10px;
+    position: relative;
+    max-width: 100%;
+    word-wrap: break-word;
+  }
+  
+  .other-user-bubble {
+    background-color: #e6e6e6;
+    color: black;
+  }
+  
+  .current-user-bubble {
+    background-color: #C3B1E1;
+    color: black;
+  }
+  
+  .message-text {
+    font-size: 16px;
+  }
+  
+  .message-time {
+    font-size: 12px;
+    color: #777;
+    text-align: right;
+    margin-top: 4px;
+  }
+  
