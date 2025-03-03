@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import './chat.css';
+import Message from './Message';
 
 const Chat = ({ currentUser }) => {
   const [messages, setMessages] = useState([]);
@@ -62,18 +63,13 @@ const Chat = ({ currentUser }) => {
           const isCurrentUser = currentUser ? message.sender === currentUser.id : false;
           
           return (
-            <div 
-              key={message.id} 
-              className={`message-wrapper ${isCurrentUser ? 'current-user' : 'other-user'}`}
-              data-sender={message.sender}
-            >
-              <div className={`message-bubble ${isCurrentUser ? 'current-user-bubble' : 'other-user-bubble'}`}>
-                <p className="message-text">{message.text}</p>
-                <p className="message-time">
-                  {formatTime(message.timestamp)}
-                </p>
-              </div>
-            </div>
+            <Message 
+              key={message.id}
+              text={message.text}
+              sender={message.sender}
+              timestamp={formatTime(message.timestamp)}
+              isCurrentUser={isCurrentUser}
+            />
           );
         })}
         <div ref={messagesEndRef} />
