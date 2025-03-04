@@ -14,6 +14,8 @@ from models.UserRolesModel import UserRolesModel
 from models.ListingsModel import ListingsModel
 from models.MessagesModel import MessagesModel
 from models.FavouritesModel import FavouritesModel
+from models.ReviewsModel import ReviewsModel
+
 import uuid
 
 from datetime import datetime
