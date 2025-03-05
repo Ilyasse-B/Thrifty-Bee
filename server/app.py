@@ -45,7 +45,7 @@ with app.app_context():
 
             # Create test listings
             listing_one = ListingsModel(
-                user_id=3,
+                user_id=1,
                 listing_name="Chopping Board",
                 image="https://img.freepik.com/free-photo/wood-cutting-board_1203-3148.jpg?t=st=1738937016~exp=1738940616~hmac=ffa2367ba27fed36015963353d65c4a50973931a35202392a1943abdc630938b&w=996",
                 price=3.00,
@@ -56,7 +56,7 @@ with app.app_context():
             db.session.add(listing_one)
 
             listing_two = ListingsModel(
-                user_id=3,
+                user_id=1,
                 listing_name="Sofa",
                 image="https://img.freepik.com/free-photo/beautiful-interior-room-design-concept_23-2148786485.jpg?t=st=1738937245~exp=1738940845~hmac=d22d78f604dc8709293d294ab81ca42fe70a578bd3ad9c18f5a389bf064ccd31&w=996",
                 price=20.50,
@@ -66,9 +66,9 @@ with app.app_context():
             )
             db.session.add(listing_two)
 
-            # Create a test user with ID 2
+            # Create a test user with ID 1
             user_two = UserModel(
-                id=2,
+                id=1,
                 first_name="John",
                 last_name="Doe",
                 username="johndoe",
@@ -76,64 +76,6 @@ with app.app_context():
                 email_address="johndoe@example.com"
             )
             db.session.add(user_two)
-
-            db.session.commit()
-
-            # Get the listing ID of "Sofa"
-            sofa_listing = ListingsModel.query.filter_by(listing_name="Sofa").first()
-
-            # Create a chat between user 1 (seller) and user 2 (buyer)
-            chat = ChatsModel(
-                listing_id=sofa_listing.id,
-                active=True,
-                user_to_sell=3,
-                user_to_buy=2,
-                seller_confirmed=False,
-                buyer_confirmed=False
-            )
-            db.session.add(chat)
-
-            db.session.commit()
-
-            # Get the chat ID for the sofa listing
-            sofa_chat = ChatsModel.query.filter_by(listing_id=sofa_listing.id).first()
-
-            # Add test messages
-            message_1 = MessagesModel(
-                chat_id=sofa_chat.id,
-                user_id=2,  # John
-                content="Hi, is the sofa still available?",
-                timestamp= datetime.strptime("2024-03-01 10:15:30", "%Y-%m-%d %H:%M:%S"),
-                read=False
-            )
-            db.session.add(message_1)
-
-            message_2 = MessagesModel(
-                chat_id=sofa_chat.id,
-                user_id=3,  # Seller
-                content="Yes, it's still available!",
-                timestamp=datetime.strptime("2024-03-01 10:15:30", "%Y-%m-%d %H:%M:%S"),
-                read=False
-            )
-            db.session.add(message_2)
-
-            message_3 = MessagesModel(
-                chat_id=sofa_chat.id,
-                user_id=2,  # John
-                content="Great! Could I come by tomorrow to see it?",
-                timestamp=datetime.strptime("2024-03-01 10:15:30", "%Y-%m-%d %H:%M:%S"),
-                read=False
-            )
-            db.session.add(message_3)
-
-            message_4 = MessagesModel(
-                chat_id=sofa_chat.id,
-                user_id=3,  # Seller
-                content="Sure, what time works for you?",
-                timestamp=datetime.strptime("2024-03-01 10:15:30", "%Y-%m-%d %H:%M:%S"),
-                read=False
-            )
-            db.session.add(message_4)
 
             db.session.commit()
 
