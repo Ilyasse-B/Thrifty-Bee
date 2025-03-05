@@ -229,16 +229,17 @@ def make_profile(username,f_name,l_name):
 # This route get's seller's contact info for the Product page
 @app.route('/get_seller_info', methods=['GET'])
 def get_seller_info():
-    username = request.args.get('username', type=str)
+    user_id = request.args.get('user_id', type=int)
 
-    if not username:
-        return make_response({"message": "username is required"}, 400)
+    if not user_id:
+        return make_response({"message": "user_id is required"}, 400)
 
-    user = UserModel.query.filter_by(username=username).first()
+    user = UserModel.query.filter_by(id=user_id).first()
     if not user:
         return make_response({"message": "User not found"}, 404)
 
     seller_data = {
+        "username": user.username,
         "first_name": user.first_name,
         "email": user.email_address,
         "phone_number": user.phone_number
