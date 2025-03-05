@@ -422,7 +422,7 @@ def change_listing(id):
 
         return make_response(response_dict, 200)
 
-#This route creates a new chat from contact seller
+#This route creates a new chat from contact seller, but will first check if one exists
 @app.route('/create_chat', methods=['POST'])
 def create_chat():
     chat_data = request.get_json()
@@ -444,7 +444,17 @@ def create_chat():
         return make_response({"message": "Listing not found"}, 404)
     user_sell_id = listing.user_id
 
-    # Create a new chat
+    # Check if a chat already exists between these users for this listing
+    existing_chat = ChatsModel.query.filter_by(
+        listing_id=listing_id,
+        user_to_sell=user_sell_id,
+        user_to_buy=user_buy_id
+    ).first()
+
+    if existing_chat:
+        return make_response({"chat_id": existing_chat.id}, 200)
+
+    # Create a new chat if one doesn't exist
     new_chat = ChatsModel(
         listing_id=listing_id,
         active=True,
