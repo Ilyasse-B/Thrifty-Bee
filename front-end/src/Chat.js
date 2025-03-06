@@ -147,8 +147,8 @@ const Chat = ({ currentUser }) => {
     try {
       const confirmationType = isBuyer ? "item_received" : "payment_received";
       
-      const response = await fetch("http://127.0.0.1:5000/confirm_transaction", {
-        method: "POST",
+      const response = await fetch("http://127.0.0.1:5000/edit_chat", {
+        method: "PATCH",
         headers: {
           "Content-Type": "application/json",
         },
@@ -162,28 +162,69 @@ const Chat = ({ currentUser }) => {
       const data = await response.json();
       
       if (data.status === 'success') {
-        // Add a system message to the chat
-        const systemMessage = {
-          id: Date.now(), // Temporary ID
-          user_id: null, // System message has no user ID
-          content: isBuyer 
-            ? `${username} confirmed item was received.` 
-            : `${username} confirmed payment was received.`,
-          timestamp: new Date().toISOString(),
-          is_system: true // Flag to style it differently if needed
+        // Construct confirmation message
+        const confirmationMessage = {
+          chat_id: chatId,
+          username: username, // Sender
+          content: isBuyer
+            ? "Buyer has confirmed that item has been received"
+            : "Seller has confirmed that payment has been received",
+          timestamp: new Date().toISOString()
         };
+
+        // Send confirmation message to backend
+      await fetch("http://127.0.0.1:5000/create_message", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(confirmationMessage),
+      });
+
+      // Fetch updated messages to include confirmation message
+      const fetchMessages = async () => {
+        try {
+          const response = await fetch(
+            `http://127.0.0.1:5000/get_message_chat?chat_id=${chatId}`
+          );
+          const data = await response.json();
+
+          if (data.messages) {
+            setMessages(data.messages);
+          }
+        } catch (error) {
+          console.error("Error fetching messages:", error);
+        }
+      };
+
+      await fetchMessages(); // Refresh chat after sending confirmation message
         
-        setMessages(prevMessages => [...prevMessages, systemMessage]);
-        
-        // Disable the button after confirmation
-        setIsBuyer(undefined);
-      } else {
-        console.error("Confirmation failed:", data.message);
-        // You might want to show an error message to the user
+        // If transaction is complete, send a final system message
+      if (data.transaction_complete) {
+        const completeMessage = {
+          chat_id: chatId,
+          username: "System", // This could be handled as a system message
+          content: "Item sale complete.",
+          timestamp: new Date().toISOString()
+        };
+
+        await fetch("http://127.0.0.1:5000/create_message", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(completeMessage),
+        });
+
+        await fetchMessages(); // Refresh chat again to include final system message
       }
-    } catch (error) {
-      console.error("Error confirming transaction:", error);
-    }
+
+  } else {
+      console.error("Confirmation failed:", data.message);
+  }
+} catch (error) {
+  console.error("Error confirming transaction:", error);
+}
   };
   
   return (
@@ -193,7 +234,7 @@ const Chat = ({ currentUser }) => {
         <h1>Chat with {otherPerson} for {listingName}</h1>
         {isBuyer !== undefined && (
         <button onClick={handleConfirm} className="confirm-button">
-            {isBuyer ? "Confirm Payment Received" : "Confirm Item Received"}
+            {isBuyer ? "Confirm Item Received" : "Confirm Payment Received"}
         </button>
         )}
       </div>
