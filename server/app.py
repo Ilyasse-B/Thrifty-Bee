@@ -1,4 +1,4 @@
-from flask import Flask, request, make_response
+from flask import Flask, request, make_response, jsonify
 from flask_migrate import Migrate
 import requests
 from models.index import db
@@ -45,7 +45,7 @@ with app.app_context():
 
             # Create test listings
             listing_one = ListingsModel(
-                user_id=1,
+                user_id=2,
                 listing_name="Chopping Board",
                 image="https://img.freepik.com/free-photo/wood-cutting-board_1203-3148.jpg?t=st=1738937016~exp=1738940616~hmac=ffa2367ba27fed36015963353d65c4a50973931a35202392a1943abdc630938b&w=996",
                 price=3.00,
@@ -67,7 +67,7 @@ with app.app_context():
             db.session.add(listing_two)
 
             # Create a test user with ID 1
-            user_two = UserModel(
+            user_one = UserModel(
                 id=1,
                 first_name="John",
                 last_name="Doe",
@@ -75,7 +75,34 @@ with app.app_context():
                 phone_number="1234567890",
                 email_address="johndoe@example.com"
             )
-            db.session.add(user_two)
+            db.session.add(user_one)
+
+            db.session.commit()
+
+            # Fetch listing IDs
+        sofa_listing = ListingsModel.query.filter_by(listing_name="Sofa").first()
+        chopping_board_listing = ListingsModel.query.filter_by(listing_name="Chopping Board").first()
+
+        if sofa_listing and chopping_board_listing:
+            # Chat where user 1 is the seller and user 2 (you) is the buyer (Sofa)
+            chat_one = ChatsModel(
+                listing_id=sofa_listing.id,
+                user_to_sell=1,  # Seller is user 1
+                user_to_buy=2,  # You will log in as user 2
+                seller_confirmed=True,  # Seller has confirmed payment received
+                buyer_confirmed=False  # Buyer hasn't confirmed yet
+            )
+            db.session.add(chat_one)
+
+            # Chat where user 2 (you) is the seller and user 1 is the buyer (Chopping Board)
+            chat_two = ChatsModel(
+                listing_id=chopping_board_listing.id,
+                user_to_sell=2,  # You will log in as user 2
+                user_to_buy=1,  # Buyer is user 1
+                seller_confirmed=False,  # Seller hasn't confirmed yet
+                buyer_confirmed=True  # Buyer has confirmed receiving the item
+            )
+            db.session.add(chat_two)
 
             db.session.commit()
 
@@ -86,7 +113,7 @@ with app.app_context():
 if __name__ == '__main__':
     app.run(debug=True)
 
-routes = ['get_chat_users','create_chat','edit_chat','delete_chat','create_message','edit_message','get_messages','create_favourite','check_favourite','fetch_favourites','delete_favourites','get_user_chats', 'change_listing', 'change_profile', 'get_seller_info','create_listing','get_product','make_profile','get_user_info','delete_listing','get_user_listings','get_listings','start_login']
+routes = ['get_chat_role','get_chat_users','create_chat','edit_chat','delete_chat','create_message','edit_message','get_messages','create_favourite','check_favourite','fetch_favourites','delete_favourites','get_user_chats', 'change_listing', 'change_profile', 'get_seller_info','create_listing','get_product','make_profile','get_user_info','delete_listing','get_user_listings','get_listings','start_login']
 
 @app.before_request
 def check_login():
@@ -113,7 +140,7 @@ def check_login():
 @app.route('/intiate_login', methods=['GET'])
 def start_login():
     cs_ticket = uuid.uuid4().hex[:12]                                         # ngrok Link here 
-    redirect_url = f'http://studentnet.cs.manchester.ac.uk/authenticate/?url=https://bb0b-130-88-226-18.ngrok-free.app/profile&csticket={cs_ticket}&version=3&command=validate'
+    redirect_url = f'http://studentnet.cs.manchester.ac.uk/authenticate/?url=https://2088-130-88-226-30.ngrok-free.app/profile&csticket={cs_ticket}&version=3&command=validate'
 
     res = {
         "auth_url": redirect_url,
@@ -140,7 +167,7 @@ def get_listings():
             "description": listing.description,
             "user_id": listing.user_id,
             #"pending": listing.pending,
-            #"sold": listing.sold
+            "sold": listing.sold
         }
         for listing in listings
     ]
@@ -412,41 +439,68 @@ def create_chat():
     return make_response({"chat_id": new_chat.id}, 201)
 
 #This route edits a chat
-@app.route('/edit_chat/<int:id>',methods = ['PATCH'])
-def edit_chat(id):
-    chat = ChatsModel.query.filter_by(id = id).first()
+@app.route('/edit_chat', methods=['PATCH'])
+def edit_chat():
+    data = request.get_json()
+    chat_id = data.get('chat_id')
+    username = data.get('username')
+    confirmation_type = data.get('confirmation_type')  # "item_received" or "payment_received"
+
+    # Validate input
+    if not chat_id or not username or not confirmation_type:
+        return make_response(jsonify({"error": "Missing required fields"}), 400)
+
+    # Fetch the chat
+    chat = ChatsModel.query.filter_by(id=chat_id).first()
     if not chat:
-        return make_response('Chat not found', 404)
+        return make_response(jsonify({"error": "Chat not found"}), 404)
+
+    # Fetch the user
+    user = UserModel.query.filter_by(username=username).first()
+    if not user:
+        return make_response(jsonify({"error": "User not found"}), 404)
+
+    # Determine if the user is the buyer or seller
+    is_buyer = (chat.user_to_buy == user.id)
+    is_seller = (chat.user_to_sell == user.id)
+
+    if is_buyer and confirmation_type == "item_received":
+        chat.buyer_confirmed = True
+    elif is_seller and confirmation_type == "payment_received":
+        chat.seller_confirmed = True
     else:
-        data = request.json()
-        n_active = data.get('active')
-        n_seller_confirmed =data.get('seller_confirmed')
-        n_buyer_confirmed = data.get('buyer_confirmed')
+        return make_response(jsonify({"error": "Invalid confirmation type"}), 400)
 
-    if not n_active or n_seller_confirmed or n_buyer_confirmed :
-        return make_response('need extra information ', 400)
+    # Check if both parties have confirmed
+    transaction_complete = chat.buyer_confirmed and chat.seller_confirmed
 
-    chat.active = n_active
-    chat.seller_confirmed = n_seller_confirmed
-    chat.buyer_confirmed = n_buyer_confirmed
+    if transaction_complete:
+        chat.active = False  # Mark chat as inactive (completed)
+        
+        # Mark listing as sold
+        listing = ListingsModel.query.filter_by(id=chat.listing_id).first()
+        if listing:
+            listing.sold = True
+
+        # Insert system message confirming the transaction is complete
+        system_message = MessagesModel(
+            chat_id=chat.id,
+            user_id=chat.user_to_sell,  # Belongs to the seller
+            content="Item sale complete.",
+            timestamp=datetime.utcnow(),
+            read=False
+        )
+        db.session.add(system_message)
 
     db.session.commit()
 
-    response_dict = {
-    "status": 'Successful',
-    "Chat": {
-        "id": chat.id,
-        "listing_id": chat.listing_id,
-        "user_sell_id": chat.user_sell_id,
-        "user_buy_id" : chat.user_buy_id,
-        "active" : chat.active,
-        "seller_confirmed" : chat.seller_confirmed,
-        "buyer_confirmed" : chat.buyer_confirmed
-
-        }
+    response_data = {
+        "status": "success",
+        "chat_id": chat.id,
+        "transaction_complete": transaction_complete
     }
 
-    return make_response(response_dict, 200)
+    return make_response(jsonify(response_data), 200)
 
 
 #This route deletes a chat when sale falls through / sale goes through
@@ -593,6 +647,7 @@ def get_user_chats():
     chat_data = [
         {
             "chat_id": chat.id,
+            "listing_id": chat.listing_id,
             "other_person": UserModel.query.get(chat.user_to_sell).first_name
             if chat.user_to_buy == user_id
             else UserModel.query.get(chat.user_to_buy).first_name,
@@ -605,6 +660,29 @@ def get_user_chats():
 
     return make_response({"chats": chat_data}, 200)
 
+#This route checks if the user is the buyer in Chat.js
+@app.route('/get_chat_role', methods=['GET'])
+def get_chat_role():
+    chat_id = request.args.get('chat_id')
+    username = request.args.get('username')
+
+    if not chat_id or not username:
+        return jsonify({"status": "error", "message": "Missing chat_id or username"}), 400
+
+    # Get the user by username
+    user = UserModel.query.filter_by(username=username).first()
+    if not user:
+        return jsonify({"status": "error", "message": "User not found"}), 404
+
+    # Get the chat
+    chat = ChatsModel.query.filter_by(id=chat_id).first()
+    if not chat:
+        return jsonify({"status": "error", "message": "Chat not found"}), 404
+
+    # Determine if the user is the buyer
+    is_buyer = user.id == chat.user_to_buy
+
+    return jsonify({"status": "success", "is_buyer": is_buyer}), 200
 
 #This route create a favourite for a specific listing
 @app.route('/create_favourite', methods =['POST'] )
