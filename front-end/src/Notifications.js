@@ -38,7 +38,8 @@ const Notifications = () => {
               key={index}
               className="chat-item"
               onClick={() => navigate(`/chat`, { state: { 
-                chatId: chat.chat_id, 
+                chatId: chat.chat_id,
+                listingId: chat.listing_id,
                 listingName: chat.listing_name, 
                 otherPerson: chat.other_person 
               }})}

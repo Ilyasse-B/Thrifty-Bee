@@ -5,7 +5,7 @@ import Message from './Message';
 
 const Chat = ({ currentUser }) => {
   const location = useLocation();
-  const { chatId, listingName, otherPerson } = location.state || {};
+  const { chatId, listingId, listingName, otherPerson } = location.state || {};
   const [messages, setMessages] = useState([]);
   const [userId, setUserId] = useState(null);
   const [newMessage, setNewMessage] = useState('');

@@ -108,6 +108,7 @@ const handleContactSeller = async () => {
               navigate("/chat", {
                   state: {
                       chatId: data.chat_id,
+                      listingId: id,
                       listingName: name,
                       otherPerson: sellerInfo?.first_name
                   }
