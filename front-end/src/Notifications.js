@@ -37,10 +37,11 @@ const Notifications = () => {
             <div
               key={index}
               className="chat-item"
-              onClick={() => navigate(`/chat`, { state: {
+              onClick={() => navigate(`/chat`, { state: { 
                 chatId: chat.chat_id,
-                listingName: chat.listing_name,
-                otherPerson: chat.other_person
+                listingId: chat.listing_id,
+                listingName: chat.listing_name, 
+                otherPerson: chat.other_person 
               }})}
             >
               <img src={chat.listing_image} alt={chat.listing_name} className="chat-image" />

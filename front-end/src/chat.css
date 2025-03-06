@@ -1,18 +1,8 @@
   /* Main container */
-  .chat-container {
-    width: 80%;
-    max-width: 900px;
-    font-family: sans-serif;
-    margin-inline: auto;
-  }
-
-  /* Header */
-  .chat-header {
-    background-color: #660099;
-    color: white;
-    padding: 10px;
-    text-align: center;
-  }
+.chat-container {
+  width: 100%;
+  font-family: sans-serif;
+}
 
   /* Messages area */
   .messages-container {
@@ -24,31 +14,16 @@
     flex-direction: column;
   }
 
-  /* Ensuring messages align properly */
-  .current-user {
-    align-self: flex-end;
-  }
-
-  .other-user {
-    align-self: flex-start;
-  }
-
-  /* Input area */
-  .message-input-container {
-    padding: 10px;
-    background-color: #f0f0f0;
-  }
-
-  .message-form {
-    display: flex;
-  }
-
-  .message-input {
-    flex: 1;
-    padding: 8px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-  }
+/* Header */
+.chat-header {
+  background-color: #660099;
+  color: white;
+  padding: 10px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: relative;
+}
 
   .send-button {
     background-color: #660099;
@@ -63,3 +38,77 @@
   .send-button:hover{
     background-color: #922ce6;
   }
+/* Center the title */
+.chat-header h1 {
+  position: absolute;
+  width: 100%;
+  text-align: center;
+  margin: 0;
+  z-index: 1;
+}
+
+/* Confirmation button in header - positioned right */
+.confirm-button {
+  background-color: #010402;
+  color: white;
+  font-weight: bold;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  padding: 8px 15px;
+  transition: background-color 0.3s;
+  margin-left: auto;
+  z-index: 2;
+}
+
+.confirm-button:hover {
+  background-color: #010402;
+}
+
+/* Ensuring messages align properly */
+.current-user {
+  align-self: flex-end;
+}
+
+.other-user {
+  align-self: flex-start;
+}
+
+/* System message styling */
+.message-wrapper.system-message {
+  align-self: center;
+  margin: 8px 0;
+}
+
+.message-wrapper.system-message .message-bubble {
+  background-color: #e6f7ff;
+  border: 1px solid #91d5ff;
+  color: #1890ff;
+  font-style: italic;
+}
+
+/* Input area */
+.message-input-container {
+  padding: 10px;
+  background-color: #f0f0f0;
+}
+
+.message-form {
+  display: flex;
+}
+
+.message-input {
+  flex: 1;
+  padding: 8px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.send-button {
+  background-color: #660099;
+  color: white;
+  border: none;
+  padding: 8px 15px;
+  margin-left: 5px;
+  border-radius: 4px;
+}
