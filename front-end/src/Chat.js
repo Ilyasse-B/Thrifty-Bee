@@ -65,19 +65,19 @@ const Chat = ({ currentUser }) => {
 
   const handleSendMessage = async (e) => {
     e.preventDefault();
-  
+
     if (newMessage.trim() === '') return;
-  
+
     // Create a timestamp in ISO format
-    const timestamp = new Date().toISOString(); 
-  
+    const timestamp = new Date().toISOString();
+
     const messageData = {
       chat_id: chatId,
-      username: username, 
+      username: username,
       content: newMessage,
       timestamp: timestamp
     };
-  
+
     try {
       // Send message to Flask backend
       const response = await fetch("http://127.0.0.1:5000/create_message", {
@@ -87,11 +87,11 @@ const Chat = ({ currentUser }) => {
         },
         body: JSON.stringify(messageData),
       });
-  
+
       if (!response.ok) {
         throw new Error("Failed to send message");
       }
-  
+
       // Fetch messages again to update the chat with the new message
       const fetchMessages = async () => {
         try {
@@ -99,7 +99,7 @@ const Chat = ({ currentUser }) => {
             `http://127.0.0.1:5000/get_message_chat?chat_id=${chatId}`
           );
           const data = await response.json();
-    
+
           if (data.messages) {
             setMessages(data.messages);
           }
@@ -107,34 +107,34 @@ const Chat = ({ currentUser }) => {
           console.error("Error fetching messages:", error);
         }
       };
-  
+
       await fetchMessages(); // Refresh chat after sending message
-  
+
       setNewMessage(""); // Clear input field
-  
+
     } catch (error) {
       console.error("Error sending message:", error);
     }
   };
-  
+
   return (
     <div className="chat-container">
       {/* Chat header */}
       <div className="chat-header">
         <h1>Chat with {otherPerson} for {listingName}</h1>
       </div>
-      
+
       {/* Messages container */}
       <div className="messages-container">
         {messages.map((message) => {
           const isCurrentUser = message.user_id === userId;
-          
+
           return (
-            <div 
-              key={message.id} 
+            <div
+              key={message.id}
               className={`message-wrapper ${isCurrentUser ? 'current-user' : 'other-user'}`}
             >
-              <Message 
+              <Message
                 text={message.content}
                 sender={isCurrentUser ? "You" : otherPerson}
                 timestamp={new Date(message.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
@@ -145,7 +145,7 @@ const Chat = ({ currentUser }) => {
         })}
         <div ref={messagesEndRef} />
       </div>
-      
+
       {/* Message input */}
       <div className="message-input-container">
         <form onSubmit={handleSendMessage} className="message-form">
@@ -156,7 +156,7 @@ const Chat = ({ currentUser }) => {
             placeholder="Type a message..."
             className="message-input"
           />
-          <button 
+          <button
             type="submit"
             className="send-button"
           >
@@ -165,7 +165,9 @@ const Chat = ({ currentUser }) => {
         </form>
       </div>
     </div>
+
   );
 };
+
 
 export default Chat;

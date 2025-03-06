@@ -2,10 +2,10 @@
   .chat-container {
     width: 80%;
     max-width: 900px;
-    margin: 0 auto;
     font-family: sans-serif;
+    margin-inline: auto;
   }
-  
+
   /* Header */
   .chat-header {
     background-color: #660099;
@@ -13,7 +13,7 @@
     padding: 10px;
     text-align: center;
   }
-  
+
   /* Messages area */
   .messages-container {
     height: 600px;
@@ -23,7 +23,7 @@
     display: flex;
     flex-direction: column;
   }
-  
+
   /* Ensuring messages align properly */
   .current-user {
     align-self: flex-end;
@@ -38,18 +38,18 @@
     padding: 10px;
     background-color: #f0f0f0;
   }
-  
+
   .message-form {
     display: flex;
   }
-  
+
   .message-input {
     flex: 1;
     padding: 8px;
     border: 1px solid #ddd;
     border-radius: 4px;
   }
-  
+
   .send-button {
     background-color: #660099;
     color: white;
@@ -57,4 +57,45 @@
     padding: 8px 15px;
     margin-left: 5px;
     border-radius: 4px;
+  }
+  #chat-page-container{
+    display: flex;
+    flex-direction: column;
+
+  }
+  #review-container{
+    margin-top: 10vh;
+    padding-left: 5vw;
+  }
+  #stars-container{
+    display: flex;
+    flex-direction: row;
+    gap:0.5vw;
+  }
+  #input-container{
+    height: 40vh;
+    width:40vw;
+    background-color: #E0E0E0;
+    display:flex;
+
+  }
+  #description-input-field{
+    background-color: #E0E0E0;
+    border: none;
+    outline: none;
+    font-family: inherit;
+    font-size: inherit;
+    width: 100%;
+    height: 100%;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    resize: none;
+    padding: 1vw;
+  }
+  #review-submit-button{
+    background-color: #9E2CED;
+    padding-inline: 2vw;
+    padding-block: 1vh;
+    margin-left: 32.75%;
+    font-size: 1.5vw;
   }

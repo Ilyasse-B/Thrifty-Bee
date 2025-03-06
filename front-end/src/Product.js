@@ -105,7 +105,7 @@ const handleContactSeller = async () => {
       const data = await response.json();
       if (response.ok) {
           setTimeout(() => {
-              navigate("/chat", {
+              navigate("/chatpage", {
                   state: {
                       chatId: data.chat_id,
                       listingName: name,

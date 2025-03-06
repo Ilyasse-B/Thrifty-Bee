@@ -14,6 +14,7 @@ import Help from "./Help.js";
 import About from  "./About.js";
 import Chat from './Chat.js';
 import Notifications from './Notifications.js';
+import ChatPage from './ChatPage.js';
 
 function App() {
   return (
@@ -29,7 +30,8 @@ function App() {
         <Route path="/purchase" element={<Purchase />} />
         <Route path="/help" element={<Help />} />
         <Route path="/about" element={<About />} />
-        <Route path="/chat" element={<Chat />} />
+        {/* <Route path="/chat" element={<Chat />} /> */}
+        <Route path="/chatpage" element={<ChatPage />} />
         <Route path="/notifications" element={<Notifications />} />
       </Routes>
       <Footer/>

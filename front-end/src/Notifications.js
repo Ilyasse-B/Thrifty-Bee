@@ -12,7 +12,7 @@ const Notifications = () => {
       try {
         const response = await fetch(`http://127.0.0.1:5000/user_chats?username=${username}`);
         const data = await response.json();
-        
+
         if (data.chats) {
           setChats(data.chats);
         }
@@ -37,10 +37,10 @@ const Notifications = () => {
             <div
               key={index}
               className="chat-item"
-              onClick={() => navigate(`/chat`, { state: { 
-                chatId: chat.chat_id, 
-                listingName: chat.listing_name, 
-                otherPerson: chat.other_person 
+              onClick={() => navigate(`/chatpage`, { state: {
+                chatId: chat.chat_id,
+                listingName: chat.listing_name,
+                otherPerson: chat.other_person
               }})}
             >
               <img src={chat.listing_image} alt={chat.listing_name} className="chat-image" />
