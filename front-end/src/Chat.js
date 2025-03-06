@@ -11,6 +11,7 @@ const Chat = ({ currentUser }) => {
   const [newMessage, setNewMessage] = useState('');
   const messagesEndRef = useRef(null);
   const [otherPersonId, setOtherPersonId] = useState(null);
+  const [isBuyer, setIsBuyer] = useState(null);
   const username = sessionStorage.getItem("username");
 
   // Fetch user and other person IDs
@@ -62,6 +63,31 @@ const Chat = ({ currentUser }) => {
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
+
+  // Check if user is buyer or seller
+  useEffect(() => {
+    const checkUserRole = async () => {
+      try {
+        if (chatId) {
+          const response = await fetch(
+            `http://127.0.0.1:5000/get_chat_role?chat_id=${chatId}&username=${username}`
+          );
+          const data = await response.json();
+          
+          // Set isBuyer based on response
+          if (data.status === 'success') {
+            setIsBuyer(data.is_buyer);
+          }
+        }
+      } catch (error) {
+        console.error("Error checking user role:", error);
+      }
+    };
+
+    if (username && chatId) {
+      checkUserRole();
+    }
+  }, [username, chatId]);
 
   const handleSendMessage = async (e) => {
     e.preventDefault();
@@ -117,11 +143,59 @@ const Chat = ({ currentUser }) => {
     }
   };
   
+  const handleConfirm = async () => {
+    try {
+      const confirmationType = isBuyer ? "item_received" : "payment_received";
+      
+      const response = await fetch("http://127.0.0.1:5000/confirm_transaction", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          chat_id: chatId,
+          username: username,
+          confirmation_type: confirmationType
+        }),
+      });
+
+      const data = await response.json();
+      
+      if (data.status === 'success') {
+        // Add a system message to the chat
+        const systemMessage = {
+          id: Date.now(), // Temporary ID
+          user_id: null, // System message has no user ID
+          content: isBuyer 
+            ? `${username} confirmed item was received.` 
+            : `${username} confirmed payment was received.`,
+          timestamp: new Date().toISOString(),
+          is_system: true // Flag to style it differently if needed
+        };
+        
+        setMessages(prevMessages => [...prevMessages, systemMessage]);
+        
+        // Disable the button after confirmation
+        setIsBuyer(undefined);
+      } else {
+        console.error("Confirmation failed:", data.message);
+        // You might want to show an error message to the user
+      }
+    } catch (error) {
+      console.error("Error confirming transaction:", error);
+    }
+  };
+  
   return (
     <div className="chat-container">
       {/* Chat header */}
       <div className="chat-header">
         <h1>Chat with {otherPerson} for {listingName}</h1>
+        {isBuyer !== undefined && (
+        <button onClick={handleConfirm} className="confirm-button">
+            {isBuyer ? "Confirm Payment Received" : "Confirm Item Received"}
+        </button>
+        )}
       </div>
       
       {/* Messages container */}
