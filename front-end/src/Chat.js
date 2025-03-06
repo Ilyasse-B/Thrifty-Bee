@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import './chat.css';
 import { useLocation } from 'react-router-dom';
 import Message from './Message';
+import CreateReview from './CreateReview';
 
 const Chat = ({ currentUser }) => {
   const location = useLocation();
@@ -164,8 +165,8 @@ const Chat = ({ currentUser }) => {
           </button>
         </form>
       </div>
+      <CreateReview/>
     </div>
-
   );
 };
 

@@ -57,45 +57,9 @@
     padding: 8px 15px;
     margin-left: 5px;
     border-radius: 4px;
+    cursor: pointer;
+    transition: background 0.3s ease-in-out;
   }
-  #chat-page-container{
-    display: flex;
-    flex-direction: column;
-
-  }
-  #review-container{
-    margin-top: 10vh;
-    padding-left: 5vw;
-  }
-  #stars-container{
-    display: flex;
-    flex-direction: row;
-    gap:0.5vw;
-  }
-  #input-container{
-    height: 40vh;
-    width:40vw;
-    background-color: #E0E0E0;
-    display:flex;
-
-  }
-  #description-input-field{
-    background-color: #E0E0E0;
-    border: none;
-    outline: none;
-    font-family: inherit;
-    font-size: inherit;
-    width: 100%;
-    height: 100%;
-    white-space: pre-wrap;
-    word-wrap: break-word;
-    resize: none;
-    padding: 1vw;
-  }
-  #review-submit-button{
-    background-color: #9E2CED;
-    padding-inline: 2vw;
-    padding-block: 1vh;
-    margin-left: 32.75%;
-    font-size: 1.5vw;
+  .send-button:hover{
+    background-color: #922ce6;
   }
