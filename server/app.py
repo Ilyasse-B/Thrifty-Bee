@@ -738,3 +738,42 @@ def delete_favourites(username, listing_id):
 
 
 
+# Get reviews for Seller in Products Page
+@app.route('/get_reviews', methods = ["GET"])
+def get_reviews():
+    listings_id = request.args.get('listing_id', type=int)
+
+    listing = ListingsModel.query.filter_by(id = listings_id).first()
+    if not listing:
+        return make_response({"message": "Listing not found"}, 404)
+
+    seller_id = listing.user_id
+
+    reviews = ReviewsModel.query.filter_by(user_seller = seller_id).all()
+
+    user_seller = UserModel.query.filter_by(id=seller_id).first()
+    if not user_seller:
+            return make_response({"message": "Seller not found"}, 404)
+    reviewList= []
+
+    for review in reviews:
+        user_bought = UserModel.query.filter_by(id=review.user_made_review).first()
+        if not user_bought:
+            return make_response({"message": "User not found"}, 404)
+        buyer = user_bought.first_name + ""+ user_bought.last_name
+        seller = user_seller.first_name +"" +user_seller.last_name
+        if review.description is None:
+            description = ""
+        else:
+            description = review.description
+
+
+        review_data = {"buyer_name": buyer,"seller_name": seller,"rating": review.rating,"description":description}
+
+        reviewList.append(review_data)
+    
+  
+
+
+
+    return make_response({"reviews": reviewList}, 200)
