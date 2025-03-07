@@ -146,8 +146,7 @@ const Chat = ({ currentUser }) => {
   
   const handleConfirm = async () => {
     try {
-      const confirmationType = isBuyer ? "payment_received" : "item_received";
-      
+      const confirmationType = isBuyer ? "item_received" : "payment_received";
       const response = await fetch("http://127.0.0.1:5000/edit_chat", {
         method: "PATCH",
         headers: {

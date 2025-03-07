@@ -140,7 +140,7 @@ def check_login():
 @app.route('/intiate_login', methods=['GET'])
 def start_login():
     cs_ticket = uuid.uuid4().hex[:12]                                         # ngrok Link here 
-    redirect_url = f'http://studentnet.cs.manchester.ac.uk/authenticate/?url=https://2088-130-88-226-30.ngrok-free.app/profile&csticket={cs_ticket}&version=3&command=validate'
+    redirect_url = f'http://studentnet.cs.manchester.ac.uk/authenticate/?url=https://8b8f-130-88-226-30.ngrok-free.app/profile&csticket={cs_ticket}&version=3&command=validate'
 
     res = {
         "auth_url": redirect_url,
@@ -652,7 +652,8 @@ def get_user_chats():
             if chat.user_to_buy == user_id
             else UserModel.query.get(chat.user_to_buy).first_name,
             "listing_name": ListingsModel.query.get(chat.listing_id).listing_name,
-            "listing_image": ListingsModel.query.get(chat.listing_id).image
+            "listing_image": ListingsModel.query.get(chat.listing_id).image,
+            "active": chat.active
         }
         for chat in chats
         if UserModel.query.get(chat.user_to_sell) and UserModel.query.get(chat.user_to_buy) and ListingsModel.query.get(chat.listing_id)

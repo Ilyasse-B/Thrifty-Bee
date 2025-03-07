@@ -4,7 +4,8 @@ import './notifications.css';
 
 const Notifications = () => {
   const navigate = useNavigate();
-  const [chats, setChats] = useState([]);
+  const [activeChats, setActiveChats] = useState([]);
+  const [inactiveChats, setInactiveChats] = useState([]);
   const username = sessionStorage.getItem("username");
 
   useEffect(() => {
@@ -14,7 +15,10 @@ const Notifications = () => {
         const data = await response.json();
 
         if (data.chats) {
-          setChats(data.chats);
+          const active = data.chats.filter(chat => chat.active);
+          const inactive = data.chats.filter(chat => !chat.active);
+          setActiveChats(active);
+          setInactiveChats(inactive);
         }
       } catch (error) {
         console.error("Error fetching chats:", error);
@@ -30,13 +34,36 @@ const Notifications = () => {
     <div className="notifications-container">
       <h2 className="notifications-title">Your Chats</h2>
       <div className="chats-list">
-        {chats.length === 0 ? (
+        {activeChats.length === 0 ? (
           <p>No chats available.</p>
         ) : (
-          chats.map((chat, index) => (
+          activeChats.map((chat, index) => (
             <div
               key={index}
               className="chat-item"
+              onClick={() => navigate(`/chat`, { state: { 
+                chatId: chat.chat_id,
+                listingId: chat.listing_id,
+                listingName: chat.listing_name, 
+                otherPerson: chat.other_person 
+              }})}
+            >
+              <img src={chat.listing_image} alt={chat.listing_name} className="chat-image" />
+              <span className="chat-product-name">{chat.listing_name}</span>
+              <span className="chat-user">Chat with {chat.other_person}</span>
+            </div>
+          ))
+        )}
+      </div>
+      <h2 className="notifications-title">Inactive Chats</h2>
+      <div className="chats-list">
+        {inactiveChats.length === 0 ? (
+          <p>No inactive chats available.</p>
+        ) : (
+          inactiveChats.map((chat, index) => (
+            <div
+              key={index}
+              className="chat-item inactive"
               onClick={() => navigate(`/chat`, { state: { 
                 chatId: chat.chat_id,
                 listingId: chat.listing_id,
