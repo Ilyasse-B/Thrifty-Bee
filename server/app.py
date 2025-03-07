@@ -683,7 +683,8 @@ def get_chat_role():
     # Determine if the user is the buyer
     is_buyer = user.id == chat.user_to_buy
 
-    return jsonify({"status": "success", "is_buyer": is_buyer}), 200
+    return jsonify({"status": "success", "is_buyer": is_buyer,  "buyer_confirmed": chat.buyer_confirmed,
+        "seller_confirmed": chat.seller_confirmed}), 200
 
 #This route create a favourite for a specific listing
 @app.route('/create_favourite', methods =['POST'] )

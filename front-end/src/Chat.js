@@ -13,6 +13,8 @@ const Chat = ({ currentUser }) => {
   const messagesEndRef = useRef(null);
   const [otherPersonId, setOtherPersonId] = useState(null);
   const [isBuyer, setIsBuyer] = useState(null);
+  const [buyerConfirmed, setBuyerConfirmed] = useState(false);
+  const [sellerConfirmed, setSellerConfirmed] = useState(false);
   const username = sessionStorage.getItem("username");
 
   // Fetch user and other person IDs
@@ -73,6 +75,8 @@ const Chat = ({ currentUser }) => {
           // Set isBuyer based on response
           if (data.status === 'success') {
             setIsBuyer(data.is_buyer);
+            setBuyerConfirmed(data.buyer_confirmed);
+            setSellerConfirmed(data.seller_confirmed);
           }
         }
       } catch (error) {
@@ -228,10 +232,12 @@ const Chat = ({ currentUser }) => {
       <div className="chat-header">
         <h1>Chat with {otherPerson} for {listingName}</h1>
         {isBuyer !== undefined && (
-        <button onClick={handleConfirm} className="confirm-button">
+          (!isBuyer && !sellerConfirmed) || (isBuyer && !buyerConfirmed) ? (
+          <button onClick={handleConfirm} className="confirm-button">
             {isBuyer ? "Confirm Item Received" : "Confirm Payment Received"}
-        </button>
-        )}
+          </button>
+  ) : null
+)}
       </div>
 
       {/* Messages container */}
