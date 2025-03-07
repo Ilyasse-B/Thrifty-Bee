@@ -45,7 +45,8 @@ const Notifications = () => {
                 chatId: chat.chat_id,
                 listingId: chat.listing_id,
                 listingName: chat.listing_name, 
-                otherPerson: chat.other_person 
+                otherPerson: chat.other_person,
+                active: chat.active 
               }})}
             >
               <img src={chat.listing_image} alt={chat.listing_name} className="chat-image" />
@@ -68,7 +69,8 @@ const Notifications = () => {
                 chatId: chat.chat_id,
                 listingId: chat.listing_id,
                 listingName: chat.listing_name, 
-                otherPerson: chat.other_person 
+                otherPerson: chat.other_person,
+                active: chat.active
               }})}
             >
               <img src={chat.listing_image} alt={chat.listing_name} className="chat-image" />

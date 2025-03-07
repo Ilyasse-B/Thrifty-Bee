@@ -6,7 +6,7 @@ import CreateReview from './CreateReview';
 
 const Chat = ({ currentUser }) => {
   const location = useLocation();
-  const { chatId, listingId, listingName, otherPerson } = location.state || {};
+  const { chatId, listingId, listingName, otherPerson, active } = location.state || {};
   const [messages, setMessages] = useState([]);
   const [userId, setUserId] = useState(null);
   const [newMessage, setNewMessage] = useState('');
@@ -59,11 +59,6 @@ const Chat = ({ currentUser }) => {
       fetchMessages();
     }
   }, [chatId]);
-
-  // Auto-scroll to bottom when messages update
-  useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages]);
 
   // Check if user is buyer or seller
   useEffect(() => {
@@ -268,12 +263,14 @@ const Chat = ({ currentUser }) => {
             type="text"
             value={newMessage}
             onChange={(e) => setNewMessage(e.target.value)}
-            placeholder="Type a message..."
+            placeholder={active ? "Type a message..." : "This chat is now inactive"}
             className="message-input"
+            disabled={!active}
           />
           <button
             type="submit"
             className="send-button"
+            disabled={!active}
           >
             Send
           </button>
