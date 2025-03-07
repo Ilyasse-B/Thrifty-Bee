@@ -7,7 +7,7 @@ class ReviewsModel(db.Model):
     id = db.Column(db.Integer, primary_key=True, nullable=False)
     user_made_review = db.Column(db.Integer,db.ForeignKey('user_table.id') , nullable=False)
     rating = db.Column(db.Integer, nullable = False)
-    description = db.Column(db.String(500), nullable = False)
+    description = db.Column(db.String(500), nullable = True)
     user_seller = db.Column(db.Integer,db.ForeignKey('user_table.id') , nullable=False)
 
 

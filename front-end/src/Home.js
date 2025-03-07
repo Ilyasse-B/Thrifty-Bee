@@ -36,6 +36,9 @@ const Home = () => {
   const filterAndSortProducts = () => {
     let result = [...products];
     
+    // Exclude sold items
+    result = result.filter(product => !product.sold);
+
     // Apply search filter
     if (searchTerm.trim() !== '') {
       result = result.filter(product => {
