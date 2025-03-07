@@ -193,9 +193,9 @@ def get_user_listings():
             "price": listing.price,
             "condition": listing.condition,
             "category": listing.category,
-            "description": listing.description
+            "description": listing.description,
             #"pending": listing.pending,
-            #"sold": listing.sold
+            "sold": listing.sold
 
         }
         for listing in listings
