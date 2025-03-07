@@ -816,11 +816,40 @@ def delete_favourites(username, listing_id):
 
     return make_response({"message": "Favourites deleted successfully"}, 200)
 
+#This route creates a review for a user
+@app.route('/create_review', methods=['POST'])
+def create_review():
+    review_data = request.get_json()
+    user_made_review_username = review_data.get('user_made_review_username')
+    rating = review_data.get('rating')
+    description = review_data.get('description')
+    user_was_reviewed_username = review_data.get('user_was_reviewed_username')
+    is_seller = review_data.get('is_seller')
+
+    if not rating or not is_seller:
+        return make_response({"message": "Missing required fields"}, 400)
+
+    user_made = UserModel.query.filter_by(username=user_made_review_username).first()
+    if not user_made:
+        return make_response({"message": "User_made not found"}, 404)
+    user_made_id = user_made.id
+
+    user_was = UserModel.query.filter_by(username=user_was_review_username).first()
+    if not user_made:
+        return make_response({"message": "User_reviewed not found"}, 404)
+    user_was_id = user_was.id
+
+  
+    new_review = ReviewsModel(user_made_review = user_made_id, rating = rating, description = description, user_was_reviewed = user_was_id, seller = is_seller)
+    db.session.add(new_review)
+    db.session.commit()
+
+    return make_response({"Review Succesfully created"}, 201)
 
 
-# Get reviews for Seller in Products Page
-@app.route('/get_reviews', methods = ["GET"])
-def get_reviews():
+# This route get reviews for a seller
+@app.route('/get_reviews_seller', methods = ["GET"])
+def get_reviews_seller():
     listings_id = request.args.get('listing_id', type=int)
 
     listing = ListingsModel.query.filter_by(id = listings_id).first()
@@ -829,7 +858,10 @@ def get_reviews():
 
     seller_id = listing.user_id
 
-    reviews = ReviewsModel.query.filter_by(user_seller = seller_id).all()
+    reviews = ReviewsModel.query.filter_by(user_was_reviewed = seller_id, seller = True).all()
+
+    if reviews == []:
+        return make_response ("No reviews as seller",200)
 
     user_seller = UserModel.query.filter_by(id=seller_id).first()
     if not user_seller:
@@ -839,6 +871,47 @@ def get_reviews():
     for review in reviews:
         user_bought = UserModel.query.filter_by(id=review.user_made_review).first()
         if not user_bought:
+            return make_response({"message": "User not found"}, 404)
+        buyer = user_bought.first_name + ""+ user_bought.last_name
+        seller = user_seller.first_name +"" +user_seller.last_name
+        if review.description is None:
+            description = ""
+        else:
+            description = review.description
+
+
+        review_data = {"buyer_name": buyer,"seller_name": seller,"rating": review.rating,"description":description}
+
+        reviewList.append(review_data)
+    
+  
+
+
+
+    return make_response({"reviews": reviewList}, 200)
+
+# This route gets reviews for a buyer
+@app.route('/get_reviews_buyer', methods = ["GET"])
+def get_reviews_buyer():
+    buyer_username = request.args.get('buyer_username', type=int)
+
+    user_bought= UserModel.query.filter_by(username=buyer_username).first()
+    if not user_bought:
+            return make_response({"message": "buyer not found"}, 404)
+    reviewList= []
+
+    buyer_id = user_b.id
+
+    reviews = ReviewsModel.query.filter_by(user_was_reviewed = buyer_id, seller = False).all()
+
+    if reviews == []:
+        return make_response ("No reviews as buyer",200)
+   
+    reviewList= []
+
+    for review in reviews:
+        user_seller = UserModel.query.filter_by(id=review.user_made_review).first()
+        if not user_seller:
             return make_response({"message": "User not found"}, 404)
         buyer = user_bought.first_name + ""+ user_bought.last_name
         seller = user_seller.first_name +"" +user_seller.last_name
