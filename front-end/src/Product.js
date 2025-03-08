@@ -78,7 +78,7 @@ const Product = () => {
   }
     setBuyNowError("");
     navigate("/purchase", {
-        state: { id, name, price, image }
+        state: { id, name, price, image, sellerName: sellerInfo?.first_name }
     });
 };
 
