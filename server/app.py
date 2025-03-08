@@ -86,7 +86,7 @@ with app.app_context():
 if __name__ == '__main__':
     app.run(debug=True)
 
-routes = ['get_chat_role','get_chat_users','create_chat','edit_chat','delete_chat','create_message','edit_message','get_messages','create_favourite','check_favourite','fetch_favourites','delete_favourites','get_user_chats', 'change_listing', 'change_profile', 'get_seller_info','create_listing','get_product','make_profile','get_user_info','delete_listing','get_user_listings','get_listings','start_login','create_review','get_reviews_seller','get_reviews_buyer']
+routes = ['get_chat_role','get_chat_users','create_chat','edit_chat','delete_chat','create_message','edit_message','get_messages','create_favourite','check_favourite','fetch_favourites','delete_favourites','get_user_chats', 'change_listing', 'change_profile', 'get_seller_info','create_listing','get_product','make_profile','get_user_info','delete_listing','get_user_listings','get_listings','start_login','create_review','get_reviews_seller','get_reviews_buyer','see_if_reviewed']
 
 @app.before_request
 def check_login():
@@ -878,7 +878,7 @@ def get_reviews_buyer():
             return make_response({"message": "buyer not found"}, 404)
     reviewList= []
 
-    buyer_id = user_b.id
+    buyer_id = user_bought.id
 
     reviews = ReviewsModel.query.filter_by(user_was_reviewed = buyer_id, seller = False).all()
 
@@ -908,3 +908,24 @@ def get_reviews_buyer():
 
 
     return make_response({"reviews": reviewList}, 200)
+
+@app.route('/see_if_reviewed', methods = ["GET"])
+def see_if_reviewed():
+    user_who_reviewed_username = request.args.get('user_who_reviewed_username', type=int)
+    user_review_about_username = request.args.get('user_review_about_username', type=int)
+
+    user_made = UserModel.query.filter_by(username = user_who_reviewed_username).first()
+    if not user_made:
+        return make_response({"message": "user made not found"}, 404)
+
+    user_about = UserModel.query.filter_by(username = user_review_about_username).first()
+
+    if not user_about:
+        return make_response({"message": "user about not found"}, 404)
+    
+    review = ReviewsModel.query.filter_by(user_made_review = user_made.id, user_was_reviewed = user_about.id).first()
+
+    if review:
+        return make_response({"message": "Already Reviewed"}, 200)
+    else:
+        return make_response({"message": "Not Reviewed"}, 200)
