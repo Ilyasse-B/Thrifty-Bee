@@ -6,7 +6,7 @@ import CreateReview from './CreateReview';
 
 const Chat = ({ currentUser }) => {
   const location = useLocation();
-  const { chatId, listingId, listingName, otherPerson, active } = location.state || {};
+  const { chatId, listingId, listingName, otherPerson, active, autoMessage } = location.state || {};
   const [messages, setMessages] = useState([]);
   const [userId, setUserId] = useState(null);
   const [newMessage, setNewMessage] = useState('');
@@ -15,6 +15,7 @@ const Chat = ({ currentUser }) => {
   const [isBuyer, setIsBuyer] = useState(null);
   const [buyerConfirmed, setBuyerConfirmed] = useState(false);
   const [sellerConfirmed, setSellerConfirmed] = useState(false);
+  const autoMessageSent = useRef(false);
   const username = sessionStorage.getItem("username");
 
   // Fetch user and other person IDs
@@ -61,6 +62,40 @@ const Chat = ({ currentUser }) => {
       fetchMessages();
     }
   }, [chatId]);
+
+  // Sends auto message passed from Purchase.js into chat
+  useEffect(() => {
+    if (autoMessage && !autoMessageSent.current) {
+      sendMessage(autoMessage);
+      autoMessageSent.current = true;
+    }
+  }, [autoMessage]);
+
+  const sendMessage = async (messageText) => {
+    const timestamp = new Date().toISOString();
+    const messageData = {
+      chat_id: chatId,
+      username: username,
+      content: messageText,
+      timestamp: timestamp,
+    };
+
+    try {
+      const response = await fetch("http://127.0.0.1:5000/create_message", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(messageData),
+      });
+
+      if (response.ok) {
+        const updatedMessages = await fetch(`http://127.0.0.1:5000/get_message_chat?chat_id=${chatId}`);
+        const data = await updatedMessages.json();
+        if (data.messages) setMessages(data.messages);
+      }
+    } catch (error) {
+      console.error("Error sending message:", error);
+    }
+  };
 
   // Check if user is buyer or seller
   useEffect(() => {

@@ -79,33 +79,6 @@ with app.app_context():
 
             db.session.commit()
 
-            # Fetch listing IDs
-        sofa_listing = ListingsModel.query.filter_by(listing_name="Sofa").first()
-        chopping_board_listing = ListingsModel.query.filter_by(listing_name="Chopping Board").first()
-
-        if sofa_listing and chopping_board_listing:
-            # Chat where user 1 is the seller and user 2 (you) is the buyer (Sofa)
-            chat_one = ChatsModel(
-                listing_id=sofa_listing.id,
-                user_to_sell=1,  # Seller is user 1
-                user_to_buy=2,  # You will log in as user 2
-                seller_confirmed=True,  # Seller has confirmed payment received
-                buyer_confirmed=False  # Buyer hasn't confirmed yet
-            )
-            db.session.add(chat_one)
-
-            # Chat where user 2 (you) is the seller and user 1 is the buyer (Chopping Board)
-            chat_two = ChatsModel(
-                listing_id=chopping_board_listing.id,
-                user_to_sell=2,  # You will log in as user 2
-                user_to_buy=1,  # Buyer is user 1
-                seller_confirmed=False,  # Seller hasn't confirmed yet
-                buyer_confirmed=True  # Buyer has confirmed receiving the item
-            )
-            db.session.add(chat_two)
-
-            db.session.commit()
-
     except OperationalError as e:
         print(f"Error checking or creating tables: {e}")
 
@@ -140,7 +113,7 @@ def check_login():
 @app.route('/intiate_login', methods=['GET'])
 def start_login():
     cs_ticket = uuid.uuid4().hex[:12]                                         # ngrok Link here 
-    redirect_url = f'http://studentnet.cs.manchester.ac.uk/authenticate/?url=https://8b8f-130-88-226-30.ngrok-free.app/profile&csticket={cs_ticket}&version=3&command=validate'
+    redirect_url = f'http://studentnet.cs.manchester.ac.uk/authenticate/?url=https://011d-86-9-200-131.ngrok-free.app/profile&csticket={cs_ticket}&version=3&command=validate'
 
     res = {
         "auth_url": redirect_url,
@@ -166,7 +139,7 @@ def get_listings():
             "category": listing.category,
             "description": listing.description,
             "user_id": listing.user_id,
-            #"pending": listing.pending,
+            "pending": listing.pending,
             "sold": listing.sold
         }
         for listing in listings
@@ -398,6 +371,7 @@ def create_chat():
     chat_data = request.get_json()
     listing_id = chat_data.get('listing_id')
     username = chat_data.get('username')
+    set_pending = chat_data.get('set_pending', False)
 
     if not listing_id or not username:
         return make_response({"message": "Missing required fields"}, 400)
@@ -413,6 +387,9 @@ def create_chat():
     if not listing:
         return make_response({"message": "Listing not found"}, 404)
     user_sell_id = listing.user_id
+    
+    if set_pending:
+            listing.pending = True 
 
     # Check if a chat already exists between these users for this listing
     existing_chat = ChatsModel.query.filter_by(
@@ -420,7 +397,7 @@ def create_chat():
         user_to_sell=user_sell_id,
         user_to_buy=user_buy_id
     ).first()
-
+    
     if existing_chat:
         return make_response({"chat_id": existing_chat.id}, 200)
 
@@ -434,6 +411,7 @@ def create_chat():
         buyer_confirmed=False
     )
     db.session.add(new_chat)
+    
     db.session.commit()
 
     return make_response({"chat_id": new_chat.id}, 201)
