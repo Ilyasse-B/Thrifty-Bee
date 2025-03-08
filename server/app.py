@@ -794,5 +794,59 @@ def delete_favourites(username, listing_id):
 
     return make_response({"message": "Favourites deleted successfully"}, 200)
 
+#This route creates a payment once paid 
+@app.route('/create_payment_info', methods =['POST','PATCH'] )
+def create_payment_info():
+    payment_data = request.get_json()
+    listing_id = payment_data.get("listing_id")
+    username_bought = payment_data.get("username_bought")
+    payment_type = payment_data.get("payment_type")
+    
+
+    if not listing_id or not username_bought:  # Validate required fields
+        return make_response({"message": "Missing required fields"}, 400)
+
+    user = UserModel.query.filter_by(username=username_bought).first()
+    if not user:
+        return make_response('User not found')
+    user_id = user.id
+
+    listing = ListingsModel.query.filter_by(id=listing_id).first()
+
+    if not listing:
+        return make_response({"message": "Listing not found"}, 404)
+
+    listing.pending = True
+
+    db.session.commit()
+
+    new_payment = TransactionsModel(listing_id= listing_id ,user_id_bought = user_id, payment_type = payment_type)
 
 
+    db.session.add(new_payment)
+    db.session.commit()
+
+#This route get payment info and what the listing was 
+@app.route('/get_payment_info', methods =['GET'] )
+def get_payment_info():
+    listing_id= request.args.get('listing_id', type = int)
+
+    if not listing_id:
+        return make_response({"message": "listing_id is required"}, 400)
+
+    transaction = TransactionsModel.query.filter_by(listing_id=listing_id).first()
+    listing = ListingModel.query.filter_by(listing_id=listing_id).first()
+
+    payment_data = [
+    {
+        "listing_id": listing_id,
+        "title": listing.listing_name,
+        "image": listing.image,
+        "price": listing.price,
+        "payment_type": transaction.payment_type
+
+    }
+    ]
+
+
+    return make_response({"payment info": payment_data}, 200)

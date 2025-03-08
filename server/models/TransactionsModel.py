@@ -11,8 +11,8 @@ class TransactionsModel(db.Model):
     id = db.Column(db.Integer, primary_key=True, nullable=False )
     listing_id = db.Column(db.Integer,db.ForeignKey( 'listings_table.id'), nullable=False)
     user_id_bought = db.Column(db.Integer,db.ForeignKey('user_table.id') , nullable=False)
-    #payment_type = db.Column(db.String,nullable=False )
-    #pending?
+    payment_type = db.Column(db.String,nullable=False )
+    
 
     
 
