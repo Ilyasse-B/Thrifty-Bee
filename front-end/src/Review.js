@@ -9,7 +9,7 @@ const Review = ({ listingId, userId, isBuyerReview }) => {
     useEffect(() => {
         const fetchReviews = async () => {
             try {
-              const endpoint = isBuyerReviews
+              const endpoint = isBuyerReview
                 ? `http://127.0.0.1:5000/get_reviews_buyer?user_id=${userId}`
                 : `http://127.0.0.1:5000/get_reviews_seller?listing_id=${listingId}`;
       
@@ -18,7 +18,7 @@ const Review = ({ listingId, userId, isBuyerReview }) => {
       
               if (data.reviews) {
                 setReviews(data.reviews);
-                setUserName(isBuyerReviews ? data.buyer_name : data.seller_name);
+                setUserName(data.user_name);
               } else {
                 setReviews([]);
               }
@@ -37,8 +37,8 @@ const Review = ({ listingId, userId, isBuyerReview }) => {
                 reviews.map((review, index) => (
                 <div key={index} className="review-box">
                     <div className="review-header">
-                        <strong>{review.buyer_name}</strong>
-                        <StarContainer fillStar={true} number={review.rating} />
+                        <strong>{isBuyerReview ? review.seller_name : review.buyer_name}</strong>
+                        <StarContainer fillStar={true} number={review.rating} isClickable={false}/>
                     </div>
                     <p className="review-description">{review.description}</p>
                 </div>

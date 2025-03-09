@@ -344,8 +344,8 @@ const Chat = ({ currentUser }) => {
       {!alreadyReviewed && isBuyer && listingId && otherPersonId !== null && (
         <CreateReview/>
       )}
-      {listingId && otherPersonId !== null && isBuyer !== null && (
-        <Review listingId={listingId} userId={otherPersonId} isBuyerReview={isBuyer} />
+      {listingId && otherPersonId !== null && isBuyer == false && (
+        <Review listingId={listingId} userId={otherPersonId} isBuyerReview={true} />
       )}
     </div>
   );
