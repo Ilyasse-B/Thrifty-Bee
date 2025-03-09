@@ -3,10 +3,11 @@ import './chat.css';
 import { useLocation } from 'react-router-dom';
 import Message from './Message';
 import CreateReview from './CreateReview';
+import Review from './Review';
 
 const Chat = ({ currentUser }) => {
   const location = useLocation();
-  const { chatId, listingId, listingName, otherPerson, active, autoMessage } = location.state || {};
+  const { chatId, listingId, listingName, otherPerson, active = true, autoMessage } = location.state || {};
   const [messages, setMessages] = useState([]);
   const [userId, setUserId] = useState(null);
   const [newMessage, setNewMessage] = useState('');
@@ -318,6 +319,9 @@ const Chat = ({ currentUser }) => {
         </form>
       </div>
       <CreateReview/>
+      {listingId && otherPersonId !== null && isBuyer !== null && (
+        <Review listingId={listingId} userId={otherPersonId} isBuyerReview={isBuyer} />
+      )}
     </div>
   );
 };

@@ -113,7 +113,7 @@ def check_login():
 @app.route('/intiate_login', methods=['GET'])
 def start_login():
     cs_ticket = uuid.uuid4().hex[:12]                                         # ngrok Link here 
-    redirect_url = f'http://studentnet.cs.manchester.ac.uk/authenticate/?url=https://011d-86-9-200-131.ngrok-free.app/profile&csticket={cs_ticket}&version=3&command=validate'
+    redirect_url = f'http://studentnet.cs.manchester.ac.uk/authenticate/?url=https://2cbb-86-9-200-131.ngrok-free.app/profile&csticket={cs_ticket}&version=3&command=validate'
 
     res = {
         "auth_url": redirect_url,
@@ -812,7 +812,7 @@ def create_review():
         return make_response({"message": "User_made not found"}, 404)
     user_made_id = user_made.id
 
-    user_was = UserModel.query.filter_by(username=user_was_review_username).first()
+    user_was = UserModel.query.filter_by(username=user_was_reviewed_username).first()
     if not user_made:
         return make_response({"message": "User_reviewed not found"}, 404)
     user_was_id = user_was.id
@@ -845,42 +845,36 @@ def get_reviews_seller():
     if not user_seller:
             return make_response({"message": "Seller not found"}, 404)
     reviewList= []
+    seller_name = user_seller.first_name
 
     for review in reviews:
         user_bought = UserModel.query.filter_by(id=review.user_made_review).first()
         if not user_bought:
-            return make_response({"message": "User not found"}, 404)
-        buyer = user_bought.first_name + ""+ user_bought.last_name
-        seller = user_seller.first_name +"" +user_seller.last_name
-        if review.description is None:
-            description = ""
-        else:
-            description = review.description
-
-
-        review_data = {"buyer_name": buyer,"seller_name": seller,"rating": review.rating,"description":description}
+            return make_response({"message": "User not found", "user_name": seller_name}, 404)
+        review_data = {
+            "buyer_name": user_bought.first_name,
+            "seller_name": seller_name,
+            "rating": review.rating,
+            "description": review.description or ""
+        }
 
         reviewList.append(review_data)
     
-  
-
-
-
-    return make_response({"reviews": reviewList}, 200)
+    return make_response({"user_name": seller_name, "reviews": reviewList}, 200)
 
 # This route gets reviews for a buyer
 @app.route('/get_reviews_buyer', methods = ["GET"])
 def get_reviews_buyer():
-    buyer_username = request.args.get('buyer_username', type=int)
+    user_id = request.args.get('user_id', type=int)
 
-    user_bought= UserModel.query.filter_by(username=buyer_username).first()
+    user_bought= UserModel.query.filter_by(id=user_id).first()
     if not user_bought:
             return make_response({"message": "buyer not found"}, 404)
     reviewList= []
 
-    buyer_id = user_bought.id
+    buyer_name = user_bought.first_name
 
-    reviews = ReviewsModel.query.filter_by(user_was_reviewed = buyer_id, seller = False).all()
+    reviews = ReviewsModel.query.filter_by(user_was_reviewed = user_id, seller = False).all()
 
     if reviews == []:
         return make_response ("No reviews as buyer",200)
@@ -890,24 +884,16 @@ def get_reviews_buyer():
     for review in reviews:
         user_seller = UserModel.query.filter_by(id=review.user_made_review).first()
         if not user_seller:
-            return make_response({"message": "User not found"}, 404)
-        buyer = user_bought.first_name + ""+ user_bought.last_name
-        seller = user_seller.first_name +"" +user_seller.last_name
-        if review.description is None:
-            description = ""
-        else:
-            description = review.description
-
-
-        review_data = {"buyer_name": buyer,"seller_name": seller,"rating": review.rating,"description":description}
-
+            return make_response({"message": "User not found", "user_name":buyer_name}, 404)
+        review_data = {
+            "buyer_name": buyer_name,
+            "seller_name": user_seller.first_name,
+            "rating": review.rating,
+            "description": review.description or ""
+        }
         reviewList.append(review_data)
     
-  
-
-
-
-    return make_response({"reviews": reviewList}, 200)
+    return make_response({"user_name":buyer_name, "reviews": reviewList}, 200)
 
 @app.route('/see_if_reviewed', methods = ["GET"])
 def see_if_reviewed():

@@ -3,6 +3,8 @@ import { useLocation, useNavigate } from "react-router-dom";
 import "./product.css"
 import Heart from './Heart.js';
 import FavHeart from './FavHeart.js';
+import Review from './Review';
+
 const Product = () => {
     const location = useLocation();
     const navigate = useNavigate();
@@ -174,6 +176,7 @@ const handleContactSeller = async () => {
     }
 
   return (
+    <div>
     <div id="product-main-con">
       <div id="image-con">
         <img src={image} alt={name} id="image" />
@@ -201,7 +204,7 @@ const handleContactSeller = async () => {
             <p><strong>Phone:</strong> {sellerInfo.phone_number || "Not Provided"}</p>
           </div>
         )}
-
+        <h6 id="note">Contact the seller by clicking the button above if you would like to offer a new price</h6>
         {/* Favorite Button */}
         {username && (
           <button
@@ -212,9 +215,9 @@ const handleContactSeller = async () => {
               {!isFavorited ? <Heart/>:<FavHeart/>}
           </button>
                 )}
-        <h6 id="note">Contact the seller by clicking the button above if you would like to offer a new price</h6>
       </div>
-
+    </div>
+    <Review listingId={id} userId={user_id} isBuyerReview={false} />
     </div>
   )
 }
