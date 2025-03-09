@@ -897,19 +897,13 @@ def get_reviews_buyer():
 
 @app.route('/see_if_reviewed', methods = ["GET"])
 def see_if_reviewed():
-    user_who_reviewed_username = request.args.get('user_who_reviewed_username', type=int)
-    user_review_about_username = request.args.get('user_review_about_username', type=int)
+    user_who_reviewed_id = request.args.get('user_who_reviewed_id', type=int)
+    user_review_about_id = request.args.get('user_review_about_id', type=int)
 
-    user_made = UserModel.query.filter_by(username = user_who_reviewed_username).first()
-    if not user_made:
-        return make_response({"message": "user made not found"}, 404)
+    if not user_who_reviewed_id or not user_review_about_id:
+        return make_response({"message": "Missing user IDs"}, 400)
 
-    user_about = UserModel.query.filter_by(username = user_review_about_username).first()
-
-    if not user_about:
-        return make_response({"message": "user about not found"}, 404)
-    
-    review = ReviewsModel.query.filter_by(user_made_review = user_made.id, user_was_reviewed = user_about.id).first()
+    review = ReviewsModel.query.filter_by(user_made_review=user_who_reviewed_id, user_was_reviewed=user_review_about_id).first()
 
     if review:
         return make_response({"message": "Already Reviewed"}, 200)
