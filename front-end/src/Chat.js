@@ -3,10 +3,11 @@ import './chat.css';
 import { useLocation } from 'react-router-dom';
 import Message from './Message';
 import CreateReview from './CreateReview';
+import Review from './Review';
 
 const Chat = ({ currentUser }) => {
   const location = useLocation();
-  const { chatId, listingId, listingName, otherPerson, active, autoMessage } = location.state || {};
+  const { chatId, listingId, listingName, otherPerson, active = true, autoMessage } = location.state || {};
   const [messages, setMessages] = useState([]);
   const [userId, setUserId] = useState(null);
   const [newMessage, setNewMessage] = useState('');
@@ -15,6 +16,7 @@ const Chat = ({ currentUser }) => {
   const [isBuyer, setIsBuyer] = useState(null);
   const [buyerConfirmed, setBuyerConfirmed] = useState(false);
   const [sellerConfirmed, setSellerConfirmed] = useState(false);
+  const [alreadyReviewed, setAlreadyReviewed] = useState(false);
   const autoMessageSent = useRef(false);
   const username = sessionStorage.getItem("username");
 
@@ -40,6 +42,28 @@ const Chat = ({ currentUser }) => {
       fetchUserIds();
     }
   }, [username, otherPerson]);
+
+  // Fetch if user has already reviewed
+  useEffect(() => {
+    const checkIfReviewed = async () => {
+      if (userId !== null && otherPersonId !== null) {
+        try {
+          const response = await fetch(
+            `http://127.0.0.1:5000/see_if_reviewed?user_who_reviewed_id=${userId}&user_review_about_id=${otherPersonId}`
+          );
+          const data = await response.json();
+
+          if (data.message === "Already Reviewed") {
+            setAlreadyReviewed(true);
+          }
+        } catch (error) {
+          console.error("Error checking review status:", error);
+        }
+      }
+    };
+
+    checkIfReviewed();
+  }, [userId, otherPersonId]);
 
   // Fetch messages
   useEffect(() => {
@@ -317,7 +341,12 @@ const Chat = ({ currentUser }) => {
           </button>
         </form>
       </div>
-      <CreateReview/>
+      {!alreadyReviewed && isBuyer && listingId && otherPersonId !== null && (
+        <CreateReview/>
+      )}
+      {listingId && otherPersonId !== null && isBuyer == false && (
+        <Review listingId={listingId} userId={otherPersonId} isBuyerReview={true} />
+      )}
     </div>
   );
 };

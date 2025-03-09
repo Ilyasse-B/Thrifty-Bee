@@ -45,7 +45,7 @@ with app.app_context():
 
             # Create test listings
             listing_one = ListingsModel(
-                user_id=2,
+                user_id=3,
                 listing_name="Chopping Board",
                 image="https://img.freepik.com/free-photo/wood-cutting-board_1203-3148.jpg?t=st=1738937016~exp=1738940616~hmac=ffa2367ba27fed36015963353d65c4a50973931a35202392a1943abdc630938b&w=996",
                 price=3.00,
@@ -77,6 +77,72 @@ with app.app_context():
             )
             db.session.add(user_one)
 
+            # Create a test user with ID 2
+            user_two = UserModel(
+                id=2,
+                first_name="James",
+                last_name="May",
+                username="jamesmay",
+                phone_number="1234567890",
+                email_address="jamesmay@example.com"
+            )
+            db.session.add(user_two)
+
+            db.session.commit()
+
+            # Create fake reviews
+            review_one = ReviewsModel(
+                user_made_review=1,  # User 1 is reviewing User 3
+                user_was_reviewed=3,  # User 3 was the seller
+                rating=5,
+                description="Great seller! The transaction was smooth and item was as described.",
+                seller=True  # User 3 was the seller
+            )
+            db.session.add(review_one)
+
+            review_two = ReviewsModel(
+                user_made_review=2,  # User 2 is reviewing User 1
+                user_was_reviewed=1,  # User 1 was the buyer
+                rating=4,
+                description="Good buyer! Communication was quick and payment was fast.",
+                seller=False  # User 1 was the buyer
+            )
+            db.session.add(review_two)
+
+            review_three = ReviewsModel(
+                user_made_review=2,  # User 2 is reviewing User 1
+                user_was_reviewed=1,  # User 1 was the seller
+                rating=4,
+                description="Good seller! Communication was quick and delivery was fast.",
+                seller=True  # User 1 was the seller
+            )
+            db.session.add(review_three)
+
+            review_four = ReviewsModel(
+                user_made_review=3,  # User 3 is reviewing User 1
+                user_was_reviewed=1,  # User 1 was the seller
+                rating=5,
+                description="Great seller! The transaction was smooth and item was as described.",
+                seller=True  # User 1 was the seller
+            )
+            db.session.add(review_four)
+
+            db.session.commit()
+
+            # Get the listing ID of "Baord"
+            board_listing = ListingsModel.query.filter_by(listing_name="Chopping Board").first()
+
+            # Create a chat between user 3 (seller) and user 1 (buyer)
+            chat = ChatsModel(
+                listing_id=board_listing.id,
+                active=True,
+                user_to_sell=3,
+                user_to_buy=1,
+                seller_confirmed=False,
+                buyer_confirmed=False
+            )
+            db.session.add(chat)
+
             db.session.commit()
 
     except OperationalError as e:
@@ -86,7 +152,7 @@ with app.app_context():
 if __name__ == '__main__':
     app.run(debug=True)
 
-routes = ['get_payment_info','create_payment_info','get_chat_role','get_chat_users','create_chat','edit_chat','delete_chat','create_message','edit_message','get_messages','create_favourite','check_favourite','fetch_favourites','delete_favourites','get_user_chats', 'change_listing', 'change_profile', 'get_seller_info','create_listing','get_product','make_profile','get_user_info','delete_listing','get_user_listings','get_listings','start_login']
+routes = ['get_payment_info','create_payment_info','get_chat_role','get_chat_users','create_chat','edit_chat','delete_chat','create_message','edit_message','get_messages','create_favourite','check_favourite','fetch_favourites','delete_favourites','get_user_chats', 'change_listing', 'change_profile', 'get_seller_info','create_listing','get_product','make_profile','get_user_info','delete_listing','get_user_listings','get_listings','start_login','create_review','get_reviews_seller','get_reviews_buyer','see_if_reviewed']
 
 @app.before_request
 def check_login():
@@ -113,7 +179,7 @@ def check_login():
 @app.route('/intiate_login', methods=['GET'])
 def start_login():
     cs_ticket = uuid.uuid4().hex[:12]                                         # ngrok Link here 
-    redirect_url = f'http://studentnet.cs.manchester.ac.uk/authenticate/?url=https://011d-86-9-200-131.ngrok-free.app/profile&csticket={cs_ticket}&version=3&command=validate'
+    redirect_url = f'http://studentnet.cs.manchester.ac.uk/authenticate/?url=https://2cbb-86-9-200-131.ngrok-free.app/profile&csticket={cs_ticket}&version=3&command=validate'
 
     res = {
         "auth_url": redirect_url,
@@ -835,7 +901,7 @@ def get_payment_info():
         return make_response({"message": "listing_id is required"}, 400)
 
     transaction = TransactionsModel.query.filter_by(listing_id=listing_id).first()
-    listing = ListingModel.query.filter_by(listing_id=listing_id).first()
+    listing = ListingsModel.query.filter_by(listing_id=listing_id).first()
 
     payment_data = [
     {
@@ -850,3 +916,118 @@ def get_payment_info():
 
 
     return make_response({"payment info": payment_data}, 200)
+#This route creates a review for a user
+@app.route('/create_review', methods=['POST'])
+def create_review():
+    review_data = request.get_json()
+    user_made_review_username = review_data.get('user_made_review_username')
+    rating = review_data.get('rating')
+    description = review_data.get('description')
+    user_was_reviewed_username = review_data.get('user_was_reviewed_username')
+    is_seller = review_data.get('is_seller')
+
+    if not rating or not is_seller:
+        return make_response({"message": "Missing required fields"}, 400)
+
+    user_made = UserModel.query.filter_by(username=user_made_review_username).first()
+    if not user_made:
+        return make_response({"message": "User_made not found"}, 404)
+    user_made_id = user_made.id
+
+    user_was = UserModel.query.filter_by(username=user_was_reviewed_username).first()
+    if not user_made:
+        return make_response({"message": "User_reviewed not found"}, 404)
+    user_was_id = user_was.id
+
+  
+    new_review = ReviewsModel(user_made_review = user_made_id, rating = rating, description = description, user_was_reviewed = user_was_id, seller = is_seller)
+    db.session.add(new_review)
+    db.session.commit()
+
+    return make_response({"Review Succesfully created"}, 201)
+
+
+# This route get reviews for a seller
+@app.route('/get_reviews_seller', methods = ["GET"])
+def get_reviews_seller():
+    listings_id = request.args.get('listing_id', type=int)
+
+    listing = ListingsModel.query.filter_by(id = listings_id).first()
+    if not listing:
+        return make_response({"message": "Listing not found"}, 404)
+
+    seller_id = listing.user_id
+
+    reviews = ReviewsModel.query.filter_by(user_was_reviewed = seller_id, seller = True).all()
+
+    if reviews == []:
+        return make_response ("No reviews as seller",200)
+
+    user_seller = UserModel.query.filter_by(id=seller_id).first()
+    if not user_seller:
+            return make_response({"message": "Seller not found"}, 404)
+    reviewList= []
+    seller_name = user_seller.first_name
+
+    for review in reviews:
+        user_bought = UserModel.query.filter_by(id=review.user_made_review).first()
+        if not user_bought:
+            return make_response({"message": "User not found", "user_name": seller_name}, 404)
+        review_data = {
+            "buyer_name": user_bought.first_name,
+            "seller_name": seller_name,
+            "rating": review.rating,
+            "description": review.description or ""
+        }
+
+        reviewList.append(review_data)
+    
+    return make_response({"user_name": seller_name, "reviews": reviewList}, 200)
+
+# This route gets reviews for a buyer
+@app.route('/get_reviews_buyer', methods = ["GET"])
+def get_reviews_buyer():
+    user_id = request.args.get('user_id', type=int)
+
+    user_bought= UserModel.query.filter_by(id=user_id).first()
+    if not user_bought:
+            return make_response({"message": "buyer not found"}, 404)
+    reviewList= []
+
+    buyer_name = user_bought.first_name
+
+    reviews = ReviewsModel.query.filter_by(user_was_reviewed = user_id, seller = False).all()
+
+    if reviews == []:
+        return make_response ("No reviews as buyer",200)
+   
+    reviewList= []
+
+    for review in reviews:
+        user_seller = UserModel.query.filter_by(id=review.user_made_review).first()
+        if not user_seller:
+            return make_response({"message": "User not found", "user_name":buyer_name}, 404)
+        review_data = {
+            "buyer_name": buyer_name,
+            "seller_name": user_seller.first_name,
+            "rating": review.rating,
+            "description": review.description or ""
+        }
+        reviewList.append(review_data)
+    
+    return make_response({"user_name":buyer_name, "reviews": reviewList}, 200)
+
+@app.route('/see_if_reviewed', methods = ["GET"])
+def see_if_reviewed():
+    user_who_reviewed_id = request.args.get('user_who_reviewed_id', type=int)
+    user_review_about_id = request.args.get('user_review_about_id', type=int)
+
+    if not user_who_reviewed_id or not user_review_about_id:
+        return make_response({"message": "Missing user IDs"}, 400)
+
+    review = ReviewsModel.query.filter_by(user_made_review=user_who_reviewed_id, user_was_reviewed=user_review_about_id).first()
+
+    if review:
+        return make_response({"message": "Already Reviewed"}, 200)
+    else:
+        return make_response({"message": "Not Reviewed"}, 200)
