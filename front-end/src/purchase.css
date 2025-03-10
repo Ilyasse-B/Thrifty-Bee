@@ -1,13 +1,13 @@
-
 .header {
   display: flex;
-  justify-content: center; 
+  justify-content: center;
   align-items: center;
-  width: 100%; 
+  width: 100%;
   background-color: white;
   padding: 20px 0;
   font-size: 2rem;
 }
+
 
 .purchase-container {
   width: 80%;
@@ -20,17 +20,16 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 70px;
+  gap: 50px;
 }
 
 .product-image {
-  weight: 38%;
+  width: 38%;
   max-height: 500px;
   border-radius: 10px;
   object-fit: cover;
   box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
 }
-
 
 .product-details {
   display: flex;
@@ -40,36 +39,37 @@
   font-size: 1.35rem;
 }
 
-
 .price {
   font-size: 1.4rem;
   font-weight: 600;
 }
 
 label {
-  font-size: 1.4rem;
+  font-size: 1.3rem;
   font-weight: 600;
+  margin-bottom: 5px;
 }
+
 
 .payment-dropdown {
   padding: 10px;
-  margin-top: 20px;
-  border: 1px solid #ddd;
+  margin-top: 15px;
+  border: 2px solid #ddd;
   border-radius: 5px;
-  border-width: 2px;
-  box-shadow: 0px 0px 5px 0.5px lightgray;
-  width: 200px;
   font-size: 1rem;
-  height: 50px;
+  width: 220px;
+  height: 50px; 
   text-align: center;
   color: gray;
   font-weight: 500;
+  box-shadow: 0px 0px 5px 0.5px lightgray; 
 }
+
 
 .buy-button {
   background: #660099;
   color: white;
-  width: 200px;
+  width: 220px;
   height: 50px;
   padding: 12px;
   border: none;
@@ -84,9 +84,38 @@ label {
   background: #9b51e0;
 }
 
+.card-details {
+  margin-top: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+}
+
+.card-details input {
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  font-size: 1rem;
+  width: 100%;
+  box-shadow: inset 0px 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+
+.card-info {
+  display: flex;
+  gap: 20px;
+  width: 100%;
+}
+
+
+.card-info div {
+  flex: 1;
+  min-width: 48%;
+}
+
 .info-text {
   font-size: 1.1rem;
   color: gray;
   margin-top: 10px;
 }
-
