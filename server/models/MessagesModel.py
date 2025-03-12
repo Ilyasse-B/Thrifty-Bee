@@ -13,7 +13,7 @@ class MessagesModel(db.Model):
     id = db.Column(db.Integer, primary_key=True, nullable=False)
     chat_id = db.Column (db.Integer,db.ForeignKey('chats_table.id'),nullable=False)
     user_id = db.Column (db.Integer,db.ForeignKey('user_table.id'),nullable=False)
-    content = db.Column(db.Boolean, nullable=False)
+    content = db.Column(db.String(200), nullable=False)
     timestamp = db.Column(db.DateTime, nullable=False)
     read = db.Column(db.Boolean, nullable=False)
 

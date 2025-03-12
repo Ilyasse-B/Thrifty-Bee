@@ -15,6 +15,8 @@ class ListingsModel(db.Model):
     condition = db.Column(db.String(200), nullable=False)
     category = db.Column(db.String(200), nullable=False)
     description = db.Column(db.String(200), nullable=False)
+    pending = db.Column (db.Boolean, nullable = False, default = False)
+    sold = db.Column (db.Boolean, nullable = False, default=False)
 
 
     def __repr__(self):

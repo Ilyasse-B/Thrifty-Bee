@@ -1,5 +1,6 @@
 from models.index import db
 from models.ListingsModel import ListingsModel
+from models.UserModel import UserModel
 #from sqlalchemy import ForeignKey
 
 class ChatsModel(db.Model):
@@ -8,8 +9,11 @@ class ChatsModel(db.Model):
 
     id = db.Column(db.Integer, primary_key=True, nullable=False)
     listing_id = db.Column(db.Integer,db.ForeignKey('listings_table.id'), nullable=False)
-    active = db.Column(db.Boolean, nullable=False)
-
+    active = db.Column(db.Boolean, nullable=False, default=True)
+    user_to_sell = db.Column(db.Integer,db.ForeignKey('user_table.id') , nullable=False)
+    user_to_buy = db.Column(db.Integer,db.ForeignKey('user_table.id') , nullable=False)
+    seller_confirmed = db.Column(db.Boolean, nullable=False, default=False)
+    buyer_confirmed = db.Column(db.Boolean, nullable=False, default=False)
 
 
     def __repr__(self):

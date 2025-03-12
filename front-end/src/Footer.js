@@ -1,7 +1,12 @@
 import React from 'react'
+import { useNavigate } from "react-router-dom";
 import "./footer.css";
 
 const Footer = () => {
+  const navigate = useNavigate();
+  const handleNavigate = (section) => {
+    navigate(`/help?section=${section}`);
+  };
   return (
     <div className="footer-container">
       <div className="footer-content">
@@ -9,9 +14,9 @@ const Footer = () => {
         <div className="inner-container">
           <div className="inner-group">
             <div className="sub-heading">Help</div>
-            <button className="foot-button">Feedback</button>
-            <button className="foot-button">Report a User</button>
-            <button className="foot-button">Contact Us</button>
+            <button className="foot-button" onClick={() => handleNavigate("feedback")}>Feedback</button>
+            <button className="foot-button" onClick={() => handleNavigate("report")}>Report a User</button>
+            <button className="foot-button" onClick={() => handleNavigate("contact")}>Contact Us</button>
           </div>
           <div className="inner-group">
             <div className="sub-heading">Selling</div>
@@ -20,8 +25,7 @@ const Footer = () => {
           </div>
           <div className="inner-group">
             <div className="sub-heading">About Us</div>
-            <button className="foot-button">Commitment</button>
-            <button className="foot-button">Page</button>
+            <button className="foot-button" onClick={() => navigate("/about")}>Commitment</button>
           </div>
         </div>
       </div>

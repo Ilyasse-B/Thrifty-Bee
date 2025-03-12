@@ -15,7 +15,6 @@
   background: white;
 }
 
-
 .purchase-content {
   display: flex;
   align-items: center;
@@ -117,4 +116,5 @@ label {
   font-size: 1.1rem;
   color: gray;
   margin-top: 10px;
+  margin-bottom: 5px;
 }

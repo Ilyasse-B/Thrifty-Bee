@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import "./purchase.css"; //import css
+import "./purchase.css"; // Import styles
 
 const Purchase = () => {
   const location = useLocation();
@@ -25,7 +25,7 @@ const Purchase = () => {
   };
 
   const handleBuyNow = async () => {
-    if (paymentMethod !== "Cash") return;
+    if (paymentMethod !== "Cash" || paymentMethod!== "Card") return; // Do nothing if not cash
 
     try {
       const response = await fetch("http://127.0.0.1:5000/create_chat", {
@@ -36,6 +36,7 @@ const Purchase = () => {
 
       const data = await response.json();
       if (response.ok && data.chat_id) {
+        // Redirect to chat page with autoMessage flag
         navigate("/chat", {
           state: {
             chatId: data.chat_id,
