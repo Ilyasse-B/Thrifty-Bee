@@ -91,14 +91,6 @@ with app.app_context():
             db.session.commit()
 
             # Create fake reviews
-            review_one = ReviewsModel(
-                user_made_review=1,  # User 1 is reviewing User 3
-                user_was_reviewed=3,  # User 3 was the seller
-                rating=5,
-                description="Great seller! The transaction was smooth and item was as described.",
-                seller=True  # User 3 was the seller
-            )
-            db.session.add(review_one)
 
             review_two = ReviewsModel(
                 user_made_review=2,  # User 2 is reviewing User 1
@@ -117,15 +109,6 @@ with app.app_context():
                 seller=True  # User 1 was the seller
             )
             db.session.add(review_three)
-
-            review_four = ReviewsModel(
-                user_made_review=3,  # User 3 is reviewing User 1
-                user_was_reviewed=1,  # User 1 was the seller
-                rating=5,
-                description="Great seller! The transaction was smooth and item was as described.",
-                seller=True  # User 1 was the seller
-            )
-            db.session.add(review_four)
 
             db.session.commit()
 
@@ -179,7 +162,7 @@ def check_login():
 @app.route('/intiate_login', methods=['GET'])
 def start_login():
     cs_ticket = uuid.uuid4().hex[:12]                                         # ngrok Link here 
-    redirect_url = f'http://studentnet.cs.manchester.ac.uk/authenticate/?url=https://2cbb-86-9-200-131.ngrok-free.app/profile&csticket={cs_ticket}&version=3&command=validate'
+    redirect_url = f'http://studentnet.cs.manchester.ac.uk/authenticate/?url=https://df3a-130-88-226-30.ngrok-free.app/profile&csticket={cs_ticket}&version=3&command=validate'
 
     res = {
         "auth_url": redirect_url,
@@ -868,7 +851,6 @@ def create_payment_info():
     username_bought = payment_data.get("username_bought")
     payment_type = payment_data.get("payment_type")
     
-
     if not listing_id or not username_bought:  # Validate required fields
         return make_response({"message": "Missing required fields"}, 400)
 
@@ -888,9 +870,10 @@ def create_payment_info():
 
     new_payment = TransactionsModel(listing_id= listing_id ,user_id_bought = user_id, payment_type = payment_type)
 
-
     db.session.add(new_payment)
     db.session.commit()
+
+    return make_response({"message": "Payment info created successfully"}, 201)
 
 #This route get payment info and what the listing was 
 @app.route('/get_payment_info', methods =['GET'] )
@@ -910,12 +893,10 @@ def get_payment_info():
         "image": listing.image,
         "price": listing.price,
         "payment_type": transaction.payment_type
-
     }
     ]
-
-
     return make_response({"payment info": payment_data}, 200)
+
 #This route creates a review for a user
 @app.route('/create_review', methods=['POST'])
 def create_review():

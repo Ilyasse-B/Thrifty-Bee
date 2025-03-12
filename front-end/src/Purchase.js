@@ -16,7 +16,7 @@ const Purchase = () => {
 
   const getInfoText = () => {
     if (paymentMethod === "Card") {
-      return "Please enter your card details below to proceed.";
+      return "Please enter your card details above to proceed.";
     } else if (paymentMethod === "Cash") {
       return "Clicking Buy Now will create a new chat with the seller where you can organise a cash payment.";
     } else {
@@ -25,9 +25,27 @@ const Purchase = () => {
   };
 
   const handleBuyNow = async () => {
-    if (paymentMethod !== "Cash" || paymentMethod!== "Card") return; // Do nothing if not cash
+    if (paymentMethod !== "Cash" && paymentMethod!== "Card") return; // Do nothing if no valid payment method
 
     try {
+      // Create payment info
+      const paymentResponse = await fetch("http://127.0.0.1:5000/create_payment_info", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          listing_id: id,
+          username_bought: sessionStorage.getItem("username"),
+          payment_type: paymentMethod,
+        }),
+      });
+  
+      if (!paymentResponse.ok) {
+        const errorData = await paymentResponse.json();
+        console.error("Error creating payment:", errorData.message);
+        return; // Stop execution if payment fails
+      }
+
+      // Create Chat
       const response = await fetch("http://127.0.0.1:5000/create_chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -36,23 +54,27 @@ const Purchase = () => {
 
       const data = await response.json();
       if (response.ok && data.chat_id) {
-        // Redirect to chat page with autoMessage flag
-        navigate("/chat", {
-          state: {
-            chatId: data.chat_id,
-            listingId: id,
-            listingName: name,
-            otherPerson: sellerName,
-            autoMessage: "Hi, I'd like to buy this item with cash",
-          },
-        });
-      } else {
-        console.error("Error creating chat:", data.message);
-      }
-    } catch (error) {
-      console.error("Error:", error);
+        const autoMessage = paymentMethod === "Cash"
+        ? "Hi, I'd like to buy this item with cash, when and where can we meet to pick up and pay for the item?"
+        : "Hi, I've paid for this item with card, please confirm if you have received the payment. When and where can we meet to pick up the item?";
+
+      // Redirect to chat page with autoMessage
+      navigate("/chat", {
+        state: {
+          chatId: data.chat_id,
+          listingId: id,
+          listingName: name,
+          otherPerson: sellerName,
+          autoMessage: autoMessage
+        },
+      });
+    } else {
+      console.error("Error creating chat:", data.message);
     }
-  };
+  } catch (error) {
+    console.error("Error:", error);
+  }
+};
 
   return (
     <>
