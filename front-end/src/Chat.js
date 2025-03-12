@@ -341,7 +341,7 @@ const Chat = ({ currentUser }) => {
           </button>
         </form>
       </div>
-      {!alreadyReviewed && isBuyer && listingId && otherPersonId !== null && (
+      {!alreadyReviewed && (
         <CreateReview/>
       )}
       {listingId && otherPersonId !== null && isBuyer == false && (
