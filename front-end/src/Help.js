@@ -51,7 +51,7 @@ const Help = () => {
       case 'report':
         return (
           <div className="content-section">
-            <h2>Make A Report</h2>
+            <h2>Create A Report</h2>
             <form className="report-form">
               <div className="form-group">
                 <label htmlFor="username">Username to Report:</label>
@@ -122,7 +122,7 @@ const Help = () => {
           className={`nav-button ${activeSection === 'report' ? 'active' : ''}`}
           onClick={() => setActiveSection('report')}
         >
-          Make a Report
+          Create a Report
         </button>
         <button 
           className={`nav-button ${activeSection === 'contact' ? 'active' : ''}`}

@@ -15,7 +15,7 @@ const Footer = () => {
           <div className="inner-group">
             <div className="sub-heading">Help</div>
             <button className="foot-button" onClick={() => handleNavigate("feedback")}>Feedback</button>
-            <button className="foot-button" onClick={() => handleNavigate("report")}>Report a User</button>
+            <button className="foot-button" onClick={() => handleNavigate("report")}>Create a Report</button>
             <button className="foot-button" onClick={() => handleNavigate("contact")}>Contact Us</button>
           </div>
           <div className="inner-group">
