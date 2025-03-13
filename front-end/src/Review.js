@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import StarContainer from './StarContainer';
+import Star from './Star.js';
 import './review.css';
 
 const Review = ({ listingId, userId, isBuyerReview }) => {
@@ -38,7 +38,12 @@ const Review = ({ listingId, userId, isBuyerReview }) => {
                 <div key={index} className="review-box">
                     <div className="review-header">
                         <strong>{isBuyerReview ? review.seller_name : review.buyer_name}</strong>
-                        <StarContainer fillStar={true} number={review.rating} isClickable={false}/>
+                        {/* Render stars */}
+                      <div className="star-container">
+                        {[...Array(review.rating)].map((_, i) => (
+                          <Star key={i} number={i + 1} starClick={false} />
+                        ))}
+                      </div>
                     </div>
                     <p className="review-description">{review.description}</p>
                 </div>
