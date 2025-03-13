@@ -14,6 +14,7 @@ class ChatsModel(db.Model):
     user_to_buy = db.Column(db.Integer,db.ForeignKey('user_table.id') , nullable=False)
     seller_confirmed = db.Column(db.Boolean, nullable=False, default=False)
     buyer_confirmed = db.Column(db.Boolean, nullable=False, default=False)
+    just_contacting = db.Column(db.Boolean, nullable = False, default = False)
 
 
     def __repr__(self):

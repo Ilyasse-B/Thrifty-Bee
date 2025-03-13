@@ -16,6 +16,13 @@
     color: #888;
 }
 
+.star-container {
+    display: flex;
+    align-items: center;
+    gap: 2px; /* Adjust spacing between stars if needed */
+}
+
+
 .review-box {
     background: #f9f9f9;
     padding: 15px;
