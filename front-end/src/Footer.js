@@ -20,8 +20,8 @@ const Footer = () => {
           </div>
           <div className="inner-group">
             <div className="sub-heading">Selling</div>
-            <button className="foot-button">Community Guidelines</button>
-            <button className="foot-button">Seller Requirements</button>
+            <button className="foot-button" onClick={() => navigate("/about")}>Community Guidelines</button>
+            <button className="foot-button" onClick={() => navigate("/about")}>Seller Requirements</button>
           </div>
           <div className="inner-group">
             <div className="sub-heading">About Us</div>
