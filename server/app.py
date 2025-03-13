@@ -122,7 +122,8 @@ with app.app_context():
                 user_to_sell=3,
                 user_to_buy=1,
                 seller_confirmed=False,
-                buyer_confirmed=False
+                buyer_confirmed=False,
+                just_contacting = True
             )
             db.session.add(chat)
 
@@ -162,7 +163,7 @@ def check_login():
 @app.route('/intiate_login', methods=['GET'])
 def start_login():
     cs_ticket = uuid.uuid4().hex[:12]                                         # ngrok Link here 
-    redirect_url = f'http://studentnet.cs.manchester.ac.uk/authenticate/?url=https://df3a-130-88-226-30.ngrok-free.app/profile&csticket={cs_ticket}&version=3&command=validate'
+    redirect_url = f'http://studentnet.cs.manchester.ac.uk/authenticate/?url=https://1788-130-88-226-30.ngrok-free.app/profile&csticket={cs_ticket}&version=3&command=validate'
 
     res = {
         "auth_url": redirect_url,
@@ -421,6 +422,7 @@ def create_chat():
     listing_id = chat_data.get('listing_id')
     username = chat_data.get('username')
     set_pending = chat_data.get('set_pending', False)
+    contacting = chat_data.get('just_contacting', False)
 
     if not listing_id or not username:
         return make_response({"message": "Missing required fields"}, 400)
@@ -448,6 +450,8 @@ def create_chat():
     ).first()
     
     if existing_chat:
+        existing_chat.just_contacting = contacting
+        db.session.commit()
         return make_response({"chat_id": existing_chat.id}, 200)
 
     # Create a new chat if one doesn't exist
@@ -457,7 +461,8 @@ def create_chat():
         user_to_sell=user_sell_id,
         user_to_buy=user_buy_id,
         seller_confirmed=False,
-        buyer_confirmed=False
+        buyer_confirmed=False,
+        just_contacting = contacting
     )
     db.session.add(new_chat)
     
@@ -680,7 +685,8 @@ def get_user_chats():
             else UserModel.query.get(chat.user_to_buy).first_name,
             "listing_name": ListingsModel.query.get(chat.listing_id).listing_name,
             "listing_image": ListingsModel.query.get(chat.listing_id).image,
-            "active": chat.active
+            "active": chat.active,
+            "just_contacting": chat.just_contacting
         }
         for chat in chats
         if UserModel.query.get(chat.user_to_sell) and UserModel.query.get(chat.user_to_buy) and ListingsModel.query.get(chat.listing_id)
