@@ -1,49 +1,125 @@
 #mainContainer{
-    display:flex;
+    display: flex;
     flex-direction: column;
-    gap:5vh;
+    gap: 5vh;
     background-color: #EDEDED;
-
+    width: 100%;
 }
+
 #aboutimagecon{
-    width:100%;
-    height:70vh;
+    width: 100%;
+    height: 70vh;
+}
 
-}
 #aboutimage{
-    width:100%;
-    height:100%;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
 }
+
 #desc-con{
-    display:flex;
+    display: flex;
     flex-direction: column;
-    width:100%;
-    height:50%;
-    padding-inline:30vw;
-    padding-block:10vh ;
-    gap:10vh;
+    width: 100%;
+    padding: 5vh 5vw;
+    gap: 10vh;
 }
+
 #desc-inner{
     display: flex;
     flex-direction: row;
-    width:100%;
-    gap:10vw;
-
+    width: 100%;
+    gap: 5vw;
+    justify-content: space-between;
+    align-items: center;
 }
+
 #icon{
-    width:10vw;
-    height:17vh;
+    width: 8vw;
+    height: auto;
+    min-width: 80px;
 }
-#content{
-    display :flex;
-    flex-direction: column;
 
+#content{
+    display: flex;
+    flex-direction: column;
+    flex: 1;
 }
+
 #header{
-    color:#5948C8 ;
+    color: #5948C8;
     font-weight: 700;
-    font-size: large;
+    font-size: 1.5rem;
+    margin-bottom: 1vh;
 }
+
 #details{
     font-weight: 550;
+    font-size: 1rem;
+}
+
+/* Selling Section Styles */
+#selling-section {
+    margin-top: 5vh;
+    border-top: 2px solid #f0f0f0;
+    padding-top: 5vh;
+    width: 100%;
+}
+
+#selling-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 3vh;
+}
+
+#selling-header h2 {
+    margin-left: 15px;
+    font-size: 1.8rem;
+    color: #5948C8;
+    font-weight: 700;
+}
+
+#selling-content {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    grid-template-rows: auto auto;
+    gap: 3vh 3vw;
+    width: 100%;
+}
+
+#selling-content h3 {
+    font-size: 1.2rem;
+    color: #5948C8;
+    margin-bottom: 2vh;
+    font-weight: 600;
+}
+
+#selling-content ul {
+    list-style-type: disc;
+    padding-left: 2vw;
+    margin-bottom: 2vh;
+}
+
+#selling-content li {
+    margin-bottom: 1vh;
+    line-height: 1.4;
+}
+
+#selling-guidelines, #seller-requirements, #prohibited-items, #getting-started {
+    background-color: white;
+    padding: 3vh 3vw;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+#prohibited-items {
+    grid-column: 1;
+}
+
+#getting-started {
+    grid-column: 2;
+}
+
+#getting-started p {
+    line-height: 1.6;
 }
