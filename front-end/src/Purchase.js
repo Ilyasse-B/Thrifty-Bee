@@ -49,7 +49,7 @@ const Purchase = () => {
       const response = await fetch("http://127.0.0.1:5000/create_chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ listing_id: id, username: sessionStorage.getItem("username"), set_pending: true }),
+        body: JSON.stringify({ listing_id: id, username: sessionStorage.getItem("username"), set_pending: true, just_contacting: false }),
       });
 
       const data = await response.json();
@@ -65,7 +65,8 @@ const Purchase = () => {
           listingId: id,
           listingName: name,
           otherPerson: sellerName,
-          autoMessage: autoMessage
+          autoMessage: autoMessage,
+          just_contacting: false
         },
       });
     } else {

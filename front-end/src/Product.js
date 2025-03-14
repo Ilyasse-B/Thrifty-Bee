@@ -101,7 +101,7 @@ const handleContactSeller = async () => {
       const response = await fetch("http://127.0.0.1:5000/create_chat", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ listing_id: id, username }),
+          body: JSON.stringify({ listing_id: id, username, just_contacting: true }),
       });
 
       const data = await response.json();
@@ -112,7 +112,8 @@ const handleContactSeller = async () => {
                       chatId: data.chat_id,
                       listingId: id,
                       listingName: name,
-                      otherPerson: sellerInfo?.first_name
+                      otherPerson: sellerInfo?.first_name,
+                      just_contacting: true
                   }
               });
           }, 2000); // Wait 2 seconds before redirecting

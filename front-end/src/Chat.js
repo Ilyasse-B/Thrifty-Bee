@@ -7,7 +7,7 @@ import Review from './Review';
 
 const Chat = ({ currentUser }) => {
   const location = useLocation();
-  const { chatId, listingId, listingName, otherPerson, active = true, autoMessage } = location.state || {};
+  const { chatId, listingId, listingName, otherPerson, active = true, autoMessage, just_contacting = false } = location.state || {};
   const [messages, setMessages] = useState([]);
   const [userId, setUserId] = useState(null);
   const [newMessage, setNewMessage] = useState('');
@@ -290,7 +290,7 @@ const Chat = ({ currentUser }) => {
       {/* Chat header */}
       <div className="chat-header">
         <h1>Chat with {otherPerson} for {listingName}</h1>
-        {isBuyer !== undefined && (
+        {isBuyer !== undefined && (!just_contacting) && (
           (!isBuyer && !sellerConfirmed) || (isBuyer && !buyerConfirmed) ? (
           <button onClick={handleConfirm} className="confirm-button">
             {isBuyer ? "Confirm Item Received" : "Confirm Payment Received"}
@@ -341,7 +341,7 @@ const Chat = ({ currentUser }) => {
           </button>
         </form>
       </div>
-      {!alreadyReviewed && (
+      {!alreadyReviewed && !just_contacting &&(
         <CreateReview/>
       )}
       {listingId && otherPersonId !== null && isBuyer == false && (
