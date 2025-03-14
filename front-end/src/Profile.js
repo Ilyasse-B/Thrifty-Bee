@@ -23,6 +23,8 @@ const Profile = () => {
   const [favouriteRendervar, setFavouriteRenderVar] = useState(false)
   const [soldListings, setSoldListings] = useState([]);
 
+  const[userRole, setUserRole] = useState("");
+
 
   const username = sessionStorage.getItem("username");
 
@@ -87,6 +89,7 @@ const Profile = () => {
         setEmail(profileData.user[0].email_address || "Not Provided");
         setPhone(profileData.user[0].phone_number || "Not Provided");
         setUserId(user.user_id);
+        setUserRole(user.user_role);
       }
     }catch (error){
       // Take the user back to the home page they are not authorised
@@ -94,6 +97,10 @@ const Profile = () => {
       console.error(error)
     }
 
+  };
+
+  const handleEditClick = () => {
+    setIsEditing(true);
   };
 
 
@@ -199,6 +206,7 @@ const Profile = () => {
       <div className="user-details-grid">
         <div className="user-detail"><strong>Name:</strong> {sessionStorage.getItem('fullName')}</div>
         <div className="user-detail"><strong>Username:</strong> {sessionStorage.getItem('username')}</div>
+        <div className="user-detail"><strong>User Role:</strong> {userRole}</div>
 
         <div className="user-detail">
           <strong>Email:</strong>{" "}
@@ -216,15 +224,25 @@ const Profile = () => {
           {isEditing ? (
             <button className="edit-details-button" onClick={handleSaveClick}>Save Changes</button>)
             :
-            (<button className="edit-details-button" >Edit Details</button>)}
+            (<button className="edit-details-button" onClick={handleEditClick} >Edit Details</button>)}
       </div>
       {statusMessage && <p className="success-message">{statusMessage}</p>}
 
       {/* Notifications Button */}
-      <button className="notifications-button" onClick={() => navigate("/notifications")}>
-          Your Chats
+      <div>
+        <button className="notifications-button" onClick={() => navigate("/notifications")}>
+            Your Chats
         </button>
-
+      </div>
+      {/* Moderation Dashboard Button */}
+      {userRole == "Moderator" &&(
+        <div>
+        <button className="notifications-button" onClick={() => navigate("/moderation")}>
+            Moderator Dashboard
+        </button>
+      </div>
+      )}
+      
     </div>
 
 
