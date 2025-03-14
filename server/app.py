@@ -15,6 +15,11 @@ from models.ListingsModel import ListingsModel
 from models.MessagesModel import MessagesModel
 from models.FavouritesModel import FavouritesModel
 from models.ReviewsModel import ReviewsModel
+from models.FeedbackModel import FeedbackModel
+from models.ContactModel import ContactModel
+from models.ReportsReviewsModel import ReportsReviewsModel
+from models.ReportsUserModel import ReportsUserModel
+from models.ReportsListingModel import ReportsListingModel
 
 import uuid
 
