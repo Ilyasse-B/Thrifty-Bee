@@ -3,6 +3,8 @@ import { useLocation, useNavigate } from "react-router-dom";
 import "./product.css"
 import Heart from './Heart.js';
 import FavHeart from './FavHeart.js';
+import Review from './Review';
+
 const Product = () => {
     const location = useLocation();
     const navigate = useNavigate();
@@ -13,6 +15,7 @@ const Product = () => {
     const [contactSellerError, setContactSellerError] = useState("");
     const [isFavorited, setIsFavorited] = useState(false); // State to track favorite status from backend
     const [redirecting, setRedirecting] = useState(false); // State for redirect message
+    const [isSeller, setIsSeller] = useState(false);
 
     const username = sessionStorage.getItem("username");
 
@@ -46,10 +49,13 @@ const Product = () => {
     useEffect(() => {
       const fetchSellerInfo = async () => {
           try {
-              const response = await fetch(`http://127.0.0.1:5000/get_seller_info?username=${username}`);
+              const response = await fetch(`http://127.0.0.1:5000/get_seller_info?user_id=${user_id}`);
               const data = await response.json();
               if (response.ok) {
-                  setSellerInfo(data.seller);
+                setSellerInfo(data.seller);
+              // Compare session username with seller's username
+              if (data.seller.username === username) {
+                setIsSeller(true);}
               } else {
                   console.error("Error fetching seller info:", data.message);
               }
@@ -58,19 +64,23 @@ const Product = () => {
           }
       };
 
-      if (username) {
+      if (user_id) {
           fetchSellerInfo();
       }
-  }, [username]);
+  }, [user_id, username]);
 
   const handleBuyNow = () => {
     if (!username) {
         setBuyNowError("You must be logged in to buy an item");
         return;
     }
+    if (isSeller) {
+      setBuyNowError("You are the seller of this item");
+      return;
+  }
     setBuyNowError("");
     navigate("/purchase", {
-        state: { id, name, price, image }
+        state: { id, name, price, image, sellerName: sellerInfo?.first_name }
     });
 };
 
@@ -79,6 +89,10 @@ const handleContactSeller = async () => {
       setContactSellerError("You must be logged in to contact this seller");
       return;
   }
+  if (isSeller) {
+    setContactSellerError("You are the seller of this item");
+    return;
+}
 
   setContactSellerError("");
   setRedirecting(true); // Show redirect message
@@ -87,7 +101,7 @@ const handleContactSeller = async () => {
       const response = await fetch("http://127.0.0.1:5000/create_chat", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ listing_id: id, username }),
+          body: JSON.stringify({ listing_id: id, username, just_contacting: true }),
       });
 
       const data = await response.json();
@@ -96,8 +110,10 @@ const handleContactSeller = async () => {
               navigate("/chat", {
                   state: {
                       chatId: data.chat_id,
+                      listingId: id,
                       listingName: name,
-                      otherPerson: sellerInfo?.first_name
+                      otherPerson: sellerInfo?.first_name,
+                      just_contacting: true
                   }
               });
           }, 2000); // Wait 2 seconds before redirecting
@@ -161,6 +177,7 @@ const handleContactSeller = async () => {
     }
 
   return (
+    <div>
     <div id="product-main-con">
       <div id="image-con">
         <img src={image} alt={name} id="image" />
@@ -188,7 +205,7 @@ const handleContactSeller = async () => {
             <p><strong>Phone:</strong> {sellerInfo.phone_number || "Not Provided"}</p>
           </div>
         )}
-
+        <h6 id="note">Contact the seller by clicking the button above if you would like to offer a new price</h6>
         {/* Favorite Button */}
         {username && (
           <button
@@ -199,9 +216,9 @@ const handleContactSeller = async () => {
               {!isFavorited ? <Heart/>:<FavHeart/>}
           </button>
                 )}
-        <h6 id="note">Contact the seller by clicking the button above if you would like to offer a new price</h6>
       </div>
-
+    </div>
+    <Review listingId={id} userId={user_id} isBuyerReview={false} />
     </div>
   )
 }

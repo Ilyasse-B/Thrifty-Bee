@@ -21,6 +21,7 @@ const Profile = () => {
   const [statusMessage, setStatusMessage] = useState("");
   const [favorites, setFavorites] = useState([]);
   const [favouriteRendervar, setFavouriteRenderVar] = useState(false)
+  const [soldListings, setSoldListings] = useState([]);
 
 
   const username = sessionStorage.getItem("username");
@@ -127,7 +128,8 @@ const Profile = () => {
       .then((response) => response.json())
       .then((data) => {
         if (data.listings) {
-          setListings(data.listings);
+          setListings(data.listings.filter(listing => !listing.sold));
+          setSoldListings(data.listings.filter(listing => listing.sold));
         } else {
           console.error("No listings found");
         }
@@ -259,6 +261,25 @@ const Profile = () => {
         <p>No listings yet!</p>
       )}
     </div>
+
+    {/* Sold Items Section */}
+    <div className="listing-section">
+    <h2 className="listing-title">Sold Items</h2>
+    {soldListings.length > 0 ? (
+      <div className="listing-grid">
+        {soldListings.map((listing) => (
+          <div key={listing.id} className="listing-card">
+            <img src={listing.image} alt={listing.title} />
+            <h3>{listing.title}</h3>
+            <p>£{listing.price.toFixed(2)}</p>
+          </div>
+        ))}
+      </div>
+    ) : (
+      <p>No sold items yet!</p>
+    )}
+  </div>
+
     {/* Favorites Section */}
     <div >
         <h2 className="listing-title">Favorited Items</h2>

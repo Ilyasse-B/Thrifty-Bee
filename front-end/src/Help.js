@@ -51,19 +51,19 @@ const Help = () => {
       case 'report':
         return (
           <div className="content-section">
-            <h2>Report a User</h2>
+            <h2>Create A Report</h2>
             <form className="report-form">
               <div className="form-group">
                 <label htmlFor="username">Username to Report:</label>
                 <input type="text" id="username" />
               </div>
               <div className="form-group">
-                <label htmlFor="reason">Reason:</label>
+                <label htmlFor="reason">Type:</label>
                 <select id="reason">
-                  <option value="select">Please Select a Reason</option>
-                  <option value="item-missing">Did not send item</option>
-                  <option value="payment">Issue with payment</option>
-                  <option value="inappropriate">Inappropriate Content</option>
+                  <option value="select">Please Select What Type of Report You are Making</option>
+                  <option value="item-missing">Report a User</option>
+                  <option value="payment">Issue with a Listing</option>
+                  <option value="inappropriate">Inappropriate Review</option>
                   <option value="other">Other</option>
                 </select>
               </div>
@@ -122,7 +122,7 @@ const Help = () => {
           className={`nav-button ${activeSection === 'report' ? 'active' : ''}`}
           onClick={() => setActiveSection('report')}
         >
-          Report a User
+          Create a Report
         </button>
         <button 
           className={`nav-button ${activeSection === 'contact' ? 'active' : ''}`}

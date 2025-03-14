@@ -36,6 +36,9 @@ const Home = () => {
   const filterAndSortProducts = () => {
     let result = [...products];
     
+    // Exclude sold and pending items
+    result = result.filter(product => !product.sold && !product.pending);
+
     // Apply search filter
     if (searchTerm.trim() !== '') {
       result = result.filter(product => {
