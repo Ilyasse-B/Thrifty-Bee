@@ -1036,3 +1036,16 @@ def see_if_reviewed():
         return make_response({"message": "Already Reviewed"}, 200)
     else:
         return make_response({"message": "Not Reviewed"}, 200)
+
+# Route for deleting reviews from the dashboard page
+@app.route('/delete_listing/<int:review_id>', methods=['DELETE'])
+def delete_reviews(review_id):
+    review = ReviewsModel.query.get(review_id)
+
+    if not review:
+        return make_response({"message": "Review not found"}, 404)
+
+    db.session.delete(review)
+    db.session.commit()
+
+    return make_response({"message": "Review deleted successfully"}, 200)

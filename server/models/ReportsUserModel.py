@@ -10,7 +10,8 @@ class ReportsUserModel(db.Model):
     user_id_who_reported = db.Column(db.Integer,db.ForeignKey('user_table.id'), nullable=False)
     user_id = db.Column(db.Integer,db.ForeignKey('user_table.id'), nullable=False)
     reason = db.Column(db.String(500), nullable = True)
-    
+    solved = db.Column (db.Boolean, nullable = False, default=False)
+
 
 
     def __repr__(self):

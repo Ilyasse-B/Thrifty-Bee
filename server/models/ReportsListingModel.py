@@ -11,6 +11,8 @@ class ReportsListingModel(db.Model):
     user_id_reported = db.Column(db.Integer,db.ForeignKey('user_table.id'), nullable=False)
     listing_id = db.Column(db.Integer,db.ForeignKey('listings_table.id'), nullable=False)
     reason = db.Column(db.String(500), nullable = True)
+    solved = db.Column (db.Boolean, nullable = False, default=False)
+
     
 
 

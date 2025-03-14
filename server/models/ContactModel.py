@@ -10,6 +10,8 @@ class ContactModel(db.Model):
     user_id_contacted = db.Column(db.Integer,db.ForeignKey('user_table.id'), nullable=False)
     email = db.Column(db.String(500), nullable=False)
     reason = db.Column(db.String(500), nullable=False)
+    responded = db.Column (db.Boolean, nullable = False, default=False)
+
     
 
 
