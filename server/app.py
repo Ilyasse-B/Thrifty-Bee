@@ -29,7 +29,7 @@ from datetime import datetime
 app = Flask(__name__)
 
 # Configure the SQLite database URI
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///db.sqlite'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://thrifty_bee_postgres_db_user:h2dJXG0uQiZ4MxL67DukOTV6nuhm8xbl@dpg-cvalt3nnoe9s73fbjt50-a.frankfurt-postgres.render.com/thrifty_bee_postgres_db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 # Initialize SQLAlchemy
@@ -38,104 +38,6 @@ db.init_app(app)
 # Initialize Flask-Migrate
 cors = CORS(app)
 migrate = Migrate(app, db)
-
-#Create & populate Database
-with app.app_context():
-    try:
-        engine = db.engine
-        inspector = inspect(engine)
-
-        if not (inspector.has_table("user_table")):
-            db.create_all()
-
-            # Create test listings
-            listing_one = ListingsModel(
-                user_id=3,
-                listing_name="Chopping Board",
-                image="https://img.freepik.com/free-photo/wood-cutting-board_1203-3148.jpg?t=st=1738937016~exp=1738940616~hmac=ffa2367ba27fed36015963353d65c4a50973931a35202392a1943abdc630938b&w=996",
-                price=3.00,
-                condition="Like New",
-                category="Other",
-                description="Hand-made wooden chopping board"
-            )
-            db.session.add(listing_one)
-
-            listing_two = ListingsModel(
-                user_id=1,
-                listing_name="Sofa",
-                image="https://img.freepik.com/free-photo/beautiful-interior-room-design-concept_23-2148786485.jpg?t=st=1738937245~exp=1738940845~hmac=d22d78f604dc8709293d294ab81ca42fe70a578bd3ad9c18f5a389bf064ccd31&w=996",
-                price=20.50,
-                condition="Used",
-                category="Other",
-                description="Grey sofa made from real wool"
-            )
-            db.session.add(listing_two)
-
-            # Create a test user with ID 1
-            user_one = UserModel(
-                id=1,
-                first_name="John",
-                last_name="Doe",
-                username="johndoe",
-                phone_number="1234567890",
-                email_address="johndoe@example.com"
-            )
-            db.session.add(user_one)
-
-            # Create a test user with ID 2
-            user_two = UserModel(
-                id=2,
-                first_name="James",
-                last_name="May",
-                username="jamesmay",
-                phone_number="1234567890",
-                email_address="jamesmay@example.com"
-            )
-            db.session.add(user_two)
-
-            db.session.commit()
-
-            # Create fake reviews
-
-            review_two = ReviewsModel(
-                user_made_review=2,  # User 2 is reviewing User 1
-                user_was_reviewed=1,  # User 1 was the buyer
-                rating=4,
-                description="Good buyer! Communication was quick and payment was fast.",
-                seller=False  # User 1 was the buyer
-            )
-            db.session.add(review_two)
-
-            review_three = ReviewsModel(
-                user_made_review=2,  # User 2 is reviewing User 1
-                user_was_reviewed=1,  # User 1 was the seller
-                rating=4,
-                description="Good seller! Communication was quick and delivery was fast.",
-                seller=True  # User 1 was the seller
-            )
-            db.session.add(review_three)
-
-            db.session.commit()
-
-            # Get the listing ID of "Baord"
-            board_listing = ListingsModel.query.filter_by(listing_name="Chopping Board").first()
-
-            # Create a chat between user 3 (seller) and user 1 (buyer)
-            chat = ChatsModel(
-                listing_id=board_listing.id,
-                active=True,
-                user_to_sell=3,
-                user_to_buy=1,
-                seller_confirmed=False,
-                buyer_confirmed=True,
-                just_contacting = False
-            )
-            db.session.add(chat)
-
-            db.session.commit()
-
-    except OperationalError as e:
-        print(f"Error checking or creating tables: {e}")
 
 
 if __name__ == '__main__':
@@ -168,7 +70,7 @@ def check_login():
 @app.route('/intiate_login', methods=['GET'])
 def start_login():
     cs_ticket = uuid.uuid4().hex[:12]                                         # ngrok Link here
-    redirect_url = f'http://studentnet.cs.manchester.ac.uk/authenticate/?url=https://dcf6-130-88-226-30.ngrok-free.app/profile&csticket={cs_ticket}&version=3&command=validate'
+    redirect_url = f'http://studentnet.cs.manchester.ac.uk/authenticate/?url=https://3389-86-9-200-131.ngrok-free.app/profile&csticket={cs_ticket}&version=3&command=validate'
 
     res = {
         "auth_url": redirect_url,
