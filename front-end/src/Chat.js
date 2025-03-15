@@ -130,7 +130,7 @@ const Chat = ({ currentUser }) => {
             `http://127.0.0.1:5000/get_chat_role?chat_id=${chatId}&username=${username}`
           );
           const data = await response.json();
-          
+
           // Set isBuyer based on response
           if (data.status === 'success') {
             setIsBuyer(data.is_buyer);
@@ -201,7 +201,7 @@ const Chat = ({ currentUser }) => {
       console.error("Error sending message:", error);
     }
   };
-  
+
   const handleConfirm = async () => {
     try {
       const confirmationType = isBuyer ? "item_received" : "payment_received";
@@ -218,7 +218,7 @@ const Chat = ({ currentUser }) => {
       });
 
       const data = await response.json();
-      
+
       if (data.status === 'success') {
         // Construct confirmation message
         const confirmationMessage = {
@@ -256,7 +256,7 @@ const Chat = ({ currentUser }) => {
       };
 
       await fetchMessages(); // Refresh chat after sending confirmation message
-        
+
         // If transaction is complete, send a final system message
       if (data.transaction_complete) {
         const completeMessage = {
@@ -284,7 +284,7 @@ const Chat = ({ currentUser }) => {
   console.error("Error confirming transaction:", error);
 }
   };
-  
+
   return (
     <div className="chat-container">
       {/* Chat header */}
@@ -341,8 +341,8 @@ const Chat = ({ currentUser }) => {
           </button>
         </form>
       </div>
-      {!alreadyReviewed && !just_contacting &&(
-        <CreateReview/>
+      {!alreadyReviewed && (
+        <CreateReview user_being_reviewed_id={otherPersonId} isBuyer={isBuyer}/>
       )}
       {listingId && otherPersonId !== null && isBuyer == false && (
         <Review listingId={listingId} userId={otherPersonId} isBuyerReview={true} />
