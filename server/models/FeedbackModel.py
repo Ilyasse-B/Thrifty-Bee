@@ -8,10 +8,10 @@ class FeedbackModel(db.Model):
 
     id = db.Column(db.Integer, primary_key=True, nullable=False)
     user_id_contacted = db.Column(db.Integer,db.ForeignKey('user_table.id'), nullable=False)
-    email = db.Column(db.String(500), nullable=False)
+    #email = db.Column(db.String(500), nullable=False)
     category = db.Column(db.String(500), nullable=False)
     feedback = db.Column(db.String(500), nullable=False)
-    responded = db.Column (db.Boolean, nullable = False, default=False)
+    read = db.Column (db.Boolean, nullable = False, default=False)
 
 
     def __repr__(self):
