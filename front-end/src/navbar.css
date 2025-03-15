@@ -28,15 +28,20 @@
   
   /* General button styles */
   .nav-button {
-    background: none;
+    padding: 16px;
     border: none;
-    font-size: 23px;
-    cursor: pointer;
+    border-radius: 8px;
+    background-color: transparent;
     color: black;
+    text-align: left;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.2s;
   }
   
   .nav-button:hover {
-    text-decoration: underline;
+    background-color: #7a00cc;
+    color: white;
   }
   
   /* Login button */
