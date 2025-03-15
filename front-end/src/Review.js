@@ -12,10 +12,11 @@ const Review = ({ listingId, userId, isBuyerReview }) => {
               const endpoint = isBuyerReview
                 ? `http://127.0.0.1:5000/get_reviews_buyer?user_id=${userId}`
                 : `http://127.0.0.1:5000/get_reviews_seller?listing_id=${listingId}`;
-      
+
               const response = await fetch(endpoint);
               const data = await response.json();
-      
+              console.log(data)
+
               if (data.reviews) {
                 setReviews(data.reviews);
                 setUserName(data.user_name);
