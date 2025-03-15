@@ -256,7 +256,8 @@ def get_user_info():
     if not user:
         first_name = request.args.get('first_name', type = str)
         last_name = request.args.get('last_name', type =str)
-        if username == "42c10e":
+        moderator_usernames = ["42c10e", "23c74d", "ae4859", "72c8a8", "7c4f2e"]
+        if username in moderator_usernames:
             role = "Moderator"
         else:
             role = "User"
