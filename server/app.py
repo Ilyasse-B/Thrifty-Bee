@@ -15,6 +15,11 @@ from models.ListingsModel import ListingsModel
 from models.MessagesModel import MessagesModel
 from models.FavouritesModel import FavouritesModel
 from models.ReviewsModel import ReviewsModel
+from models.FeedbackModel import FeedbackModel
+from models.ContactModel import ContactModel
+from models.ReportsReviewsModel import ReportsReviewsModel
+from models.ReportsUserModel import ReportsUserModel
+from models.ReportsListingModel import ReportsListingModel
 
 import uuid
 
@@ -122,8 +127,8 @@ with app.app_context():
                 user_to_sell=3,
                 user_to_buy=1,
                 seller_confirmed=False,
-                buyer_confirmed=False,
-                just_contacting = True
+                buyer_confirmed=True,
+                just_contacting = False
             )
             db.session.add(chat)
 
@@ -163,7 +168,7 @@ def check_login():
 @app.route('/intiate_login', methods=['GET'])
 def start_login():
     cs_ticket = uuid.uuid4().hex[:12]                                         # ngrok Link here
-    redirect_url = f'http://studentnet.cs.manchester.ac.uk/authenticate/?url=https://5d85-130-88-226-13.ngrok-free.app/profile&csticket={cs_ticket}&version=3&command=validate'
+    redirect_url = f'http://studentnet.cs.manchester.ac.uk/authenticate/?url=https://dcf6-130-88-226-30.ngrok-free.app/profile&csticket={cs_ticket}&version=3&command=validate'
 
     res = {
         "auth_url": redirect_url,
@@ -251,7 +256,12 @@ def get_user_info():
     if not user:
         first_name = request.args.get('first_name', type = str)
         last_name = request.args.get('last_name', type =str)
-        user = make_profile(username,first_name,last_name)
+        moderator_usernames = ["42c10e", "23c74d", "ae4859", "72c8a8", "7c4f2e"]
+        if username in moderator_usernames:
+            role = "Moderator"
+        else:
+            role = "User"
+        user = make_profile(username,first_name,last_name,role)
 
     user_data = [
         {
@@ -260,15 +270,16 @@ def get_user_info():
             "last_name": user.last_name,
             "username": user.username,
             "email_address": user.email_address,
-            "phone_number":user.phone_number
+            "phone_number":user.phone_number,
+            "user_role":user.user_role
         }
     ]
 
     return make_response({"user": user_data}, 200)
 
 # This function below will run if the user does not yet exist in the database
-def make_profile(username,f_name,l_name):
-    newUser = UserModel(first_name = f_name, last_name = l_name, username = username, phone_number = "", email_address = "")
+def make_profile(username,f_name,l_name, roleIn):
+    newUser = UserModel(first_name = f_name, last_name = l_name, username = username, phone_number = "", email_address = "", user_role = roleIn)
     db.session.add(newUser)
     db.session.commit()
 
@@ -1031,3 +1042,16 @@ def see_if_reviewed():
         return make_response({"message": "Already Reviewed"}, 200)
     else:
         return make_response({"message": "Not Reviewed"}, 200)
+
+# Route for deleting reviews from the dashboard page
+@app.route('/delete_listing/<int:review_id>', methods=['DELETE'])
+def delete_reviews(review_id):
+    review = ReviewsModel.query.get(review_id)
+
+    if not review:
+        return make_response({"message": "Review not found"}, 404)
+
+    db.session.delete(review)
+    db.session.commit()
+
+    return make_response({"message": "Review deleted successfully"}, 200)

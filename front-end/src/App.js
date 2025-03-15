@@ -14,6 +14,7 @@ import Help from "./Help.js";
 import About from  "./About.js";
 import Chat from './Chat.js';
 import Notifications from './Notifications.js';
+import Moderation from './Moderation.js';
 
 function App() {
   return (
@@ -31,6 +32,7 @@ function App() {
         <Route path="/about" element={<About />} />
         <Route path="/chat" element={<Chat />} />
         <Route path="/notifications" element={<Notifications />} />
+        <Route path="/moderation" element={<Moderation />} />
       </Routes>
       <Footer/>
     </div>

@@ -13,6 +13,7 @@ class UserModel(db.Model):
     username = db.Column(db.String(100), nullable=False, unique = True)
     phone_number = db.Column(db.String(100), nullable=False)
     email_address = db.Column(db.String(200), nullable=False, unique = True)
+    user_role = db.Column(db.String(100), nullable=False, default = "User")
 
 
     def __repr__(self):
