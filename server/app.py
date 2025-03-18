@@ -156,6 +156,26 @@ with app.app_context():
         db.session.add_all([report1, report2, report3])
         db.session.commit()
 
+        chopping_board = ListingsModel.query.filter_by(listing_name="Chopping Board").first()
+        sofa = ListingsModel.query.filter_by(listing_name="Sofa").first()
+
+        # Create reports for the listings
+        report1 = ReportsListingModel(
+            user_id_reported=3,
+            listing_id=chopping_board.id,
+            reason="Misleading description",
+            solved=False
+        )
+        report2 = ReportsListingModel(
+            user_id_reported=1,
+            listing_id=sofa.id,
+            reason="Suspicious price",
+            solved=False
+        )
+
+        db.session.add_all([report1, report2])
+        db.session.commit()
+
     except OperationalError as e:
         print(f"Error checking or creating tables: {e}")
 
@@ -1402,30 +1422,36 @@ def fetch_listing_reports():
     reports = ReportsListingModel.query.filter_by(solved = False).all()
     if reports == []:
         return make_response({"message": "No Data"}, 200)
-    else:
-        reportList = []
+    reportList = []
 
-        for report in reports:
-            listing = ListingsModel.query.filter_by(id = report.listing_id).first()
-            if not listing:
-                return make_response({"message": "Listing not found", "Listing": report.listing_id}, 404)
-            report_data ={
-                "report_id": report.id,
-                "user_who_reported": report.user_id_who_reported,
-                "reason": report.reason,
-                "listing_id": listing.id,
-                "listing_name":listing.listing_name,
-                "listing_image": listing.listing_image,
-                "listing_description":listing.listing_description
+    for report in reports:
+        listing = ListingsModel.query.filter_by(id = report.listing_id).first()
+        if not listing:
+            return make_response({"message": "Listing not found", "Listing": report.listing_id}, 404)
+        
+        reporter = UserModel.query.filter_by(id=report.user_id_reported).first()
 
-            }
+        if not reporter:
+            return make_response({"message": "User not found"}, 404)
 
-            reportList.append(report_data)
+        report_data ={
+            "report_id": report.id,
+            "user_who_reported_name": f"{reporter.first_name} {reporter.last_name}",
+            "user_who_reported_id": report.user_id_reported,
+            "reason": report.reason,
+            "listing_id": listing.id,
+            "listing_name":listing.listing_name,
+            "listing_image": listing.image,
+            "listing_description":listing.description,
+            "listing_price": listing.price
+        }
 
-        reportList = sorted(reportList, key=lambda x: x["listing_id"])
+        reportList.append(report_data)
+
+    reportList = sorted(reportList, key=lambda x: x["listing_id"])
 
 
-        return make_response({"Listings": reportList}, 200)
+    return make_response({"Listings": reportList}, 200)
 
 #Route for updating Listings Report
 @app.route('/edit_listings_report/<int:report_id>', methods=['PATCH'])

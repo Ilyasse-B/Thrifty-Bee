@@ -4,6 +4,7 @@ import './moderation.css';
 const Moderation = () => {
   const [activeSection, setActiveSection] = useState('reports');
   const [userReports, setUserReports] = useState([]);
+  const [listingReports, setListingReports] = useState([]);
   const [replies, setReplies] = useState({});
 
   // Fetch user reports
@@ -25,6 +26,28 @@ const Moderation = () => {
 
     if (activeSection === 'reports') {
       fetchUserReports();
+    }
+  }, [activeSection]);
+
+  // Fetch listing reports
+  useEffect(() => {
+    const fetchListingReports = async () => {
+      try {
+        const response = await fetch("http://127.0.0.1:5000/fetch_listing_reports");
+        const data = await response.json();
+
+        if (data.Listings) {
+          setListingReports(data.Listings);
+        } else {
+          setListingReports([]);
+        }
+      } catch (error) {
+        console.error("Error fetching listing reports:", error);
+      }
+    };
+
+    if (activeSection === 'reports') {
+      fetchListingReports();
     }
   }, [activeSection]);
 
@@ -54,14 +77,24 @@ const Moderation = () => {
               </div>
             </div>
 
-            <div className="reports-sub-section">
-              <h2 className='different-reports'>Listing Reports</h2>
-              <div className="report-item">
-                <p><strong>Reported by:</strong> Jane Smith</p>
-                <p><strong>Reported User:</strong> @spammer</p>
-                <p><strong>Description:</strong> Posting misleading listings.</p>
-              </div>
-            </div>
+            {/* Listing Reports Section */}
+          <div className="reports-sub-section">
+            <h2 className='different-reports'>Listing Reports</h2>
+            {listingReports.length > 0 ? (
+              listingReports.map((report) => (
+                <div className="report-item" key={report.report_id}>
+                  <p><strong>Reported by:</strong> {report.user_who_reported_name}</p>
+                  <p><strong>Listing Name:</strong> {report.listing_name}</p>
+                  <img src={report.listing_image} alt={report.listing_name} className="report-image" />
+                  <p><strong>Listing Description:</strong> {report.listing_description}</p>
+                  <p><strong>Listing Price:</strong> £{report.listing_price}</p>
+                  <p><strong>Reason:</strong> {report.reason}</p>
+                </div>
+              ))
+            ) : (
+              <p>No listing reports found.</p>
+            )}
+          </div>
 
             {/* User Reports Section */}
             <div className="reports-sub-section">
