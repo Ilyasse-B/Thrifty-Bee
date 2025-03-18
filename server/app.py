@@ -1205,24 +1205,40 @@ def delete_feedback(feedback_id):
 @app.route('/create_contact', methods=['POST'])
 def create_contact():
     contact_data = request.get_json()
-    user_contacted= contact_data.get('user_contacted')
-    #email = contact_data.get('email')
+    username= contact_data.get('username') # Username from sessionStorage
+    name = contact_data.get('name')  # From the form if not logged in
+    email = contact_data.get('email')  # From the form if not logged in
     reason = contact_data.get('reason')
-    #moderator_response = ""
-    timestamp = contact_data.get('timestamp')
-   
-    if not user_contacted or category is None:
-        return make_response({"message":"missing required fields"}, 400)
+    timestamp = datetime.now()
 
-    user = UserModel.query.filter_by(username=user_contacted).first()
-    if not user:
-        return make_response({"message":"User Reported not found"}, 400)
-    user_id = user.id
+    if not reason:
+        return make_response({"message": "Reason is required"}, 400)
+    
+    user_id = None
 
+    if username:
+        # Fetch user details from the database
+        user = UserModel.query.filter_by(username=username).first()
+        if not user:
+            return make_response({"message": "User not found"}, 400)
 
-    new_contact = ContactModel(user_id_contacted = user_id, reason = reason, timestamp = timestamp)
+        user_id = user.id
+        name = f"{user.first_name} {user.last_name}"
+        email = user.email_address
+
+    # Create new contact submission
+    new_contact = ContactModel(
+        user_id_contacted=user_id,
+        name=name,
+        email=email,
+        reason=reason,
+        timestamp=timestamp
+    )
+
     db.session.add(new_contact)
     db.session.commit()
+
+    return make_response({"message": "Contact submission created"}, 201)
 
 #Route for getting all contact requests for moderator
 @app.route('/fetch_contacts_moderator', methods = ["GET"])

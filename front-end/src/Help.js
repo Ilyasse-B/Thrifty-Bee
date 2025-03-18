@@ -8,6 +8,47 @@ const Help = () => {
   const queryParams = new URLSearchParams(location.search);
   const initialSection = queryParams.get('section') || 'help';
   const [activeSection, setActiveSection] = useState('help');
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [reason, setReason] = useState('');
+
+  const handleContactSubmit = async (e) => {
+    e.preventDefault();
+    const username = sessionStorage.getItem('username');
+
+    if (!reason) {
+      alert('Please enter a reason.');
+      return;
+    }
+
+    try {
+      const response = await fetch('http://127.0.0.1:5000/create_contact', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          username: username || null,
+          name: username ? null : name,
+          email: username ? null : email,
+          reason,
+        }),
+      });
+
+      const data = await response.json();
+      if (response.ok) {
+        alert('Message sent successfully');
+        setName('');
+        setEmail('');
+        setReason('');
+      } else {
+        alert(data.message || 'Failed to send message');
+      }
+    } catch (error) {
+      console.error('Error sending message:', error);
+      alert('An error occurred while sending the message.');
+    }
+  };
 
   useEffect(() => {
     setActiveSection(initialSection);
@@ -80,20 +121,44 @@ const Help = () => {
         return (
           <div className="content-section">
             <h2>Contact Us</h2>
-            <form className="contact-form">
-              <div className="form-group">
-                <label htmlFor="name">Name:</label>
-                <input type="text" id="name" />
-              </div>
-              <div className="form-group">
-                <label htmlFor="email">Email:</label>
-                <input type="email" id="email" />
-              </div>
+            <form className="contact-form" onSubmit={handleContactSubmit}>
+            {!sessionStorage.getItem('username') && (
+                <>
+                  <div className="form-group">
+                    <label htmlFor="name">Name:</label>
+                    <input
+                      type="text"
+                      id="name"
+                      value={name}
+                      onChange={(e) => setName(e.target.value)}
+                      required
+                    />
+                  </div>
+                  <div className="form-group">
+                    <label htmlFor="email">Email:</label>
+                    <input
+                      type="email"
+                      id="email"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      required
+                    />
+                  </div>
+                </>
+              )}
               <div className="form-group">
                 <label htmlFor="reason">Reason:</label>
-                <input type="reason" id="reason" /> 
+                <input
+                  type="text"
+                  id="reason"
+                  value={reason}
+                  onChange={(e) => setReason(e.target.value)}
+                  required
+                />
               </div>
-              <button type="submit" className="submit-button">Send Message</button>
+              <button type="submit" className="submit-button">
+                Send Message
+              </button>
             </form>
           </div>
         );
