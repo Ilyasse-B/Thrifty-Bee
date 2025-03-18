@@ -134,6 +134,28 @@ with app.app_context():
 
             db.session.commit()
 
+            report1 = ReportsUserModel(
+            user_id=1,
+            user_id_who_reported=2,
+            reason="Inappropriate behavior",
+            solved=False
+        )
+        report2 = ReportsUserModel(
+            user_id=1,
+            user_id_who_reported=3,
+            reason="Scamming",
+            solved=False
+        )
+        report3 = ReportsUserModel(
+            user_id=3,
+            user_id_who_reported=2,
+            reason="Spamming",
+            solved=False
+        )
+
+        db.session.add_all([report1, report2, report3])
+        db.session.commit()
+
     except OperationalError as e:
         print(f"Error checking or creating tables: {e}")
 
@@ -1293,21 +1315,24 @@ def fetch_user_reports():
 
         for report in reports:
             user = UserModel.query.filter_by(id = report.user_id).first()
+            user2 = UserModel.query.filter_by(id = report.user_id_who_reported).first()
             if not user:
                 return make_response({"message": "User not found", "User": report.user_id}, 404)
             report_data ={
                 "report_id": report.id,
                 "user_who_reported": report.user_id_who_reported,
+                "user_who_reported_name": user2.first_name + " " + user2.last_name,
                 "reason": report.reason,
-                "user_about": report.user_id,
+                "user_id": report.user_id,
+                "user_name": user.first_name + " " + user2.last_name,
                 "email":user.email_address,
-                "phone": user.phone
+                "phone": user.phone_number
 
             }
 
             reportList.append(report_data)
 
-        reportList = sorted(reportList, key=lambda x: x["user_about"])
+        reportList = sorted(reportList, key=lambda x: x["user_name"])
 
 
         return make_response({"Users": reportList}, 200)

@@ -1,9 +1,32 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './moderation.css';
 
 const Moderation = () => {
   const [activeSection, setActiveSection] = useState('reports');
+  const [userReports, setUserReports] = useState([]);
   const [replies, setReplies] = useState({});
+
+  // Fetch user reports
+  useEffect(() => {
+    const fetchUserReports = async () => {
+      try {
+        const response = await fetch("http://127.0.0.1:5000/fetch_user_reports");
+        const data = await response.json();
+
+        if (data.Users) {
+          setUserReports(data.Users);
+        } else {
+          setUserReports([]);
+        }
+      } catch (error) {
+        console.error("Error fetching user reports:", error);
+      }
+    };
+
+    if (activeSection === 'reports') {
+      fetchUserReports();
+    }
+  }, [activeSection]);
 
   const handleReplyChange = (id, value) => {
     setReplies((prevReplies) => ({ ...prevReplies, [id]: value }));
@@ -40,13 +63,22 @@ const Moderation = () => {
               </div>
             </div>
 
+            {/* User Reports Section */}
             <div className="reports-sub-section">
               <h2 className='different-reports'>User Reports</h2>
-              <div className="report-item">
-                <p><strong>Reported by:</strong> Alice Brown</p>
-                <p><strong>Reported User:</strong> @troll123</p>
-                <p><strong>Description:</strong> Harassment in private messages.</p>
-              </div>
+              {userReports.length > 0 ? (
+                userReports.map((report) => (
+                  <div className="report-item" key={report.report_id}>
+                    <p><strong>Reported by:</strong> {report.user_who_reported_name}</p>
+                    <p><strong>Reported User:</strong> {report.user_name}</p>
+                    <p><strong>Offender's Email:</strong> {report.email}</p>
+                    <p><strong>Offender's Phone Number:</strong> {report.phone}</p>
+                    <p><strong>Description:</strong> {report.reason}</p>
+                  </div>
+                ))
+              ) : (
+                <p>No user reports found.</p>
+              )}
             </div>
           </div>
         );
