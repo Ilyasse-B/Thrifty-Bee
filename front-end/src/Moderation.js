@@ -5,6 +5,7 @@ const Moderation = () => {
   const [activeSection, setActiveSection] = useState('reports');
   const [userReports, setUserReports] = useState([]);
   const [listingReports, setListingReports] = useState([]);
+  const [reviewReports, setReviewReports] = useState([]);
   const [replies, setReplies] = useState({});
 
   // Fetch user reports
@@ -51,6 +52,28 @@ const Moderation = () => {
     }
   }, [activeSection]);
 
+  // Fetch review reports
+  useEffect(() => {
+    const fetchReviewReports = async () => {
+      try {
+        const response = await fetch("http://127.0.0.1:5000/fetch_review_reports");
+        const data = await response.json();
+        
+        if (data.reviews) {
+          setReviewReports(data.reviews);
+        } else {
+          setReviewReports([]);
+        }
+      } catch (error) {
+        console.error("Error fetching review reports:", error);
+      }
+    };
+
+    if (activeSection === 'reports') {
+      fetchReviewReports();
+    }
+  }, [activeSection]);
+
   const handleReplyChange = (id, value) => {
     setReplies((prevReplies) => ({ ...prevReplies, [id]: value }));
   };
@@ -68,13 +91,23 @@ const Moderation = () => {
             <h2>Reports</h2>
             <p className="content-label">View & Manage user's reports</p>
 
+            {/* Review Reports Section */}
             <div className="reports-sub-section">
               <h2 className='different-reports'>Review Reports</h2>
-              <div className="report-item">
-                <p><strong>Reported by:</strong> John Doe</p>
-                <p><strong>Reported User:</strong> @badUser</p>
-                <p><strong>Description:</strong> Inappropriate behavior in comments.</p>
-              </div>
+              {reviewReports.length > 0 ? (
+                reviewReports.map((report) => (
+                  <div className="report-item" key={report.report_id}>
+                    <p><strong>Reported by:</strong> {report.reporter_name}</p>
+                    <p><strong>Reviewer:</strong> {report.reviewer_name}</p>
+                    <p><strong>Reviewed:</strong> {report.reviewed_name}</p>
+                    <p><strong>Rating:</strong> {report.review_rating} Stars</p>
+                    <p><strong>Description:</strong> {report.review_description}</p>
+                    <p><strong>Reason for Report:</strong> {report.reason}</p>
+                  </div>
+                ))
+              ) : (
+                <p>No review reports found.</p>
+              )}
             </div>
 
             {/* Listing Reports Section */}

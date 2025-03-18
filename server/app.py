@@ -176,6 +176,22 @@ with app.app_context():
         db.session.add_all([report1, report2])
         db.session.commit()
 
+        # Create review reports
+        review_report1 = ReportsReviewsModel(
+                user_id_who_reported=2,
+                review_id=review_two.id,
+                reason="Inappropriate language",
+                solved=False
+            )
+        review_report2 = ReportsReviewsModel(
+                user_id_who_reported=1,
+                review_id=review_three.id,
+                reason="Fake review",
+                solved=False
+            )
+        db.session.add_all([review_report1, review_report2])
+        db.session.commit()
+
     except OperationalError as e:
         print(f"Error checking or creating tables: {e}")
 
@@ -1513,33 +1529,41 @@ def create_reviews_reports():
 #Route for getting all Reviews Reports
 @app.route('/fetch_review_reports', methods = ["GET"])
 def fetch_review_reports():
-
     reports = ReportsReviewsModel.query.filter_by(solved = False).all()
-    if reports == []:
+
+    if not reports:
         return make_response({"message": "No Data"}, 200)
-    else:
-        reportList = []
+    
+    reportList = []
 
-        for report in reports:
-            review = ReviewsModel.query.filter_by(id = report.review_id).first()
-            if not review:
-                return make_response({"message": "Review not found", "Review": report.review_id}, 404)
-            report_data ={
-                "report_id": report.id,
-                "user_who_reported": report.user_id_who_reported,
-                "reason": report.reason,
-                "review_id": review.id,
-                "review_rating":review.rating, 
-                "review_description": review.description
+    for report in reports:
+        review = ReviewsModel.query.filter_by(id = report.review_id).first()
+        if not review:
+            return make_response({"message": "Review not found", "Review": report.review_id}, 404)
+        
+        # Fetch user details
+        reporter = UserModel.query.get(report.user_id_who_reported)
+        reviewer = UserModel.query.get(review.user_made_review)
+        reviewed = UserModel.query.get(review.user_was_reviewed)
 
-            }
+        report_data ={
+            "report_id": report.id,
+            "user_who_reported_id": report.user_id_who_reported,
+            "reporter_name": f"{reporter.first_name} {reporter.last_name}",
+            "reason": report.reason,
+            "review_id": review.id,
+            "review_rating":review.rating, 
+            "review_description": review.description,
+            "reviewer_name": f"{reviewer.first_name} {reviewer.last_name}",
+            "reviewed_name": f"{reviewed.first_name} {reviewed.last_name}"
+        }
 
-            reportList.append(report_data)
+        reportList.append(report_data)
 
-        reportList = sorted(reportList, key=lambda x: x["review_id"])
+    reportList = sorted(reportList, key=lambda x: x["review_id"])
 
 
-        return make_response({"reviews": reportList}, 200)
+    return make_response({"reviews": reportList}, 200)
 
 
 #Route for updating Reviews Report
