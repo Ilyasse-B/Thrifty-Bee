@@ -8,6 +8,8 @@ const Moderation = () => {
   const [reviewReports, setReviewReports] = useState([]);
   const [replies, setReplies] = useState({});
   const [contacts, setContacts] = useState([]);
+  // State to trigger re-fetch after updating a contact
+  const [refreshContacts, setRefreshContacts] = useState(false);
 
   // Fetch Contact Us submissions
   useEffect(() => {
@@ -26,10 +28,11 @@ const Moderation = () => {
       }
     };
   
-    if (activeSection === 'messages') {
+    if (activeSection === 'messages' || refreshContacts) {
       fetchContacts();
+      setRefreshContacts(false);
     }
-  }, [activeSection]);
+  }, [activeSection, refreshContacts]);
 
   // Fetch user reports
   useEffect(() => {
@@ -97,13 +100,39 @@ const Moderation = () => {
     }
   }, [activeSection]);
 
-  const handleReplyChange = (id, value) => {
-    setReplies((prevReplies) => ({ ...prevReplies, [id]: value }));
+  const handleContactUpdate = async (contactId, isLoggedIn) => {
+    const payload = {
+      is_logged_in: isLoggedIn
+    };
+  
+    // Add moderator response if the user was logged in
+    if (isLoggedIn) {
+      payload.moderator_response = replies[contactId] || "";
+    }
+  
+    try {
+      const response = await fetch(`http://127.0.0.1:5000/edit_contact/${contactId}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(payload),
+      });
+  
+      if (response.ok) {
+        alert("Contact updated successfully!");
+        // Refresh contacts after the update
+        setRefreshContacts(true);
+      } else {
+        alert("Failed to update contact.");
+      }
+    } catch (error) {
+      console.error("Error updating contact:", error);
+    }
   };
 
-  const handleReplySubmit = (id) => {
-    alert(`Reply sent: ${replies[id] || 'No reply entered'}`);
-    setReplies((prevReplies) => ({ ...prevReplies, [id]: '' }));
+  const handleReplyChange = (id, value) => {
+    setReplies((prevReplies) => ({ ...prevReplies, [id]: value }));
   };
 
   const renderContent = () => {
@@ -200,10 +229,10 @@ const Moderation = () => {
                         value={replies[contact.contact_id] || ''}
                         onChange={(e) => handleReplyChange(contact.contact_id, e.target.value)}
                       ></textarea>
-                      <button onClick={() => handleReplySubmit(contact.contact_id)}>Submit Reply</button>
+                      <button onClick={() => handleContactUpdate(contact.contact_id, true)}>Submit Reply</button>
                     </>
                   ) : (
-                    <button className="externally-responded-btn">Mark as Externally Responded</button>
+                    <button className="externally-responded-btn" onClick={() => handleContactUpdate(contact.contact_id, false)}>Mark as Externally Responded</button>
                   )}
                 </div>
               ))
