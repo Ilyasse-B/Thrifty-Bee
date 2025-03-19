@@ -1118,23 +1118,47 @@ def delete_reviews(review_id):
 @app.route('/create_feedback', methods=['POST'])
 def create_feedback():
     feedback_data = request.get_json()
-    user_contacted= feedback_data.get('user_contacted')
-    #email = feedback_data.get('email')
+    username = feedback_data.get('username')
     category = feedback_data.get('category')
     feedback = feedback_data.get('feedback')
+    name = feedback_data.get('name')
+    email = feedback_data.get('email')
    
-    if not user_contacted or category is None:
-        return make_response({"message":"missing required fields"}, 400)
+    # Check if required fields are provided
+    if not category or not feedback:
+        return make_response({"message": "Missing required fields"}, 400)
 
-    user = UserModel.query.filter_by(username=user_contacted).first()
-    if not user:
-        return make_response({"message":"User Reported not found"}, 400)
-    user_id = user.id
+    # If the user is logged in (username is passed)
+    if username:
+        user = UserModel.query.filter_by(username=username).first()
+        if not user:
+            return make_response({"message": "User not found"}, 400)
+
+        new_feedback = FeedbackModel(
+            user_id_contacted=user.id,
+            email=user.email_address,
+            name=f"{user.first_name} {user.last_name}",
+            category=category,
+            feedback=feedback
+        )
+    else:
+        # Non-logged-in users must provide name and email
+        if not name or not email:
+            return make_response({"message": "Name and email are required for non-logged-in users"}, 400)
+
+        new_feedback = FeedbackModel(
+            email=email,
+            name=name,
+            category=category,
+            feedback=feedback
+        )
 
 
-    new_feedback = FeedbackModel(user_id_contacted = user_id, category = category, feedback = feedback)
+    # Add feedback and commit to the database
     db.session.add(new_feedback)
     db.session.commit()
+
+    return make_response({"message": "Feedback submitted successfully"}, 201)
 
 #Route for getting all feedback
 @app.route('/fetch_feedback', methods = ["GET"])

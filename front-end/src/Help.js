@@ -11,6 +11,8 @@ const Help = () => {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [reason, setReason] = useState('');
+  const [category, setCategory] = useState('');
+  const [feedback, setFeedback] = useState('');
 
   const handleContactSubmit = async (e) => {
     e.preventDefault();
@@ -50,6 +52,52 @@ const Help = () => {
     }
   };
 
+  const handleFeedbackSubmit = async (e) => {
+    e.preventDefault();
+    const username = sessionStorage.getItem('username');
+
+    if (!category || category === "select") {
+      alert("Please select a category.");
+      return;
+    }
+
+    if (!feedback) {
+      alert("Please enter your feedback.");
+      return;
+    }
+
+    // Payload based on login status
+    const payload = {
+      category,
+      feedback,
+      ...(username ? { username } : { name, email })
+    };
+
+    try {
+      const response = await fetch('http://127.0.0.1:5000/create_feedback', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(payload),
+      });
+
+      if (response.ok) {
+        alert('Feedback submitted successfully!');
+        setCategory('');
+        setFeedback('');
+        setName('');
+        setEmail('');
+      } else {
+        const data = await response.json();
+        alert(data.message || 'Failed to submit feedback.');
+      }
+    } catch (error) {
+      console.error('Error submitting feedback:', error);
+      alert('An error occurred while submitting feedback.');
+    }
+  };
+
   useEffect(() => {
     setActiveSection(initialSection);
   }, [initialSection]);
@@ -70,21 +118,65 @@ const Help = () => {
         return (
           <div className="content-section">
             <h2>Submit Feedback</h2>
-            <form className="feedback-form">
+            <form className="feedback-form" onSubmit={handleFeedbackSubmit}>
+              {/* Show name and email fields for non-logged-in users */}
+              {!sessionStorage.getItem('username') && (
+                <>
+                  <div className="form-group">
+                    <label htmlFor="name">Name:</label>
+                    <input
+                      type="text"
+                      id="name"
+                      value={name}
+                      onChange={(e) => setName(e.target.value)}
+                      required
+                    />
+                  </div>
+                  <div className="form-group">
+                    <label htmlFor="email">Email:</label>
+                    <input
+                      type="email"
+                      id="email"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      required
+                    />
+                  </div>
+                </>
+              )}
+
+              {/* Category Selection */}
               <div className="form-group">
                 <label htmlFor="category">Category:</label>
-                <select id="category">       
+                <select
+                  id="category"
+                  value={category}
+                  onChange={(e) => setCategory(e.target.value)}
+                  required
+                >
                   <option value="select">Please Select a Category</option>
                   <option value="bug">Bug Report</option>
                   <option value="product">Faulty Product</option>
                   <option value="other">Other</option>
                 </select>
               </div>
+
+              {/* Feedback Text */}
               <div className="form-group">
-                <label htmlFor="message">Your Feedback:</label>
-                <textarea id="message" rows="5"></textarea>
+                <label htmlFor="feedback">Your Feedback:</label>
+                <textarea
+                  id="feedback"
+                  rows="5"
+                  value={feedback}
+                  onChange={(e) => setFeedback(e.target.value)}
+                  required
+                ></textarea>
               </div>
-              <button type="submit" className="submit-button">Submit Feedback</button>
+
+              {/* Submit Button */}
+              <button type="submit" className="submit-button">
+                Submit Feedback
+              </button>
             </form>
           </div>
         );
