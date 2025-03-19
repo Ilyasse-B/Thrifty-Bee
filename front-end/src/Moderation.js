@@ -7,6 +7,29 @@ const Moderation = () => {
   const [listingReports, setListingReports] = useState([]);
   const [reviewReports, setReviewReports] = useState([]);
   const [replies, setReplies] = useState({});
+  const [contacts, setContacts] = useState([]);
+
+  // Fetch Contact Us submissions
+  useEffect(() => {
+    const fetchContacts = async () => {
+      try {
+        const response = await fetch("http://127.0.0.1:5000/fetch_contacts_moderator");
+        const data = await response.json();
+  
+        if (data.Contacts) {
+          setContacts(data.Contacts);
+        } else {
+          setContacts([]);
+        }
+      } catch (error) {
+        console.error("Error fetching contacts:", error);
+      }
+    };
+  
+    if (activeSection === 'messages') {
+      fetchContacts();
+    }
+  }, [activeSection]);
 
   // Fetch user reports
   useEffect(() => {
@@ -161,29 +184,33 @@ const Moderation = () => {
             <h2>User Messages</h2>
             <p className="content-label">View & Manage messages from users submitted from the Contact Us page</p>
 
-            <div className="message-item">
-              <p><strong>Name:</strong> Michael Johnson</p>
-              <p><strong>Email:</strong> michael@email.com</p>
-              <p><strong>Message:</strong> I need help with my account.</p>
-              <textarea
-                placeholder="Type your reply..."
-                value={replies[1] || ''}
-                onChange={(e) => handleReplyChange(1, e.target.value)}
-              ></textarea>
-              <button onClick={() => handleReplySubmit(1)}>Submit Reply</button>
-            </div>
+            {contacts.length > 0 ? (
+              contacts.map((contact) => (
+                <div className="message-item" key={contact.contact_id}>
+                  {contact.user_contacted == null ? (<p>This is an external user, please respond to them through the email provided</p>) : (<p>This is a logged in user, enter an in-app reply below</p>)}
+                  <p><strong>Name:</strong> {contact.name}</p>
+                  <p><strong>Email:</strong> {contact.email}</p>
+                  <p><strong>Reason:</strong> {contact.reason}</p>
+                  <p><strong>Timestamp:</strong> {new Date(contact.timestamp).toLocaleString()}</p>
 
-            <div className="message-item">
-              <p><strong>Name:</strong> Sarah Lee</p>
-              <p><strong>Email:</strong> sarah@email.com</p>
-              <p><strong>Message:</strong> How can I reset my password?</p>
-              <textarea
-                placeholder="Type your reply..."
-                value={replies[2] || ''}
-                onChange={(e) => handleReplyChange(2, e.target.value)}
-              ></textarea>
-              <button onClick={() => handleReplySubmit(2)}>Submit Reply</button>
-            </div>
+                  {contact.user_contacted ? (
+                    <>
+                      <textarea
+                        placeholder="Type your reply..."
+                        value={replies[contact.contact_id] || ''}
+                        onChange={(e) => handleReplyChange(contact.contact_id, e.target.value)}
+                      ></textarea>
+                      <button onClick={() => handleReplySubmit(contact.contact_id)}>Submit Reply</button>
+                    </>
+                  ) : (
+                    <button className="externally-responded-btn">Mark as Externally Responded</button>
+                  )}
+                </div>
+              ))
+            ) : (
+              <p>No messages found.</p>
+            )}
+
           </div>
         );
       default:

@@ -1243,29 +1243,40 @@ def create_contact():
 #Route for getting all contact requests for moderator
 @app.route('/fetch_contacts_moderator', methods = ["GET"])
 def fetch_contacts_moderator():
+    contacts = ContactModel.query.filter_by(responded = False).order_by(ContactModel.timestamp.asc()).all()
 
-    contacts = ContactModel.query.filter_by(responded = False).all()
-    if contacts == []:
+    if not contacts:
         return make_response({"message": "No Data"}, 200)
-    else:
-        contactList = []
+    
+    contactList = []
 
-        for contact in contacts:
-            user = UserModel.query.filter_by(id = contact.user_id_contacted).order_by(ContactModel.timestamp.asc()).first()
+    for contact in contacts:
+        if contact.user_id_contacted:  # If user_id_contacted is not null
+            user = UserModel.query.filter_by(id=contact.user_id_contacted).first()
             if not user:
-                return make_response({"message": "User not found", "User": user.id}, 404)
+                continue
             contact_data ={
                 "contact_id": contact.id,
                 "reason": contact.reason,
                 "user_contacted": user.id,
                 "email":user.email_address,
-                "first_name": user.first_name
+                "name": user.first_name + " " + user.last_name,
+                "timestamp": contact.timestamp
+            }
+        else:  # Non-logged-in user case
+            contact_data = {
+                "contact_id": contact.id,
+                "reason": contact.reason,
+                "user_contacted": None,
+                "name": contact.name,
+                "email": contact.email,
+                "timestamp": contact.timestamp,
             }
 
-            contactList.append(contact_data)
+        contactList.append(contact_data)
 
 
-        return make_response({"Contacts": contactList}, 200)
+    return make_response({"Contacts": contactList}, 200)
 
 #Route for getting contacts for a specific user
 @app.route('/fetch_contacts_user', methods = ["GET"])
