@@ -1,0 +1,138 @@
+.moderation-page {
+    display: flex;
+    min-height: 100vh;
+    background-color: #f8f5ff;
+}
+
+/* Sidebar */
+.moderation-page .sidebar {
+    width: 250px;
+    background-color: #660099;
+    padding: 32px 16px;
+    display: flex;
+    color: white;
+    flex-direction: column;
+    gap: 16px;
+}
+
+/* Sidebar buttons */
+.moderation-page .nav-button {
+    padding: 16px;
+    border: none;
+    border-radius: 8px;
+    background-color: transparent;
+    color: white;
+    text-align: left;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.moderation-page .nav-button:hover,
+.moderation-page .nav-button.active {
+    background-color: #7a00cc;
+}
+
+/* Main content */
+.moderation-page .main-content {
+    flex: 1;
+    padding: 32px;
+}
+
+/* Content section */
+.moderation-page .content-section {
+    background-color: white;
+    border-radius: 16px;
+    padding: 32px;
+    box-shadow: 0 2px 4px rgba(107, 70, 193, 0.1);
+    text-align: center;
+}
+
+/* Title */
+.moderation-page .content-section h2 {
+    color: #660099;
+    margin-bottom: 12px;
+    font-size: 28px;
+}
+
+/* Small label */
+.moderation-page .content-label {
+    color: grey;
+    font-size: 16px;
+}
+
+/* Sub-section styling */
+.moderation-page .reports-sub-section {
+    margin-top: 24px;
+    padding: 16px;
+    background-color: #f4eaff;
+    border-radius: 12px;
+    box-shadow: 0 1px 3px rgba(102, 0, 153, 0.2);
+}
+
+.moderation-page .reports-sub-section .different-reports {
+    color: #660099;
+    font-size: 22px;
+    margin-bottom: 12px;
+}
+
+/* Report item */
+.moderation-page .report-item {
+    background-color: white;
+    padding: 12px;
+    margin-top: 8px;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    text-align: left;
+}
+
+.moderation-page .report-item p {
+    margin: 4px 0;
+}
+
+/* Messages section */
+.moderation-page .message-item {
+    background-color: #f8f5ff;
+    padding: 16px;
+    margin-top: 16px;
+    border-radius: 12px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    text-align: left;
+}
+
+.moderation-page .message-item p {
+    margin: 8px 0;
+}
+
+.moderation-page .message-item textarea {
+    width: 100%;
+    min-height: 80px;
+    padding: 8px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    margin-top: 8px;
+}
+
+.moderation-page .message-item button {
+    margin-top: 8px;
+    padding: 10px 16px;
+    background-color: #660099;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.moderation-page .message-item button:hover {
+    background-color: #7a00cc;
+}
+
+.report-image {
+    width: 100%;
+    max-width: 300px;
+    height: auto;
+    margin: 12px 0;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}

@@ -7,10 +7,15 @@ class ContactModel(db.Model):
 
 
     id = db.Column(db.Integer, primary_key=True, nullable=False)
-    user_id_contacted = db.Column(db.Integer,db.ForeignKey('user_table.id'), nullable=False)
-    email = db.Column(db.String(500), nullable=False)
+    user_id_contacted = db.Column(db.Integer,db.ForeignKey('user_table.id'), nullable=True)
+    name = db.Column(db.String(500), nullable=True)
+    email = db.Column(db.String(500), nullable=True)
     reason = db.Column(db.String(500), nullable=False)
+    moderator_response = db.Column(db.String(1000), nullable=False, default = "")
     responded = db.Column (db.Boolean, nullable = False, default=False)
+    timestamp = db.Column(db.DateTime, nullable=False)
+
+
 
     
 
