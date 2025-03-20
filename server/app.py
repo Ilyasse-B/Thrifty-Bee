@@ -39,161 +39,161 @@ db.init_app(app)
 cors = CORS(app)
 migrate = Migrate(app, db)
 
-#Create & populate Database
-with app.app_context():
-    try:
-        engine = db.engine
-        inspector = inspect(engine)
+# #Create & populate Database
+# with app.app_context():
+#     try:
+#         engine = db.engine
+#         inspector = inspect(engine)
 
-        if not (inspector.has_table("user_table")):
-            db.create_all()
+#         if not (inspector.has_table("user_table")):
+#             db.create_all()
 
-            # Create test listings
-            listing_one = ListingsModel(
-                user_id=3,
-                listing_name="Chopping Board",
-                image="https://img.freepik.com/free-photo/wood-cutting-board_1203-3148.jpg?t=st=1738937016~exp=1738940616~hmac=ffa2367ba27fed36015963353d65c4a50973931a35202392a1943abdc630938b&w=996",
-                price=3.00,
-                condition="Like New",
-                category="Other",
-                description="Hand-made wooden chopping board"
-            )
-            db.session.add(listing_one)
+#             # Create test listings
+#             listing_one = ListingsModel(
+#                 user_id=3,
+#                 listing_name="Chopping Board",
+#                 image="https://img.freepik.com/free-photo/wood-cutting-board_1203-3148.jpg?t=st=1738937016~exp=1738940616~hmac=ffa2367ba27fed36015963353d65c4a50973931a35202392a1943abdc630938b&w=996",
+#                 price=3.00,
+#                 condition="Like New",
+#                 category="Other",
+#                 description="Hand-made wooden chopping board"
+#             )
+#             db.session.add(listing_one)
 
-            listing_two = ListingsModel(
-                user_id=1,
-                listing_name="Sofa",
-                image="https://img.freepik.com/free-photo/beautiful-interior-room-design-concept_23-2148786485.jpg?t=st=1738937245~exp=1738940845~hmac=d22d78f604dc8709293d294ab81ca42fe70a578bd3ad9c18f5a389bf064ccd31&w=996",
-                price=20.50,
-                condition="Used",
-                category="Other",
-                description="Grey sofa made from real wool"
-            )
-            db.session.add(listing_two)
+#             listing_two = ListingsModel(
+#                 user_id=1,
+#                 listing_name="Sofa",
+#                 image="https://img.freepik.com/free-photo/beautiful-interior-room-design-concept_23-2148786485.jpg?t=st=1738937245~exp=1738940845~hmac=d22d78f604dc8709293d294ab81ca42fe70a578bd3ad9c18f5a389bf064ccd31&w=996",
+#                 price=20.50,
+#                 condition="Used",
+#                 category="Other",
+#                 description="Grey sofa made from real wool"
+#             )
+#             db.session.add(listing_two)
 
-            # Create a test user with ID 1
-            user_one = UserModel(
-                id=1,
-                first_name="John",
-                last_name="Doe",
-                username="johndoe",
-                phone_number="1234567890",
-                email_address="johndoe@example.com"
-            )
-            db.session.add(user_one)
+#             # Create a test user with ID 1
+#             user_one = UserModel(
+#                 id=1,
+#                 first_name="John",
+#                 last_name="Doe",
+#                 username="johndoe",
+#                 phone_number="1234567890",
+#                 email_address="johndoe@example.com"
+#             )
+#             db.session.add(user_one)
 
-            # Create a test user with ID 2
-            user_two = UserModel(
-                id=2,
-                first_name="James",
-                last_name="May",
-                username="jamesmay",
-                phone_number="1234567890",
-                email_address="jamesmay@example.com"
-            )
-            db.session.add(user_two)
+#             # Create a test user with ID 2
+#             user_two = UserModel(
+#                 id=2,
+#                 first_name="James",
+#                 last_name="May",
+#                 username="jamesmay",
+#                 phone_number="1234567890",
+#                 email_address="jamesmay@example.com"
+#             )
+#             db.session.add(user_two)
 
-            db.session.commit()
+#             db.session.commit()
 
-            # Create fake reviews
+#             # Create fake reviews
 
-            review_two = ReviewsModel(
-                user_made_review=2,  # User 2 is reviewing User 1
-                user_was_reviewed=1,  # User 1 was the buyer
-                rating=4,
-                description="Good buyer! Communication was quick and payment was fast.",
-                seller=False  # User 1 was the buyer
-            )
-            db.session.add(review_two)
+#             review_two = ReviewsModel(
+#                 user_made_review=2,  # User 2 is reviewing User 1
+#                 user_was_reviewed=1,  # User 1 was the buyer
+#                 rating=4,
+#                 description="Good buyer! Communication was quick and payment was fast.",
+#                 seller=False  # User 1 was the buyer
+#             )
+#             db.session.add(review_two)
 
-            review_three = ReviewsModel(
-                user_made_review=2,  # User 2 is reviewing User 1
-                user_was_reviewed=1,  # User 1 was the seller
-                rating=4,
-                description="Good seller! Communication was quick and delivery was fast.",
-                seller=True  # User 1 was the seller
-            )
-            db.session.add(review_three)
+#             review_three = ReviewsModel(
+#                 user_made_review=2,  # User 2 is reviewing User 1
+#                 user_was_reviewed=1,  # User 1 was the seller
+#                 rating=4,
+#                 description="Good seller! Communication was quick and delivery was fast.",
+#                 seller=True  # User 1 was the seller
+#             )
+#             db.session.add(review_three)
 
-            db.session.commit()
+#             db.session.commit()
 
-            # Get the listing ID of "Baord"
-            board_listing = ListingsModel.query.filter_by(listing_name="Chopping Board").first()
+#             # Get the listing ID of "Baord"
+#             board_listing = ListingsModel.query.filter_by(listing_name="Chopping Board").first()
 
-            # Create a chat between user 3 (seller) and user 1 (buyer)
-            chat = ChatsModel(
-                listing_id=board_listing.id,
-                active=True,
-                user_to_sell=3,
-                user_to_buy=1,
-                seller_confirmed=False,
-                buyer_confirmed=True,
-                just_contacting = False
-            )
-            db.session.add(chat)
+#             # Create a chat between user 3 (seller) and user 1 (buyer)
+#             chat = ChatsModel(
+#                 listing_id=board_listing.id,
+#                 active=True,
+#                 user_to_sell=3,
+#                 user_to_buy=1,
+#                 seller_confirmed=False,
+#                 buyer_confirmed=True,
+#                 just_contacting = False
+#             )
+#             db.session.add(chat)
 
-            db.session.commit()
+#             db.session.commit()
 
-            report1 = ReportsUserModel(
-            user_id=1,
-            user_id_who_reported=2,
-            reason="Inappropriate behavior",
-            solved=False
-        )
-        report2 = ReportsUserModel(
-            user_id=1,
-            user_id_who_reported=3,
-            reason="Scamming",
-            solved=False
-        )
-        report3 = ReportsUserModel(
-            user_id=3,
-            user_id_who_reported=2,
-            reason="Spamming",
-            solved=False
-        )
+#             report1 = ReportsUserModel(
+#             user_id=1,
+#             user_id_who_reported=2,
+#             reason="Inappropriate behavior",
+#             solved=False
+#         )
+#         report2 = ReportsUserModel(
+#             user_id=1,
+#             user_id_who_reported=3,
+#             reason="Scamming",
+#             solved=False
+#         )
+#         report3 = ReportsUserModel(
+#             user_id=3,
+#             user_id_who_reported=2,
+#             reason="Spamming",
+#             solved=False
+#         )
 
-        db.session.add_all([report1, report2, report3])
-        db.session.commit()
+#         db.session.add_all([report1, report2, report3])
+#         db.session.commit()
 
-        chopping_board = ListingsModel.query.filter_by(listing_name="Chopping Board").first()
-        sofa = ListingsModel.query.filter_by(listing_name="Sofa").first()
+#         chopping_board = ListingsModel.query.filter_by(listing_name="Chopping Board").first()
+#         sofa = ListingsModel.query.filter_by(listing_name="Sofa").first()
 
-        # Create reports for the listings
-        report1 = ReportsListingModel(
-            user_id_reported=3,
-            listing_id=chopping_board.id,
-            reason="Misleading description",
-            solved=False
-        )
-        report2 = ReportsListingModel(
-            user_id_reported=1,
-            listing_id=sofa.id,
-            reason="Suspicious price",
-            solved=False
-        )
+#         # Create reports for the listings
+#         report1 = ReportsListingModel(
+#             user_id_reported=3,
+#             listing_id=chopping_board.id,
+#             reason="Misleading description",
+#             solved=False
+#         )
+#         report2 = ReportsListingModel(
+#             user_id_reported=1,
+#             listing_id=sofa.id,
+#             reason="Suspicious price",
+#             solved=False
+#         )
 
-        db.session.add_all([report1, report2])
-        db.session.commit()
+#         db.session.add_all([report1, report2])
+#         db.session.commit()
 
-        # Create review reports
-        review_report1 = ReportsReviewsModel(
-                user_id_who_reported=2,
-                review_id=review_two.id,
-                reason="Inappropriate language",
-                solved=False
-            )
-        review_report2 = ReportsReviewsModel(
-                user_id_who_reported=1,
-                review_id=review_three.id,
-                reason="Fake review",
-                solved=False
-            )
-        db.session.add_all([review_report1, review_report2])
-        db.session.commit()
+#         # Create review reports
+#         review_report1 = ReportsReviewsModel(
+#                 user_id_who_reported=2,
+#                 review_id=review_two.id,
+#                 reason="Inappropriate language",
+#                 solved=False
+#             )
+#         review_report2 = ReportsReviewsModel(
+#                 user_id_who_reported=1,
+#                 review_id=review_three.id,
+#                 reason="Fake review",
+#                 solved=False
+#             )
+#         db.session.add_all([review_report1, review_report2])
+#         db.session.commit()
 
-    except OperationalError as e:
-        print(f"Error checking or creating tables: {e}")
+#     except OperationalError as e:
+#         print(f"Error checking or creating tables: {e}")
 
 
 if __name__ == '__main__':
@@ -1123,7 +1123,7 @@ def create_feedback():
     feedback = feedback_data.get('feedback')
     name = feedback_data.get('name')
     email = feedback_data.get('email')
-   
+
     # Check if required fields are provided
     if not category or not feedback:
         return make_response({"message": "Missing required fields"}, 400)
@@ -1201,13 +1201,13 @@ def fetch_feedback():
 @app.route('/edit_feedback/<int:feedback_id>', methods=['PATCH'])
 def edit_feedback(feedback_id):
     data = request.get_json()
-    
+
     feedback = FeedbackModel.query.filter_by(id = feedback_id).first()
 
     if not feedback:
         return make_response({"message": "feedback not found"}, 404)
 
-    
+
     if data.get("read") == "True":
         feedback.read = True
     else:
@@ -1215,7 +1215,7 @@ def edit_feedback(feedback_id):
 
     db.session.commit()
 
-    return make_response({"message": " updated successfully"}, 200) 
+    return make_response({"message": " updated successfully"}, 200)
 
 
 #Route for deleting feedback
@@ -1244,7 +1244,7 @@ def create_contact():
 
     if not reason:
         return make_response({"message": "Reason is required"}, 400)
-    
+
     user_id = None
 
     if username:
@@ -1278,7 +1278,7 @@ def fetch_contacts_moderator():
 
     if not contacts:
         return make_response({"message": "No Data"}, 200)
-    
+
     contactList = []
 
     for contact in contacts:
@@ -1318,7 +1318,7 @@ def fetch_contacts_user():
     if not user:
             return make_response({"message": "user not found"}, 404)
     user_id = user.id
-   
+
     contacts = ContactModel.query.filter_by(user_id_contacted = user_id).order_by(ContactModel.timestamp.asc()).all()
     if not contacts:
         return make_response({"message": "No Contact requests"}, 200)
@@ -1342,7 +1342,7 @@ def fetch_contacts_user():
 @app.route('/edit_contact/<int:contact_id>', methods=['PATCH'])
 def edit_contacts(contact_id):
     data = request.get_json()
-    
+
     contact = ContactModel.query.filter_by(id = contact_id).first()
 
     if not contact:
@@ -1359,7 +1359,7 @@ def edit_contacts(contact_id):
 
     db.session.commit()
 
-    return make_response({"message": " Contacts updated successfully"}, 200) 
+    return make_response({"message": " Contacts updated successfully"}, 200)
 
 #Route for deleting contact
 @app.route('/delete_contact/<int:contact_id>', methods=['DELETE'])
@@ -1375,28 +1375,82 @@ def delete_contact(contact_id):
     return make_response({"message": "Contact deleted successfully"}, 200)
 
 
-#Route for creating User Reports 
-@app.route('/create_user_reports', methods=['POST'])
-def create_user_reports():
-    user_data = request.get_json()
-    user_who_reported = user_data.get('user_who_reported')
-    user_about = user_data.get('user_about')
-    reason = review_data.get('reason')
-  
-    if not user_reported or listing_id is None:
+#Route for creating User Reports
+@app.route('/create_user_report', methods=['POST'])
+def create_user_report():
+
+    data = request.get_json()
+    user_who_reported_username = data.get('user_who_reported_username')
+    reported_user_firstName = data.get('reported_user_firstname')
+    details = data.get('details')
+
+    if not user_who_reported_username or not reported_user_firstName:
         return make_response({"message":"missing required fields"}, 400)
 
-    user = UserModel.query.filter_by(username=user_who_reported).first()
+    user = UserModel.query.filter_by(username=user_who_reported_username).first()
     if not user:
-        return make_response({"message":"User Reported not found"}, 400)
+        return make_response({"message":"User Reported not found"}, 404)
     user_reported_id = user.id
 
-    user_about = UserModel.query.filter_by(username=user_about).first()
-    if not user_about:
-        return make_response({"message":"User about not found"}, 400)
-    user_about_id = user_about.id
 
-    new_report = ReportsUserModel(user_id_who_reported = user_reported_id, user_id = user_about_id , reason = reason)
+
+
+    new_report = ReportsUserModel(user_id_who_reported = user_reported_id, reported_user_firstName = reported_user_firstName , details = details)
+    db.session.add(new_report)
+    db.session.commit()
+
+
+    return make_response({"message":"Report Succesfully created"}, 201)
+
+#Route for creating Listing Reports
+@app.route('/create_listing_report', methods=['POST'])
+def create_listing_report():
+    data = request.get_json()
+    user_who_reported_username = data.get('user_who_reported_username')
+    listing_name = data.get('listing_name')
+    sellers_firstname = data.get('sellers_firstname')
+    details = data.get('details')
+
+    if not user_who_reported_username or not listing_name or not sellers_firstname:
+        return make_response({"message":"missing required fields"}, 400)
+
+    user = UserModel.query.filter_by(username=user_who_reported_username).first()
+    if not user:
+        return make_response({"message":"User Reported not found"}, 404)
+    user_reported_id = user.id
+
+
+
+
+    new_report = ReportsListingModel(user_id_reported = user_reported_id, listing_name = listing_name , sellers_firstname = sellers_firstname, details=details)
+    db.session.add(new_report)
+    db.session.commit()
+
+
+    return make_response({"message":"Report Succesfully created"}, 201)
+
+#Route for creating Listing Reports
+@app.route('/create_review_report', methods=['POST'])
+def create_review_report():
+    data = request.get_json()
+    user_who_reported_username = data.get('user_who_reported_username')
+    reviewer_firstname = data.get('reviewer_firstname')
+    reviewed_firstname = data.get('reviewed_firstname')
+    details = data.get('details')
+    print(reviewer_firstname, reviewed_firstname, user_who_reported_username)
+
+    if not user_who_reported_username or not reviewer_firstname or not reviewed_firstname:
+        return make_response({"message":"missing required fields"}, 400)
+
+    user = UserModel.query.filter_by(username=user_who_reported_username).first()
+    if not user:
+        return make_response({"message":"User Reported not found"}, 404)
+    user_reported_id = user.id
+
+
+
+
+    new_report = ReportsReviewsModel(user_id_who_reported = user_reported_id, reviwer_firstname = reviewer_firstname, reviewed_firstname = reviewed_firstname, details=details)
     db.session.add(new_report)
     db.session.commit()
 
@@ -1441,7 +1495,7 @@ def fetch_user_reports():
 @app.route('/edit_user_report/<int:report_id>', methods=['PATCH'])
 def edit_user_report(report_id):
     data = request.get_json()
-    
+
     report = ReportsUserModel.query.filter_by(id = report_id).first()
 
     if not report:
@@ -1471,14 +1525,14 @@ def delete_user_report(report_id):
     return make_response({"message": "Report deleted successfully"}, 200)
 
 
-#Route for creating Listing Reports 
+#Route for creating Listing Reports
 @app.route('/create_listings_reports', methods=['POST'])
 def create_listings_reports():
     listing_data = request.get_json()
     user_reported = listing_data.get('user_reported')
     listing_id = listing_data.get('listing_id')
     reason = listing_data.get('reason')
-  
+
     if not user_reported or listing_id is None:
         return make_response({"message":"missing required fields"}, 400)
 
@@ -1508,7 +1562,7 @@ def fetch_listing_reports():
         listing = ListingsModel.query.filter_by(id = report.listing_id).first()
         if not listing:
             return make_response({"message": "Listing not found", "Listing": report.listing_id}, 404)
-        
+
         reporter = UserModel.query.filter_by(id=report.user_id_reported).first()
 
         if not reporter:
@@ -1537,7 +1591,7 @@ def fetch_listing_reports():
 @app.route('/edit_listings_report/<int:report_id>', methods=['PATCH'])
 def edit_listings_report(report_id):
     data = request.get_json()
-    
+
     report = ReportsListingsModel.query.filter_by(id = report_id).first()
 
     if not report:
@@ -1566,14 +1620,14 @@ def delete_listing_report(report_id):
 
     return make_response({"message": "Report deleted successfully"}, 200)
 
-#Route for creating Reviews Reports 
+#Route for creating Reviews Reports
 @app.route('/create_reviews_reports', methods=['POST'])
 def create_reviews_reports():
     review_data = request.get_json()
     user_reported = review_data.get('user_reported')
     review_id = review_data.get('review_id')
     reason = review_data.get('reason')
-  
+
     if not user_reported or review_id is None:
         return make_response({"message":"missing required fields"}, 400)
 
@@ -1597,14 +1651,14 @@ def fetch_review_reports():
 
     if not reports:
         return make_response({"message": "No Data"}, 200)
-    
+
     reportList = []
 
     for report in reports:
         review = ReviewsModel.query.filter_by(id = report.review_id).first()
         if not review:
             return make_response({"message": "Review not found", "Review": report.review_id}, 404)
-        
+
         # Fetch user details
         reporter = UserModel.query.get(report.user_id_who_reported)
         reviewer = UserModel.query.get(review.user_made_review)
@@ -1616,7 +1670,7 @@ def fetch_review_reports():
             "reporter_name": f"{reporter.first_name} {reporter.last_name}",
             "reason": report.reason,
             "review_id": review.id,
-            "review_rating":review.rating, 
+            "review_rating":review.rating,
             "review_description": review.description,
             "reviewer_name": f"{reviewer.first_name} {reviewer.last_name}",
             "reviewed_name": f"{reviewed.first_name} {reviewed.last_name}"
@@ -1634,7 +1688,7 @@ def fetch_review_reports():
 @app.route('/edit_reviews_report/<int:report_id>', methods=['PATCH'])
 def edit_reviews_report(report_id):
     data = request.get_json()
-    
+
     report = ReportsReviewsModel.query.filter_by(id = report_id).first()
 
     if not report:

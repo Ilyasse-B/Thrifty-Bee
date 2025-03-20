@@ -48,30 +48,52 @@
   font-size: 28px;
 }
 
-  
+
   .help-grid {
     display: grid;
     gap: 32px;
     padding: 16px;
   }
-  
+
   .help-grid h3 {
     color: #660099;
     margin-bottom: 8px;
   }
-  
+
   /* Form styles */
   .form-group {
     margin-bottom: 24px;
+
   }
-  
+  /* .form-group.select {
+    margin-bottom: 24px;
+    display: block;
+  } */
+  /* .form-group.details {
+    margin-bottom: 24px;
+    display: block;
+  }
+  .form-group.user {
+    margin-bottom: 24px;
+    display: block;
+  }
+  .form-group.listing {
+    margin-bottom: 24px;
+    display: block;
+  }
+
+  .form-group.review {
+    margin-bottom: 24px;
+    display: block;
+  } */
+
   .form-group label {
     display: block;
     margin-bottom: 8px;
     color: #4a5568;
     font-weight: 500;
   }
-  
+
   .form-group input,
   .form-group select,
   .form-group textarea {
@@ -81,7 +103,7 @@
     border-radius: 8px;
     font-size: 16px;
   }
-  
+
   .form-group input:focus,
   .form-group select:focus,
   .form-group textarea:focus {
@@ -89,7 +111,7 @@
     border-color: #660099;
     box-shadow: 0 0 0 3px rgba(128, 90, 213, 0.2);
   }
-  
+
   .submit-button {
     background-color: #660099;
     color: white;
