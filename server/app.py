@@ -226,7 +226,7 @@ def check_login():
 @app.route('/intiate_login', methods=['GET'])
 def start_login():
     cs_ticket = uuid.uuid4().hex[:12]                                         # ngrok Link here
-    redirect_url = f'http://studentnet.cs.manchester.ac.uk/authenticate/?url=https://28a3-130-88-226-30.ngrok-free.app/profile&csticket={cs_ticket}&version=3&command=validate'
+    redirect_url = f'http://studentnet.cs.manchester.ac.uk/authenticate/?url=https://8ab1-130-88-226-30.ngrok-free.app/profile&csticket={cs_ticket}&version=3&command=validate'
 
     res = {
         "auth_url": redirect_url,
@@ -1165,30 +1165,37 @@ def create_feedback():
 def fetch_feedback():
 
     feedback = FeedbackModel.query.filter_by(read = False).all()
-    if feedback == []:
+    if not feedback:
         return make_response({"message": "No Data"}, 200)
-    else:
-        feedbackList = []
+    
+    feedbackList = []
 
-        for item in feedback:
-            user = UserModel.query.filter_by(id = item.user_id_contacted).first()
+    for item in feedback:
+        feedback_data ={
+            "feedback_id": item.id,
+            "category":item.category,
+            "feedback": item.feedback,
+            "is_read": item.read
+        }
+
+        if item.user_id_contacted:
+            user = UserModel.query.filter_by(id=item.user_id_contacted).first()
             if not user:
-                return make_response({"message": "User not found", "User": user.id}, 404)
-            feedback_data ={
-                "feedback_id": item.id,
-                "category":item.category,
-                "feedback": item.feedback,
-                "user": user.id,
-                "email":user.email_address,
-                "first_name": user.first_name
-            }
+                return make_response({"message": "User not found", "User": item.user_id_contacted}, 404)
+            feedback_data.update({
+                "user_id": user.id,
+                "email": user.email_address,
+                "name": user.first_name
+            })
+        else:
+            feedback_data.update({
+                "email": item.email,
+                "name": item.name
+            })
 
-            feedbackList.append(feedback_data)
+        feedbackList.append(feedback_data)
 
-        feedbackList = sorted(feedbackList, key=lambda x: x["user_contacted"])
-
-
-        return make_response({"Feedback": feedbackList}, 200)
+    return make_response({"Feedback": feedbackList}, 200)
 
 #Route for updating feedback
 @app.route('/edit_feedback/<int:feedback_id>', methods=['PATCH'])

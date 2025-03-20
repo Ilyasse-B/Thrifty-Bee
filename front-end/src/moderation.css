@@ -183,15 +183,15 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 12px;
+    margin-bottom: 2px;
     border-bottom: 1px solid #e0d5ff;
-    padding-bottom: 10px;
+    padding-bottom: 2px;
   }
   
   .feedback-header h3 {
     color: #660099;
-    margin: 0;
     font-size: 18px;
+    margin: 0;
   }
   
   /* User type label */
