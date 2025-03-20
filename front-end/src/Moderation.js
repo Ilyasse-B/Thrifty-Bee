@@ -2,14 +2,61 @@ import React, { useState, useEffect } from 'react';
 import './moderation.css';
 
 const Moderation = () => {
-  const [activeSection, setActiveSection] = useState('reports');
+  const [activeSection, setActiveSection] = useState('feedback'); // Set to feedback by default to show the section
   const [userReports, setUserReports] = useState([]);
   const [listingReports, setListingReports] = useState([]);
   const [reviewReports, setReviewReports] = useState([]);
   const [replies, setReplies] = useState({});
   const [contacts, setContacts] = useState([]);
+  
+  // Mock feedback data. Need to be connected to back end
+  const [feedback, setFeedback] = useState([
+    {
+      feedback_id: 1,
+      name: "John Smith",
+      email: "john.smith@example.com",
+      category: "Bug Report",
+      feedback: "The order confirmation page crashes whenever I try to access it through the email link. This started happening after the latest update.",
+      timestamp: "2025-03-18",
+      user_id: 123, // Logged in user
+      is_read: false
+    },
+    {
+      feedback_id: 2,
+      name: "Sarah Johnson",
+      email: "sarahjohnson@gmail.com",
+      category: "Faulty Product",
+      feedback: "The charger I received with order #45872 stopped working after only three days of use. The cable shows no visible damage but doesn't charge my device anymore.",
+      timestamp: "2025-03-17",
+      user_id: null, // External user
+      is_read: false
+    },
+    {
+      feedback_id: 3,
+      name: "Michael Wong",
+      email: "michael.w@company.org",
+      category: "Other",
+      feedback: "I'd like to suggest adding a dark mode option to the website. It would be much easier on the eyes when browsing at night.",
+      timestamp: "2025-03-18",
+      user_id: 456, // Logged in user
+      is_read: true
+    },
+    {
+      feedback_id: 4,
+      name: "Emily Rodriguez",
+      email: "emilyr@example.net",
+      category: "Bug Report",
+      feedback: "There seems to be an issue with the search function. When I search for products with hyphens in the name, no results show up even though I know they exist.",
+      timestamp: "2025-03-18",
+      user_id: null, // External user
+      is_read: false
+    }
+  ]);
+  
   // State to trigger re-fetch after updating a contact
   const [refreshContacts, setRefreshContacts] = useState(false);
+  // State to trigger re-fetch after marking feedback as read
+  const [refreshFeedback, setRefreshFeedback] = useState(false);
 
   // Fetch Contact Us submissions
   useEffect(() => {
@@ -33,6 +80,13 @@ const Moderation = () => {
       setRefreshContacts(false);
     }
   }, [activeSection, refreshContacts]);
+
+  // In real implementation, this would fetch from the backend
+  useEffect(() => {
+    // This effect would fetch actual feedback data in production
+    // Since we're using mock data now, we don't need to make an actual fetch
+    console.log("Feedback section active");
+  }, [activeSection, refreshFeedback]);
 
   // Fetch user reports
   useEffect(() => {
@@ -131,6 +185,19 @@ const Moderation = () => {
     }
   };
 
+  // Mock function for marking feedback as read
+  const handleMarkFeedbackAsRead = (feedbackId) => {
+    // Update local state to mark as read
+    setFeedback(prevFeedback => 
+      prevFeedback.map(item => 
+        item.feedback_id === feedbackId ? {...item, is_read: true} : item
+      )
+    );
+    
+    
+    alert("Feedback marked as read!");
+  };
+
   const handleReplyChange = (id, value) => {
     setReplies((prevReplies) => ({ ...prevReplies, [id]: value }));
   };
@@ -181,6 +248,7 @@ const Moderation = () => {
             )}
           </div>
 
+
             {/* User Reports Section */}
             <div className="reports-sub-section">
               <h2 className='different-reports'>User Reports</h2>
@@ -205,6 +273,44 @@ const Moderation = () => {
           <div className="content-section">
             <h2>Feedback</h2>
             <p className="content-label">View & Manage feedback made by users</p>
+            
+            {/* Feedback Items Section */}
+            <div className="feedback-container">
+              {feedback.length > 0 ? (
+                feedback.map((item) => (
+                  <div className="feedback-item" key={item.feedback_id}>
+                    <div className="feedback-header">
+                      <h3>{item.name}</h3>
+                      <span className={`user-type-label ${item.user_id ? "logged-in" : "external"}`}>
+                        {item.user_id ? "Logged in user" : "An external user"}
+                      </span>
+                    </div>
+                    <div className="feedback-details">
+                      <p><strong>Email:</strong> {item.email}</p>
+                      <p><strong>Category:</strong> <span className="feedback-category">{item.category}</span></p>
+                      <p><strong>Submitted:</strong> {new Date(item.timestamp).toLocaleString()}</p>
+                    </div>
+                    <div className="feedback-content">
+                      <p>{item.feedback}</p>
+                    </div>
+                    <div className="feedback-actions">
+                      {!item.is_read ? (
+                        <button 
+                          className="mark-read-btn"
+                          onClick={() => handleMarkFeedbackAsRead(item.feedback_id)}
+                        >
+                          Mark as Read
+                        </button>
+                      ) : (
+                        <div className="read-status">✓ Read</div>
+                      )}
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <p>No feedback submissions found.</p>
+              )}
+            </div>
           </div>
         );
       case 'messages':
@@ -239,7 +345,6 @@ const Moderation = () => {
             ) : (
               <p>No messages found.</p>
             )}
-
           </div>
         );
       default:
