@@ -2,11 +2,70 @@ import React, { useState, useEffect } from 'react';
 import './moderation.css';
 
 const Moderation = () => {
-  const [activeSection, setActiveSection] = useState('reports');
+  const [activeSection, setActiveSection] = useState('feedback'); // Set to feedback by default to show the section
   const [userReports, setUserReports] = useState([]);
+  const [feedback, setFeedback] = useState([]);
   const [listingReports, setListingReports] = useState([]);
   const [reviewReports, setReviewReports] = useState([]);
   const [replies, setReplies] = useState({});
+  const [contacts, setContacts] = useState([]);
+  
+  // State to trigger re-fetch after updating a contact
+  const [refreshContacts, setRefreshContacts] = useState(false);
+  // State to trigger re-fetch after marking feedback as read
+  const [refreshFeedback, setRefreshFeedback] = useState(false);
+
+  // Fetch feedback from the backend
+  useEffect(() => {
+    const fetchFeedback = async () => {
+      try {
+        const response = await fetch("http://127.0.0.1:5000/fetch_feedback");
+        const data = await response.json();
+        if (data.Feedback) {
+          setFeedback(data.Feedback);
+        } else {
+          setFeedback([]);
+        }
+      } catch (error) {
+        console.error("Error fetching feedback:", error);
+      }
+    };
+
+    if (activeSection === 'feedback' || refreshFeedback) {
+      fetchFeedback();
+      setRefreshFeedback(false);
+    }
+  }, [activeSection, refreshFeedback]);
+
+  // Fetch Contact Us submissions
+  useEffect(() => {
+    const fetchContacts = async () => {
+      try {
+        const response = await fetch("http://127.0.0.1:5000/fetch_contacts_moderator");
+        const data = await response.json();
+  
+        if (data.Contacts) {
+          setContacts(data.Contacts);
+        } else {
+          setContacts([]);
+        }
+      } catch (error) {
+        console.error("Error fetching contacts:", error);
+      }
+    };
+  
+    if (activeSection === 'messages' || refreshContacts) {
+      fetchContacts();
+      setRefreshContacts(false);
+    }
+  }, [activeSection, refreshContacts]);
+
+  // In real implementation, this would fetch from the backend
+  useEffect(() => {
+    // This effect would fetch actual feedback data in production
+    // Since we're using mock data now, we don't need to make an actual fetch
+    console.log("Feedback section active");
+  }, [activeSection, refreshFeedback]);
 
   // Fetch user reports
   useEffect(() => {
@@ -74,13 +133,61 @@ const Moderation = () => {
     }
   }, [activeSection]);
 
-  const handleReplyChange = (id, value) => {
-    setReplies((prevReplies) => ({ ...prevReplies, [id]: value }));
+  const handleContactUpdate = async (contactId, isLoggedIn) => {
+    const payload = {
+      is_logged_in: isLoggedIn
+    };
+  
+    // Add moderator response if the user was logged in
+    if (isLoggedIn) {
+      payload.moderator_response = replies[contactId] || "";
+    }
+  
+    try {
+      const response = await fetch(`http://127.0.0.1:5000/edit_contact/${contactId}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(payload),
+      });
+  
+      if (response.ok) {
+        alert("Contact updated successfully!");
+        // Refresh contacts after the update
+        setRefreshContacts(true);
+      } else {
+        alert("Failed to update contact.");
+      }
+    } catch (error) {
+      console.error("Error updating contact:", error);
+    }
   };
 
-  const handleReplySubmit = (id) => {
-    alert(`Reply sent: ${replies[id] || 'No reply entered'}`);
-    setReplies((prevReplies) => ({ ...prevReplies, [id]: '' }));
+  const handleMarkFeedbackAsRead = async (feedbackId) => {
+    try {
+      const response = await fetch(`http://127.0.0.1:5000/edit_feedback/${feedbackId}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ read: "True" }),
+      });
+  
+      if (response.ok) {
+        alert("Feedback marked as read!");
+        // Refresh feedback after marking as read
+        setRefreshFeedback(true);
+      } else {
+        alert("Failed to mark feedback as read.");
+      }
+    } catch (error) {
+      console.error("Error marking feedback as read:", error);
+    }
+  };
+
+  const handleReplyChange = (id, value) => {
+    setReplies((prevReplies) => ({ ...prevReplies, [id]: value }));
   };
 
   const renderContent = () => {
@@ -129,6 +236,7 @@ const Moderation = () => {
             )}
           </div>
 
+
             {/* User Reports Section */}
             <div className="reports-sub-section">
               <h2 className='different-reports'>User Reports</h2>
@@ -153,6 +261,43 @@ const Moderation = () => {
           <div className="content-section">
             <h2>Feedback</h2>
             <p className="content-label">View & Manage feedback made by users</p>
+            
+            {/* Feedback Items Section */}
+            <div className="feedback-container">
+              {feedback.length > 0 ? (
+                feedback.map((item) => (
+                  <div className="feedback-item" key={item.feedback_id}>
+                    <div className="feedback-header">
+                      <h3>{item.name}</h3>
+                      <span className={`user-type-label ${item.user_id ? "logged-in" : "external"}`}>
+                        {item.user_id ? "Logged in user" : "An external user"}
+                      </span>
+                    </div>
+                    <div className="feedback-details">
+                      <p><strong>Email:</strong> {item.email}</p>
+                      <p><strong>Category:</strong> <span className="feedback-category">{item.category}</span></p>  
+                    </div>
+                    <div className="feedback-content">
+                      <p>{item.feedback}</p>
+                    </div>
+                    <div className="feedback-actions">
+                      {!item.is_read ? (
+                        <button 
+                          className="mark-read-btn"
+                          onClick={() => handleMarkFeedbackAsRead(item.feedback_id)}
+                        >
+                          Mark as Read
+                        </button>
+                      ) : (
+                        <div className="read-status">✓ Read</div>
+                      )}
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <p>No feedback submissions found.</p>
+              )}
+            </div>
           </div>
         );
       case 'messages':
@@ -161,29 +306,32 @@ const Moderation = () => {
             <h2>User Messages</h2>
             <p className="content-label">View & Manage messages from users submitted from the Contact Us page</p>
 
-            <div className="message-item">
-              <p><strong>Name:</strong> Michael Johnson</p>
-              <p><strong>Email:</strong> michael@email.com</p>
-              <p><strong>Message:</strong> I need help with my account.</p>
-              <textarea
-                placeholder="Type your reply..."
-                value={replies[1] || ''}
-                onChange={(e) => handleReplyChange(1, e.target.value)}
-              ></textarea>
-              <button onClick={() => handleReplySubmit(1)}>Submit Reply</button>
-            </div>
+            {contacts.length > 0 ? (
+              contacts.map((contact) => (
+                <div className="message-item" key={contact.contact_id}>
+                  {contact.user_contacted == null ? (<p>This is an external user, please respond to them through the email provided</p>) : (<p>This is a logged in user, enter an in-app reply below</p>)}
+                  <p><strong>Name:</strong> {contact.name}</p>
+                  <p><strong>Email:</strong> {contact.email}</p>
+                  <p><strong>Reason:</strong> {contact.reason}</p>
+                  <p><strong>Timestamp:</strong> {new Date(contact.timestamp).toLocaleString()}</p>
 
-            <div className="message-item">
-              <p><strong>Name:</strong> Sarah Lee</p>
-              <p><strong>Email:</strong> sarah@email.com</p>
-              <p><strong>Message:</strong> How can I reset my password?</p>
-              <textarea
-                placeholder="Type your reply..."
-                value={replies[2] || ''}
-                onChange={(e) => handleReplyChange(2, e.target.value)}
-              ></textarea>
-              <button onClick={() => handleReplySubmit(2)}>Submit Reply</button>
-            </div>
+                  {contact.user_contacted ? (
+                    <>
+                      <textarea
+                        placeholder="Type your reply..."
+                        value={replies[contact.contact_id] || ''}
+                        onChange={(e) => handleReplyChange(contact.contact_id, e.target.value)}
+                      ></textarea>
+                      <button onClick={() => handleContactUpdate(contact.contact_id, true)}>Submit Reply</button>
+                    </>
+                  ) : (
+                    <button className="externally-responded-btn" onClick={() => handleContactUpdate(contact.contact_id, false)}>Mark as Externally Responded</button>
+                  )}
+                </div>
+              ))
+            ) : (
+              <p>No messages found.</p>
+            )}
           </div>
         );
       default:

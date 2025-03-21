@@ -39,11 +39,10 @@ db.init_app(app)
 cors = CORS(app)
 migrate = Migrate(app, db)
 
-
 if __name__ == '__main__':
     app.run(debug=True)
 
-routes = ['delete_review','create_feedback','fetch_feedback','edit_feedback','delete_feedback','create_contact','fetch_contacts_moderator','fetch_contacts_user','edit_contact','delete_contact','create_user_reports','fetch_user_reports','edit_user_report','delete_user_report','create_listings_reports','fetch_listing_reports','edit_listings_report','delete_listing_report','create_reviews_reports','fetch_review_reports','edit_reviews_report','delete_review_report','get_payment_info','create_payment_info','get_chat_role','get_chat_users','create_chat','edit_chat','delete_chat','create_message','edit_message','get_messages','create_favourite','check_favourite','fetch_favourites','delete_favourites','get_user_chats', 'change_listing', 'change_profile', 'get_seller_info','create_listing','get_product','make_profile','get_user_info','delete_listing','get_user_listings','get_listings','start_login','create_review','get_reviews_seller','get_reviews_buyer','see_if_reviewed']
+routes = ['edit_contacts','delete_review','create_feedback','fetch_feedback','edit_feedback','delete_feedback','create_contact','fetch_contacts_moderator','fetch_contacts_user','delete_contact','create_user_reports','fetch_user_reports','edit_user_report','delete_user_report','create_listings_reports','fetch_listing_reports','edit_listings_report','delete_listing_report','create_reviews_reports','fetch_review_reports','edit_reviews_report','delete_review_report','get_payment_info','create_payment_info','get_chat_role','get_chat_users','create_chat','edit_chat','delete_chat','create_message','edit_message','get_messages','create_favourite','check_favourite','fetch_favourites','delete_favourites','get_user_chats', 'change_listing', 'change_profile', 'get_seller_info','create_listing','get_product','make_profile','get_user_info','delete_listing','get_user_listings','get_listings','start_login','create_review','get_reviews_seller','get_reviews_buyer','see_if_reviewed']
 
 @app.before_request
 def check_login():
@@ -962,65 +961,96 @@ def delete_reviews(review_id):
 @app.route('/create_feedback', methods=['POST'])
 def create_feedback():
     feedback_data = request.get_json()
-    user_contacted= feedback_data.get('user_contacted')
-    #email = feedback_data.get('email')
+    username = feedback_data.get('username')
     category = feedback_data.get('category')
     feedback = feedback_data.get('feedback')
-   
-    if not user_contacted or category is None:
-        return make_response({"message":"missing required fields"}, 400)
+    name = feedback_data.get('name')
+    email = feedback_data.get('email')
 
-    user = UserModel.query.filter_by(username=user_contacted).first()
-    if not user:
-        return make_response({"message":"User Reported not found"}, 400)
-    user_id = user.id
+    # Check if required fields are provided
+    if not category or not feedback:
+        return make_response({"message": "Missing required fields"}, 400)
+
+    # If the user is logged in (username is passed)
+    if username:
+        user = UserModel.query.filter_by(username=username).first()
+        if not user:
+            return make_response({"message": "User not found"}, 400)
+
+        new_feedback = FeedbackModel(
+            user_id_contacted=user.id,
+            email=user.email_address,
+            name=f"{user.first_name} {user.last_name}",
+            category=category,
+            feedback=feedback
+        )
+    else:
+        # Non-logged-in users must provide name and email
+        if not name or not email:
+            return make_response({"message": "Name and email are required for non-logged-in users"}, 400)
+
+        new_feedback = FeedbackModel(
+            email=email,
+            name=name,
+            category=category,
+            feedback=feedback
+        )
 
 
-    new_feedback = FeedbackModel(user_id_contacted = user_id, category = category, feedback = feedback)
+    # Add feedback and commit to the database
     db.session.add(new_feedback)
     db.session.commit()
+
+    return make_response({"message": "Feedback submitted successfully"}, 201)
 
 #Route for getting all feedback
 @app.route('/fetch_feedback', methods = ["GET"])
 def fetch_feedback():
 
     feedback = FeedbackModel.query.filter_by(read = False).all()
-    if feedback == []:
+    if not feedback:
         return make_response({"message": "No Data"}, 200)
-    else:
-        feedbackList = []
+    
+    feedbackList = []
 
-        for item in feedback:
-            user = UserModel.query.filter_by(id = item.user_id_contacted).first()
+    for item in feedback:
+        feedback_data ={
+            "feedback_id": item.id,
+            "category":item.category,
+            "feedback": item.feedback,
+            "is_read": item.read
+        }
+
+        if item.user_id_contacted:
+            user = UserModel.query.filter_by(id=item.user_id_contacted).first()
             if not user:
-                return make_response({"message": "User not found", "User": user.id}, 404)
-            feedback_data ={
-                "feedback_id": item.id,
-                "category":item.category,
-                "feedback": item.feedback,
-                "user": user.id,
-                "email":user.email_address,
-                "first_name": user.first_name
-            }
+                return make_response({"message": "User not found", "User": item.user_id_contacted}, 404)
+            feedback_data.update({
+                "user_id": user.id,
+                "email": user.email_address,
+                "name": user.first_name
+            })
+        else:
+            feedback_data.update({
+                "email": item.email,
+                "name": item.name
+            })
 
-            feedbackList.append(feedback_data)
+        feedbackList.append(feedback_data)
 
-        feedbackList = sorted(feedbackList, key=lambda x: x["user_contacted"])
-
-
-        return make_response({"Feedback": feedbackList}, 200)
+    return make_response({"Feedback": feedbackList}, 200)
 
 #Route for updating feedback
 @app.route('/edit_feedback/<int:feedback_id>', methods=['PATCH'])
 def edit_feedback(feedback_id):
     data = request.get_json()
-    
+
     feedback = FeedbackModel.query.filter_by(id = feedback_id).first()
 
     if not feedback:
         return make_response({"message": "feedback not found"}, 404)
 
-    
+
     if data.get("read") == "True":
         feedback.read = True
     else:
@@ -1028,7 +1058,7 @@ def edit_feedback(feedback_id):
 
     db.session.commit()
 
-    return make_response({"message": " updated successfully"}, 200) 
+    return make_response({"message": " updated successfully"}, 200)
 
 
 #Route for deleting feedback
@@ -1057,7 +1087,7 @@ def create_contact():
 
     if not reason:
         return make_response({"message": "Reason is required"}, 400)
-    
+
     user_id = None
 
     if username:
@@ -1087,29 +1117,40 @@ def create_contact():
 #Route for getting all contact requests for moderator
 @app.route('/fetch_contacts_moderator', methods = ["GET"])
 def fetch_contacts_moderator():
+    contacts = ContactModel.query.filter_by(responded = False).order_by(ContactModel.timestamp.asc()).all()
 
-    contacts = ContactModel.query.filter_by(responded = False).all()
-    if contacts == []:
+    if not contacts:
         return make_response({"message": "No Data"}, 200)
-    else:
-        contactList = []
 
-        for contact in contacts:
-            user = UserModel.query.filter_by(id = contact.user_id_contacted).order_by(ContactModel.timestamp.asc()).first()
+    contactList = []
+
+    for contact in contacts:
+        if contact.user_id_contacted:  # If user_id_contacted is not null
+            user = UserModel.query.filter_by(id=contact.user_id_contacted).first()
             if not user:
-                return make_response({"message": "User not found", "User": user.id}, 404)
+                continue
             contact_data ={
                 "contact_id": contact.id,
                 "reason": contact.reason,
                 "user_contacted": user.id,
                 "email":user.email_address,
-                "first_name": user.first_name
+                "name": user.first_name + " " + user.last_name,
+                "timestamp": contact.timestamp
+            }
+        else:  # Non-logged-in user case
+            contact_data = {
+                "contact_id": contact.id,
+                "reason": contact.reason,
+                "user_contacted": None,
+                "name": contact.name,
+                "email": contact.email,
+                "timestamp": contact.timestamp,
             }
 
-            contactList.append(contact_data)
+        contactList.append(contact_data)
 
 
-        return make_response({"Contacts": contactList}, 200)
+    return make_response({"Contacts": contactList}, 200)
 
 #Route for getting contacts for a specific user
 @app.route('/fetch_contacts_user', methods = ["GET"])
@@ -1120,7 +1161,7 @@ def fetch_contacts_user():
     if not user:
             return make_response({"message": "user not found"}, 404)
     user_id = user.id
-   
+
     contacts = ContactModel.query.filter_by(user_id_contacted = user_id).order_by(ContactModel.timestamp.asc()).all()
     if not contacts:
         return make_response({"message": "No Contact requests"}, 200)
@@ -1144,18 +1185,24 @@ def fetch_contacts_user():
 @app.route('/edit_contact/<int:contact_id>', methods=['PATCH'])
 def edit_contacts(contact_id):
     data = request.get_json()
-    
+
     contact = ContactModel.query.filter_by(id = contact_id).first()
 
     if not contact:
         return make_response({"message": "contact not found"}, 404)
 
-    contact.reason = True
-    contact.moderator_response = data.get("moderator_response")
+    is_logged_in = data.get("is_logged_in")
+
+    # Set the responded status to True
+    contact.responded = True
+
+    # Update moderator response only if the user was logged in
+    if is_logged_in:
+        contact.moderator_response = data.get("moderator_response", "")
 
     db.session.commit()
 
-    return make_response({"message": " Contacts updated successfully"}, 200) 
+    return make_response({"message": " Contacts updated successfully"}, 200)
 
 #Route for deleting contact
 @app.route('/delete_contact/<int:contact_id>', methods=['DELETE'])
@@ -1171,28 +1218,82 @@ def delete_contact(contact_id):
     return make_response({"message": "Contact deleted successfully"}, 200)
 
 
-#Route for creating User Reports 
-@app.route('/create_user_reports', methods=['POST'])
-def create_user_reports():
-    user_data = request.get_json()
-    user_who_reported = user_data.get('user_who_reported')
-    user_about = user_data.get('user_about')
-    reason = review_data.get('reason')
-  
-    if not user_reported or listing_id is None:
+#Route for creating User Reports
+@app.route('/create_user_report', methods=['POST'])
+def create_user_report():
+
+    data = request.get_json()
+    user_who_reported_username = data.get('user_who_reported_username')
+    reported_user_firstName = data.get('reported_user_firstname')
+    details = data.get('details')
+
+    if not user_who_reported_username or not reported_user_firstName:
         return make_response({"message":"missing required fields"}, 400)
 
-    user = UserModel.query.filter_by(username=user_who_reported).first()
+    user = UserModel.query.filter_by(username=user_who_reported_username).first()
     if not user:
-        return make_response({"message":"User Reported not found"}, 400)
+        return make_response({"message":"User Reported not found"}, 404)
     user_reported_id = user.id
 
-    user_about = UserModel.query.filter_by(username=user_about).first()
-    if not user_about:
-        return make_response({"message":"User about not found"}, 400)
-    user_about_id = user_about.id
 
-    new_report = ReportsUserModel(user_id_who_reported = user_reported_id, user_id = user_about_id , reason = reason)
+
+
+    new_report = ReportsUserModel(user_id_who_reported = user_reported_id, reported_user_firstName = reported_user_firstName , details = details)
+    db.session.add(new_report)
+    db.session.commit()
+
+
+    return make_response({"message":"Report Succesfully created"}, 201)
+
+#Route for creating Listing Reports
+@app.route('/create_listing_report', methods=['POST'])
+def create_listing_report():
+    data = request.get_json()
+    user_who_reported_username = data.get('user_who_reported_username')
+    listing_name = data.get('listing_name')
+    sellers_firstname = data.get('sellers_firstname')
+    details = data.get('details')
+
+    if not user_who_reported_username or not listing_name or not sellers_firstname:
+        return make_response({"message":"missing required fields"}, 400)
+
+    user = UserModel.query.filter_by(username=user_who_reported_username).first()
+    if not user:
+        return make_response({"message":"User Reported not found"}, 404)
+    user_reported_id = user.id
+
+
+
+
+    new_report = ReportsListingModel(user_id_reported = user_reported_id, listing_name = listing_name , sellers_firstname = sellers_firstname, details=details)
+    db.session.add(new_report)
+    db.session.commit()
+
+
+    return make_response({"message":"Report Succesfully created"}, 201)
+
+#Route for creating Listing Reports
+@app.route('/create_review_report', methods=['POST'])
+def create_review_report():
+    data = request.get_json()
+    user_who_reported_username = data.get('user_who_reported_username')
+    reviewer_firstname = data.get('reviewer_firstname')
+    reviewed_firstname = data.get('reviewed_firstname')
+    details = data.get('details')
+    print(reviewer_firstname, reviewed_firstname, user_who_reported_username)
+
+    if not user_who_reported_username or not reviewer_firstname or not reviewed_firstname:
+        return make_response({"message":"missing required fields"}, 400)
+
+    user = UserModel.query.filter_by(username=user_who_reported_username).first()
+    if not user:
+        return make_response({"message":"User Reported not found"}, 404)
+    user_reported_id = user.id
+
+
+
+
+    new_report = ReportsReviewsModel(user_id_who_reported = user_reported_id, reviwer_firstname = reviewer_firstname, reviewed_firstname = reviewed_firstname, details=details)
     db.session.add(new_report)
     db.session.commit()
 
@@ -1237,7 +1338,7 @@ def fetch_user_reports():
 @app.route('/edit_user_report/<int:report_id>', methods=['PATCH'])
 def edit_user_report(report_id):
     data = request.get_json()
-    
+
     report = ReportsUserModel.query.filter_by(id = report_id).first()
 
     if not report:
@@ -1267,14 +1368,14 @@ def delete_user_report(report_id):
     return make_response({"message": "Report deleted successfully"}, 200)
 
 
-#Route for creating Listing Reports 
+#Route for creating Listing Reports
 @app.route('/create_listings_reports', methods=['POST'])
 def create_listings_reports():
     listing_data = request.get_json()
     user_reported = listing_data.get('user_reported')
     listing_id = listing_data.get('listing_id')
     reason = listing_data.get('reason')
-  
+
     if not user_reported or listing_id is None:
         return make_response({"message":"missing required fields"}, 400)
 
@@ -1304,7 +1405,7 @@ def fetch_listing_reports():
         listing = ListingsModel.query.filter_by(id = report.listing_id).first()
         if not listing:
             return make_response({"message": "Listing not found", "Listing": report.listing_id}, 404)
-        
+
         reporter = UserModel.query.filter_by(id=report.user_id_reported).first()
 
         if not reporter:
@@ -1333,7 +1434,7 @@ def fetch_listing_reports():
 @app.route('/edit_listings_report/<int:report_id>', methods=['PATCH'])
 def edit_listings_report(report_id):
     data = request.get_json()
-    
+
     report = ReportsListingsModel.query.filter_by(id = report_id).first()
 
     if not report:
@@ -1362,14 +1463,14 @@ def delete_listing_report(report_id):
 
     return make_response({"message": "Report deleted successfully"}, 200)
 
-#Route for creating Reviews Reports 
+#Route for creating Reviews Reports
 @app.route('/create_reviews_reports', methods=['POST'])
 def create_reviews_reports():
     review_data = request.get_json()
     user_reported = review_data.get('user_reported')
     review_id = review_data.get('review_id')
     reason = review_data.get('reason')
-  
+
     if not user_reported or review_id is None:
         return make_response({"message":"missing required fields"}, 400)
 
@@ -1393,14 +1494,14 @@ def fetch_review_reports():
 
     if not reports:
         return make_response({"message": "No Data"}, 200)
-    
+
     reportList = []
 
     for report in reports:
         review = ReviewsModel.query.filter_by(id = report.review_id).first()
         if not review:
             return make_response({"message": "Review not found", "Review": report.review_id}, 404)
-        
+
         # Fetch user details
         reporter = UserModel.query.get(report.user_id_who_reported)
         reviewer = UserModel.query.get(review.user_made_review)
@@ -1412,7 +1513,7 @@ def fetch_review_reports():
             "reporter_name": f"{reporter.first_name} {reporter.last_name}",
             "reason": report.reason,
             "review_id": review.id,
-            "review_rating":review.rating, 
+            "review_rating":review.rating,
             "review_description": review.description,
             "reviewer_name": f"{reviewer.first_name} {reviewer.last_name}",
             "reviewed_name": f"{reviewed.first_name} {reviewed.last_name}"
@@ -1430,7 +1531,7 @@ def fetch_review_reports():
 @app.route('/edit_reviews_report/<int:report_id>', methods=['PATCH'])
 def edit_reviews_report(report_id):
     data = request.get_json()
-    
+
     report = ReportsReviewsModel.query.filter_by(id = report_id).first()
 
     if not report:

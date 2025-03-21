@@ -9,8 +9,9 @@ class ReportsReviewsModel(db.Model):
 
     id = db.Column(db.Integer, primary_key=True, nullable=False)
     user_id_who_reported = db.Column(db.Integer,db.ForeignKey('user_table.id'), nullable=False)
-    review_id = db.Column(db.Integer,db.ForeignKey('reviews_table.id'), nullable=False)
-    reason = db.Column(db.String(500), nullable = True)
+    reviwer_firstname = db.Column(db.String(500), nullable = False)
+    reviewed_firstname = db.Column(db.String(500), nullable = False)
+    details = db.Column(db.String(1000), nullable = False)
     solved = db.Column (db.Boolean, nullable = False, default=False)
 
 

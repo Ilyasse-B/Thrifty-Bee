@@ -35,7 +35,6 @@ const Navbar = () => {
       }
 
       setAuth(true)
-      navigate(`/profile`)
 
     }catch (error){
       navigate('/')
