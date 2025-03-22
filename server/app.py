@@ -42,7 +42,7 @@ migrate = Migrate(app, db)
 if __name__ == '__main__':
     app.run(debug=True)
 
-routes = ['edit_contacts','delete_review','create_feedback','fetch_feedback','edit_feedback','delete_feedback','create_contact','fetch_contacts_moderator','fetch_contacts_user','delete_contact','create_user_reports','fetch_user_reports','edit_user_report','delete_user_report','create_listings_reports','fetch_listing_reports','edit_listings_report','delete_listing_report','create_reviews_reports','fetch_review_reports','edit_reviews_report','delete_review_report','get_payment_info','create_payment_info','get_chat_role','get_chat_users','create_chat','edit_chat','delete_chat','create_message','edit_message','get_messages','create_favourite','check_favourite','fetch_favourites','delete_favourites','get_user_chats', 'change_listing', 'change_profile', 'get_seller_info','create_listing','get_product','make_profile','get_user_info','delete_listing','get_user_listings','get_listings','start_login','create_review','get_reviews_seller','get_reviews_buyer','see_if_reviewed']
+routes = ['get_all_users','get_all_listings','get_all_reviews','edit_contacts','delete_review','create_feedback','fetch_feedback','edit_feedback','delete_feedback','create_contact','fetch_contacts_moderator','fetch_contacts_user','delete_contact','create_user_reports','fetch_user_reports','edit_user_report','delete_user_report','create_listings_reports','fetch_listing_reports','edit_listings_report','delete_listing_report','create_reviews_reports','fetch_review_reports','edit_reviews_report','delete_review_report','get_payment_info','create_payment_info','get_chat_role','get_chat_users','create_chat','edit_chat','delete_chat','create_message','edit_message','get_messages','create_favourite','check_favourite','fetch_favourites','delete_favourites','get_user_chats', 'change_listing', 'change_profile', 'get_seller_info','create_listing','get_product','make_profile','get_user_info','delete_listing','get_user_listings','get_listings','start_login','create_review','get_reviews_seller','get_reviews_buyer','see_if_reviewed']
 
 @app.before_request
 def check_login():
@@ -69,7 +69,7 @@ def check_login():
 @app.route('/intiate_login', methods=['GET'])
 def start_login():
     cs_ticket = uuid.uuid4().hex[:12]                                         # ngrok Link here
-    redirect_url = f'http://studentnet.cs.manchester.ac.uk/authenticate/?url=https://122b-86-9-200-131.ngrok-free.app/profile&csticket={cs_ticket}&version=3&command=validate'
+    redirect_url = f'http://studentnet.cs.manchester.ac.uk/authenticate/?url=https://4da7-86-9-200-131.ngrok-free.app/profile&csticket={cs_ticket}&version=3&command=validate'
 
     res = {
         "auth_url": redirect_url,
@@ -1224,24 +1224,23 @@ def create_user_report():
 
     data = request.get_json()
     user_who_reported_username = data.get('user_who_reported_username')
-    reported_user_firstName = data.get('reported_user_firstname')
+    reported_user_id = data.get('reported_user_id')
     details = data.get('details')
 
-    if not user_who_reported_username or not reported_user_firstName:
+    if not user_who_reported_username or not reported_user_id:
         return make_response({"message":"missing required fields"}, 400)
 
     user = UserModel.query.filter_by(username=user_who_reported_username).first()
     if not user:
         return make_response({"message":"User Reported not found"}, 404)
-    user_reported_id = user.id
 
-
-
-
-    new_report = ReportsUserModel(user_id_who_reported = user_reported_id, reported_user_firstName = reported_user_firstName , details = details)
+    new_report = ReportsUserModel(
+        user_id_who_reported=user.id,
+        reported_user_id=reported_user_id,
+        details=details
+    )
     db.session.add(new_report)
     db.session.commit()
-
 
     return make_response({"message":"Report Succesfully created"}, 201)
 
@@ -1250,22 +1249,17 @@ def create_user_report():
 def create_listing_report():
     data = request.get_json()
     user_who_reported_username = data.get('user_who_reported_username')
-    listing_name = data.get('listing_name')
-    sellers_firstname = data.get('sellers_firstname')
+    listing_id = data.get('listing_id')
     details = data.get('details')
 
-    if not user_who_reported_username or not listing_name or not sellers_firstname:
+    if not user_who_reported_username or not listing_id:
         return make_response({"message":"missing required fields"}, 400)
 
     user = UserModel.query.filter_by(username=user_who_reported_username).first()
     if not user:
         return make_response({"message":"User Reported not found"}, 404)
-    user_reported_id = user.id
 
-
-
-
-    new_report = ReportsListingModel(user_id_reported = user_reported_id, listing_name = listing_name , sellers_firstname = sellers_firstname, details=details)
+    new_report = ReportsListingModel(user_id_reported = user.id, listing_id = listing_id , details=details)
     db.session.add(new_report)
     db.session.commit()
 
@@ -1277,30 +1271,24 @@ def create_listing_report():
 def create_review_report():
     data = request.get_json()
     user_who_reported_username = data.get('user_who_reported_username')
-    reviewer_firstname = data.get('reviewer_firstname')
-    reviewed_firstname = data.get('reviewed_firstname')
+    review_id = data.get('review_id')
     details = data.get('details')
-    print(reviewer_firstname, reviewed_firstname, user_who_reported_username)
 
-    if not user_who_reported_username or not reviewer_firstname or not reviewed_firstname:
+    if not user_who_reported_username or not review_id:
         return make_response({"message":"missing required fields"}, 400)
 
     user = UserModel.query.filter_by(username=user_who_reported_username).first()
     if not user:
         return make_response({"message":"User Reported not found"}, 404)
-    user_reported_id = user.id
-
-
-
-
-    new_report = ReportsReviewsModel(user_id_who_reported = user_reported_id, reviwer_firstname = reviewer_firstname, reviewed_firstname = reviewed_firstname, details=details)
+    
+    new_report = ReportsReviewsModel(user_id_who_reported = user.id, details=details, review_id = review_id)
     db.session.add(new_report)
     db.session.commit()
 
 
     return make_response({"message":"Report Succesfully created"}, 201)
 
-#Route for getting all User Reports
+# Route for getting all User Reports
 @app.route('/fetch_user_reports', methods = ["GET"])
 def fetch_user_reports():
 
@@ -1558,3 +1546,45 @@ def delete_review_report(review_report_id):
     db.session.commit()
 
     return make_response({"message": "Report deleted successfully"}, 200)
+
+# Gets users for reports page
+@app.route('/all_users', methods=['GET'])
+def get_all_users():
+    users = UserModel.query.with_entities(UserModel.id, UserModel.first_name, UserModel.last_name).all()
+    users_data = [
+        {
+            "id": user.id,
+            "first_name": user.first_name,
+            "last_name": user.last_name
+        }
+        for user in users
+    ]
+    return jsonify(users_data), 200
+
+# Gets listings for reports page
+@app.route('/all_listings', methods=['GET'])
+def get_all_listings():
+    listings = ListingsModel.query.all()
+    listings_data = [
+        {
+            "id": listing.id,
+            "listing_name": listing.listing_name,
+            "seller_first_name": UserModel.query.get(listing.user_id).first_name
+        }
+        for listing in listings
+    ]
+    return jsonify(listings_data), 200
+
+# Gets review for reports page
+@app.route('/all_reviews', methods=['GET'])
+def get_all_reviews():
+    reviews = ReviewsModel.query.all()
+    reviews_data = [
+        {
+            "id": review.id,
+            "description": review.description,
+            "reviewer_first_name": UserModel.query.get(review.user_made_review).first_name
+        }
+        for review in reviews
+    ]
+    return jsonify(reviews_data), 200

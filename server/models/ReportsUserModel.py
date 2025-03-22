@@ -8,7 +8,7 @@ class ReportsUserModel(db.Model):
 
     id = db.Column(db.Integer, primary_key=True, nullable=False)
     user_id_who_reported = db.Column(db.Integer,db.ForeignKey('user_table.id'), nullable=False)
-    reported_user_firstName = db.Column(db.String(500), nullable = False)
+    reported_user_id = db.Column(db.Integer,db.ForeignKey('user_table.id'), nullable=False)
     details = db.Column(db.String(1000), nullable = False)
     solved = db.Column (db.Boolean, nullable = False, default=False)
 
