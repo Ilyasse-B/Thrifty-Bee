@@ -1381,7 +1381,7 @@ def fetch_listing_reports():
             "report_id": report.id,
             "user_who_reported_name": f"{reporter.first_name} {reporter.last_name}",
             "user_who_reported_id": report.user_id_reported,
-            "reason": report.reason,
+            "reason": report.details,
             "listing_id": listing.id,
             "listing_name":listing.listing_name,
             "listing_image": listing.image,
@@ -1401,7 +1401,7 @@ def fetch_listing_reports():
 def edit_listings_report(report_id):
     data = request.get_json()
 
-    report = ReportsListingsModel.query.filter_by(id = report_id).first()
+    report = ReportsListingModel.query.filter_by(id = report_id).first()
 
     if not report:
         return make_response({"message": "report not found"}, 404)
@@ -1447,13 +1447,13 @@ def fetch_review_reports():
         # Fetch user details
         reporter = UserModel.query.get(report.user_id_who_reported)
         reviewer = UserModel.query.get(review.user_made_review)
-        reviewed = UserModel.query.get(review.user_was_reviewed)
+        reviewed =  UserModel.query.get(review.user_was_reviewed)
 
         report_data ={
             "report_id": report.id,
             "user_who_reported_id": report.user_id_who_reported,
             "reporter_name": f"{reporter.first_name} {reporter.last_name}",
-            "reason": report.reason,
+            "reason": report.details,
             "review_id": review.id,
             "review_rating":review.rating,
             "review_description": review.description,
@@ -1491,7 +1491,7 @@ def edit_reviews_report(report_id):
 #Route for deleting Reviews Reports
 @app.route('/delete_review_report/<int:review_report_id>', methods=['DELETE'])
 def delete_review_report(review_report_id):
-    report = ReportsReviewsModel.query.filter_by(id = report_id).first()
+    report = ReportsReviewsModel.query.filter_by(id = review_report_id).first()
 
     if not report:
         return make_response({"message": "Report not found"}, 404)
