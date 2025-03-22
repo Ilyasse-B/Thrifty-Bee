@@ -1299,25 +1299,27 @@ def fetch_user_reports():
         reportList = []
 
         for report in reports:
-            user = UserModel.query.filter_by(id = report.user_id).first()
-            user2 = UserModel.query.filter_by(id = report.user_id_who_reported).first()
-            if not user:
-                return make_response({"message": "User not found", "User": report.user_id}, 404)
+            reportee = UserModel.query.filter_by(id = report.user_id_who_reported).first()
+            reported = UserModel.query.filter_by(id = report.reported_user_id).first()
+            if not reportee:
+                return make_response({"message": "Reporting User not found", "User": report.user_id_who_reported}, 404)
+            
+            elif not reported:
+                return make_response({"message": "Reported User not found", "User": report.reported_user_id}, 404)
             report_data ={
                 "report_id": report.id,
-                "user_who_reported": report.user_id_who_reported,
-                "user_who_reported_name": user2.first_name + " " + user2.last_name,
-                "reason": report.reason,
-                "user_id": report.user_id,
-                "user_name": user.first_name + " " + user2.last_name,
-                "email":user.email_address,
-                "phone": user.phone_number
-
+                "reportee": report.user_id_who_reported,
+                "reportee_name": reportee.first_name + " " + reportee.last_name,
+                "reported": report.reported_user_id,
+                "reported_name": reported.first_name + " " + reported.last_name,
+                "reason": report.details,
+                "reported_number": reported.phone_number,
+                "reported_email_address": reported.email_address
             }
 
             reportList.append(report_data)
 
-        reportList = sorted(reportList, key=lambda x: x["user_name"])
+        reportList = sorted(reportList, key=lambda x: x["reportee_name"])
 
 
         return make_response({"Users": reportList}, 200)

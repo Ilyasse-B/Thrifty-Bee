@@ -243,10 +243,10 @@ const Moderation = () => {
               {userReports.length > 0 ? (
                 userReports.map((report) => (
                   <div className="report-item" key={report.report_id}>
-                    <p><strong>Reported by:</strong> {report.user_who_reported_name}</p>
-                    <p><strong>Reported User:</strong> {report.user_name}</p>
-                    <p><strong>Offender's Email:</strong> {report.email}</p>
-                    <p><strong>Offender's Phone Number:</strong> {report.phone}</p>
+                    <p><strong>Reported by:</strong> {report.reportee_name}</p>
+                    <p><strong>Reported User:</strong> {report.reported_name}</p>
+                    <p><strong>Offender's Email:</strong> {report.reported_email_address}</p>
+                    <p><strong>Offender's Phone Number:</strong> {report.reported_number}</p>
                     <p><strong>Description:</strong> {report.reason}</p>
                   </div>
                 ))
