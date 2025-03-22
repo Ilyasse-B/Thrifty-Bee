@@ -20,6 +20,18 @@ const Help = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [filteredUsers, setFilteredUsers] = useState([]);
   const [selectedUserId, setSelectedUserId] = useState(null);
+
+  // For reporting listings
+  const [listings, setListings] = useState([]);
+  const [listingSearchTerm, setListingSearchTerm] = useState('');
+  const [filteredListings, setFilteredListings] = useState([]);
+  const [selectedListingId, setSelectedListingId] = useState(null);
+
+  // For reporting reviews
+  const [reviews, setReviews] = useState([]);
+  const [reviewSearchTerm, setReviewSearchTerm] = useState('');
+  const [filteredReviews, setFilteredReviews] = useState([]);
+  const [selectedReviewId, setSelectedReviewId] = useState(null);  
   
   // Fetch all users when "Report a User" is selected
   useEffect(() => {
@@ -50,6 +62,65 @@ const Help = () => {
     setFilteredUsers(filtered);
   }, [searchTerm, users]);
 
+  // Fetch all listings when "Report a Listing" is selected
+  useEffect(() => {
+    if (reason === 'listing') {
+      const fetchListings = async () => {
+        try {
+          const response = await fetch('http://127.0.0.1:5000/all_listings');
+          if (response.ok) {
+            const data = await response.json();
+            setListings(data);
+            setFilteredListings(data);
+          } else {
+            console.error('Failed to fetch listings');
+          }
+        } catch (error) {
+          console.error('Error fetching listings:', error);
+        }
+      };
+      fetchListings();
+    }
+  }, [reason]);
+
+  // Filter listings dynamically based on search term
+  useEffect(() => {
+    const filtered = listings.filter(listing =>
+      listing.listing_name.toLowerCase().includes(listingSearchTerm.toLowerCase())
+    );
+    setFilteredListings(filtered);
+  }, [listingSearchTerm, listings]);
+
+  // Fetch all Reviews when "Report a Review" is selected
+  useEffect(() => {
+    if (reason === 'listing') {
+      const fetchReviews = async () => {
+        try {
+          const response = await fetch('http://127.0.0.1:5000/all_reviews');
+          if (response.ok) {
+            const data = await response.json();
+            setReviews(data);
+            setFilteredReviews(data);
+          } else {
+            console.error('Failed to fetch reviews');
+          }
+        } catch (error) {
+          console.error('Error fetching reviews:', error);
+        }
+      };
+      fetchReviews();
+    }
+  }, [reason]);
+
+  // Filter reviews dynamically based on search term
+  useEffect(() => {
+    const filtered = reviews.filter(review =>
+      review.reviewer_first_name.toLowerCase().includes(reviewSearchTerm.toLowerCase()) ||
+      review.description.toLowerCase().includes(reviewSearchTerm.toLowerCase())
+    );
+    setFilteredReviews(filtered);
+  }, [reviewSearchTerm, reviews]);
+
   const handleReportSubmit = async (e) => {
     e.preventDefault();
     const username = sessionStorage.getItem('username');
@@ -64,20 +135,52 @@ const Help = () => {
       return;
     }
 
+    if (reason === 'listing' && !selectedListingId) {
+      alert('Please select a listing to report.');
+      return;
+    }
+
+    if (reason === 'review' && !selectedReviewId) {
+      alert('Please select a review to report.');
+      return;
+    }
+
     if (!details) {
       alert('Please provide additional details.');
       return;
     }
 
     try {
-      const response = await fetch('http://127.0.0.1:5000/create_user_report', {
+      const endpoint =
+        reason === 'user'
+          ? 'http://127.0.0.1:5000/create_user_report'
+          : reason === 'listing' ?
+          'http://127.0.0.1:5000/create_listing_report'
+          : 'http://127.0.0.1:5000/create_review_report';
+      
+      const payload =
+        reason === 'user'
+          ? {
+              user_who_reported_username: username,
+              reported_user_id: selectedUserId,
+              details,
+            }
+          : reason === 'listing' ?
+            {
+              user_who_reported_username: username,
+              listing_id: selectedListingId,
+              details,
+            }
+          : {
+              user_who_reported_username: username,
+              review_id: selectedReviewId,
+              details,
+            };
+            
+      const response = await fetch(endpoint, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          user_who_reported_username: username,
-          reported_user_id: selectedUserId,
-          details
-        }),
+        body: JSON.stringify(payload),
       });
 
       if (response.ok) {
@@ -86,6 +189,10 @@ const Help = () => {
         setDetails('');
         setSearchTerm('');
         setSelectedUserId(null);
+        setListingSearchTerm('');
+        setSelectedListingId(null);
+        setSelectedReviewId(null);
+        setReviewSearchTerm('');
       } else {
         const data = await response.json();
         alert(data.message || 'Failed to submit report');
@@ -314,6 +421,52 @@ const Help = () => {
                     ) : (
                       <p>No users found</p>
                     )}
+                  </div>
+                </div>
+              )}
+
+              {/* Dynamic Listing Reporting Section */}
+              {reason === 'listing' && (
+                <div className="search-section">
+                  <input
+                    type="text"
+                    placeholder="Search Listing..."
+                    value={listingSearchTerm}
+                    onChange={(e) => setListingSearchTerm(e.target.value)}
+                  />
+                  <div className="user-list">
+                    {filteredListings.map((listing) => (
+                      <div
+                        key={listing.id}
+                        className={`user-item ${selectedListingId === listing.id ? 'selected' : ''}`}
+                        onClick={() => setSelectedListingId(listing.id)}
+                      >
+                        {listing.listing_name} (Seller: {listing.seller_first_name})
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+              
+              {/* Dynamic Review Reporting Section */}
+              {reason === 'review' && (
+                <div className="search-section">
+                  <input
+                    type="text"
+                    placeholder="Search Review..."
+                    value={reviewSearchTerm}
+                    onChange={(e) => setReviewSearchTerm(e.target.value)}
+                  />
+                  <div className="user-list">
+                    {filteredReviews.map((review) => (
+                      <div
+                        key={review.id}
+                        className={`user-item ${selectedReviewId === review.id ? 'selected' : ''}`}
+                        onClick={() => setSelectedReviewId(review.id)}
+                      >
+                        {review.description} (Reviewer Name: {review.reviewer_first_name})
+                      </div>
+                    ))}
                   </div>
                 </div>
               )}
