@@ -42,7 +42,7 @@ migrate = Migrate(app, db)
 if __name__ == '__main__':
     app.run(debug=True)
 
-routes = ['get_all_users','get_all_listings','get_all_reviews','edit_contacts','delete_review','create_feedback','fetch_feedback','edit_feedback','delete_feedback','create_contact','fetch_contacts_moderator','fetch_contacts_user','delete_contact','create_user_reports','fetch_user_reports','edit_user_report','delete_user_report','create_listings_reports','fetch_listing_reports','edit_listings_report','delete_listing_report','create_reviews_reports','fetch_review_reports','edit_reviews_report','delete_review_report','get_payment_info','create_payment_info','get_chat_role','get_chat_users','create_chat','edit_chat','delete_chat','create_message','edit_message','get_messages','create_favourite','check_favourite','fetch_favourites','delete_favourites','get_user_chats', 'change_listing', 'change_profile', 'get_seller_info','create_listing','get_product','make_profile','get_user_info','delete_listing','get_user_listings','get_listings','start_login','create_review','get_reviews_seller','get_reviews_buyer','see_if_reviewed']
+routes = ['get_all_users','get_all_listings','get_all_reviews','edit_contacts','delete_review','create_feedback','fetch_feedback','edit_feedback','delete_feedback','create_contact','fetch_contacts_moderator','fetch_contacts_user','delete_contact','create_user_report','fetch_user_reports','edit_user_report','delete_user_report','create_listing_report','fetch_listing_reports','edit_listings_report','delete_listing_report','create_review_report','fetch_review_reports','edit_reviews_report','delete_review_report','get_payment_info','create_payment_info','get_chat_role','get_chat_users','create_chat','edit_chat','delete_chat','create_message','edit_message','get_messages','create_favourite','check_favourite','fetch_favourites','delete_favourites','get_user_chats', 'change_listing', 'change_profile', 'get_seller_info','create_listing','get_product','make_profile','get_user_info','delete_listing','get_user_listings','get_listings','start_login','create_review','get_reviews_seller','get_reviews_buyer','see_if_reviewed']
 
 @app.before_request
 def check_login():
@@ -1356,30 +1356,6 @@ def delete_user_report(report_id):
     return make_response({"message": "Report deleted successfully"}, 200)
 
 
-#Route for creating Listing Reports
-@app.route('/create_listings_reports', methods=['POST'])
-def create_listings_reports():
-    listing_data = request.get_json()
-    user_reported = listing_data.get('user_reported')
-    listing_id = listing_data.get('listing_id')
-    reason = listing_data.get('reason')
-
-    if not user_reported or listing_id is None:
-        return make_response({"message":"missing required fields"}, 400)
-
-    user = UserModel.query.filter_by(username=user_reported).first()
-    if not user:
-        return make_response({"message":"User not found"}, 400)
-    user_id = user.id
-
-
-    new_report = ReportsListingModel(user_id_who_reported = user_id, listing_id = listing_id, reason = reason)
-    db.session.add(new_report)
-    db.session.commit()
-
-
-    return make_response({"message":"Report Succesfully created"}, 201)
-
 #Route for getting all Listing Reports
 @app.route('/fetch_listing_reports', methods = ["GET"])
 def fetch_listing_reports():
@@ -1450,30 +1426,6 @@ def delete_listing_report(report_id):
     db.session.commit()
 
     return make_response({"message": "Report deleted successfully"}, 200)
-
-#Route for creating Reviews Reports
-@app.route('/create_reviews_reports', methods=['POST'])
-def create_reviews_reports():
-    review_data = request.get_json()
-    user_reported = review_data.get('user_reported')
-    review_id = review_data.get('review_id')
-    reason = review_data.get('reason')
-
-    if not user_reported or review_id is None:
-        return make_response({"message":"missing required fields"}, 400)
-
-    user = UserModel.query.filter_by(username=user_reported).first()
-    if not user:
-        return make_response({"message":"User not found"}, 400)
-    user_id = user.id
-
-
-    new_report = ReportsReviewsModel(user_id_who_reported = user_id, review_id = review_id, reason = reason)
-    db.session.add(new_report)
-    db.session.commit()
-
-
-    return make_response({"message":"Report Succesfully created"}, 201)
 
 #Route for getting all Reviews Reports
 @app.route('/fetch_review_reports', methods = ["GET"])

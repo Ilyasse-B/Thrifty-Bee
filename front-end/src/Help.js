@@ -1,8 +1,6 @@
-import React from 'react';
-import {useState, useEffect} from 'react';
+import React, {useState, useEffect} from 'react';
 import { useLocation } from 'react-router-dom';
 import './help.css';
-import { useNavigate } from 'react-router-dom';
 
 const Help = () => {
   const location = useLocation();
@@ -14,22 +12,89 @@ const Help = () => {
   const [reason, setReason] = useState('');
   const [category, setCategory] = useState('');
   const [feedback, setFeedback] = useState('');
-  const [isLogedIn, setIsLogedIn] = useState(false);
-  const [reportTypeUser, setReportTypeUser] = useState('');
-  const [reportTypeListing, setReportTypeListing] = useState('');
-  const [reportTypeReview, setReportTypeReview] = useState('');
-  const [reportType, setReportType] = useState('');
+  const [details, setDetails] = useState('');
+  const [confirmationMessage, setConfirmationMessage] = useState('');
 
-  const [FirstNameField, setFirstNameField] = useState('');
-  const [listingNameField, setListingNameField] = useState('');
-  const [sellersNameField, setSellersNameField] = useState('');
-  const [ReviwersNameFiled, setReviwersNameField] = useState('');
-  const [ReviwedNameFiled, setReviwedNameField] = useState('');
-  const [detailsField, setDetailsField] = useState('');
+  // For reporting users
+  const [users, setUsers] = useState([]);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [filteredUsers, setFilteredUsers] = useState([]);
+  const [selectedUserId, setSelectedUserId] = useState(null);
+  
+  // Fetch all users when "Report a User" is selected
+  useEffect(() => {
+    if (reason === 'user') {
+      const fetchUsers = async () => {
+        try {
+          const response = await fetch('http://127.0.0.1:5000/all_users');
+          if (response.ok) {
+            const data = await response.json();
+            setUsers(data);
+            setFilteredUsers(data);
+          } else {
+            console.error('Failed to fetch users');
+          }
+        } catch (error) {
+          console.error('Error fetching users:', error);
+        }
+      };
+      fetchUsers();
+    }
+  }, [reason]);
 
-  const navigate = useNavigate();
+  // Filter users dynamically based on search term
+  useEffect(() => {
+    const filtered = users.filter(user =>
+      `${user.first_name} ${user.last_name}`.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+    setFilteredUsers(filtered);
+  }, [searchTerm, users]);
 
+  const handleReportSubmit = async (e) => {
+    e.preventDefault();
+    const username = sessionStorage.getItem('username');
 
+    if (!username) {
+      alert('You must be logged in to submit a report.');
+      return;
+    }
+
+    if (reason === 'user' && !selectedUserId) {
+      alert('Please select a user to report.');
+      return;
+    }
+
+    if (!details) {
+      alert('Please provide additional details.');
+      return;
+    }
+
+    try {
+      const response = await fetch('http://127.0.0.1:5000/create_user_report', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          user_who_reported_username: username,
+          reported_user_id: selectedUserId,
+          details
+        }),
+      });
+
+      if (response.ok) {
+        setConfirmationMessage('Report submitted');
+        setReason('');
+        setDetails('');
+        setSearchTerm('');
+        setSelectedUserId(null);
+      } else {
+        const data = await response.json();
+        alert(data.message || 'Failed to submit report');
+      }
+    } catch (error) {
+      console.error('Error submitting report:', error);
+      alert('An error occurred while submitting the report.');
+    }
+  };
 
   const handleContactSubmit = async (e) => {
     e.preventDefault();
@@ -119,165 +184,6 @@ const Help = () => {
     setActiveSection(initialSection);
   }, [initialSection]);
 
-  const checkLogin = async() => {
-    const csTicket = sessionStorage.getItem('csTicket');
-    const username = sessionStorage.getItem('username');
-    const fullName = sessionStorage.getItem('fullName');
-
-    const first_name = fullName.split(' ')[0]
-    const last_name = fullName.split(' ')[1]
-    try {
-    const response = await fetch('http://127.0.0.1:5000/protected?cs_ticket=' + csTicket + '&username=' + username + '&full_name=' + first_name + '+' + last_name);
-
-    if (response.ok) {
-      // Successful response
-      setIsLogedIn(true)
-
-    }else{
-      setIsLogedIn(false)
-    }
-   } catch (error) {
-      console.error('Error during authentication:', error);
-    }
-
-  }
-
-  const postReport = async() => {
-    let result = confirm('Are all the Details Correct?');
-    if (!result){
-
-    }
-    else{
-      let request_body = {}
-      switch (reportType) {
-        case 'user':
-            request_body = {
-              user_who_reported_username: sessionStorage.getItem('username'),
-              reported_user_firstname: FirstNameField,
-              details: detailsField,
-
-            }
-            break;
-        case 'listing':
-          request_body = {
-            user_who_reported_username: sessionStorage.getItem('username'),
-           listing_name: listingNameField,
-           sellers_firstname:sellersNameField,
-            details: detailsField,
-
-          }
-            break;
-        case 'review':
-          request_body = {
-            user_who_reported_username: sessionStorage.getItem('username'),
-            reviewer_firstname: ReviwersNameFiled,
-            reviewed_firstname: ReviwedNameFiled,
-            details: detailsField,
-
-          }
-            break;
-        default:
-            // Code to be executed if expression doesn't match any case
-    }
-    const csTicket = sessionStorage.getItem('csTicket');
-    const username = sessionStorage.getItem('username');
-    const fullName = sessionStorage.getItem('fullName');
-    const first_name = fullName.split(' ')[0]
-    const last_name = fullName.split(' ')[1]
-    try {
-
-    const response = await fetch('http://127.0.0.1:5000/create_' + reportType + '_report' + '?cs_ticket=' + csTicket + '&username=' + username + '&full_name=' + first_name + '+' + last_name,{
-    method: 'POST',
-    headers: {
-        'Content-Type': 'application/json', // Send data as JSON
-    },
-    body: JSON.stringify(request_body),
-  }
-
-
-    );
-
-    if (response.ok) {
-      // Successful response
-      console.log('http://127.0.0.1:5000/create_' + reportType + '_report')
-
-
-
-
-
-
-
-
-    }else{
-      console.log('Report Unsucessful',reportType, request_body)
-    }
-   } catch (error) {
-      console.error('Error during authentication:', error);
-    }
-  }
-
-  }
-
-  useEffect(() => {
-    if (activeSection == 'report'){
-      checkLogin()
-
-    }
-  }, [activeSection]);
-
-  const setForReport = (e) => {
-    const reportType = e.target.value
-    setReportType(reportType)
-
-    if (reportType == 'user'){
-      setReportTypeUser('user')
-      setReportTypeListing('')
-      setReportTypeReview('')
-    }else if (reportType == 'listing'){
-      setReportTypeListing('listing')
-      setReportTypeUser('')
-      setReportTypeReview('')
-    }else if(reportType == 'review'){
-      setReportTypeReview('review')
-      setReportTypeListing('')
-      setReportTypeUser('')
-    }else{
-      console.log(reportType)
-    }
-
-
-  }
-
-  const getFirstName = (e) => {
-    setFirstNameField(e.target.value)
-
-  }
-  const getListingName = (e) => {
-    setListingNameField(e.target.value)
-
-  }
-  const getSellersName = (e) => {
-    setSellersNameField(e.target.value)
-
-  }
-
-  const getReviwedName = (e) => {
-    setReviwedNameField(e.target.value)
-
-  }
-
-  const getReviwerName = (e) => {
-    setReviwersNameField(e.target.value)
-
-  }
-
-  const getDetails = (e) => {
-    setDetailsField(e.target.value)
-
-  }
-
-
-
   const renderContent = () => {
     switch (activeSection) {
       case 'help':
@@ -357,76 +263,85 @@ const Help = () => {
           </div>
         );
 
-        case 'report':
-          return (
-            isLogedIn ? (
-              <div className="content-section">
-                <h2>Create A Report</h2>
-                <form className="report-form" onSubmit={postReport}>
+      case 'report':
+        return (
+          <div className="content-section">
+            <h2>Create A Report</h2>
+            <form className="report-form" onSubmit={handleReportSubmit}>
+              {/* Report Type Selection */}
+              <div className="form-group">
+                <label htmlFor="reason">Type:</label>
+                <select
+                  id="reason"
+                  value={reason}
+                  onChange={(e) => setReason(e.target.value)}
+                  required
+                >
+                  <option value="">Please Select Report Type</option>
+                  <option value="user">Report a User</option>
+                  <option value="listing">Report a Listing</option>
+                  <option value="review">Report a Review</option>
+                </select>
+              </div>
 
-                  <div className="form-group select">
-                    <label htmlFor="reason">Type:</label>
-                    <select id="reason" onChange={setForReport} required name='reason'>
-                      <option value="">Please Select What Type of Report You are Making</option>
-                      <option value="user">Report a User</option>
-                      <option value="listing">Issue with a Listing</option>
-                      <option value="review">Inappropriate Review</option>
-
-                    </select>
-                  </div>
-
-                  {reportTypeUser && (
+              {/* Dynamic User Reporting Section */}
+              {reason === 'user' && (
+                <div className="user-report-section">
+                  {/* Search Box */}
                   <div className="form-group">
-                    <label htmlFor="firstName">First name of person to report:</label>
+                    <label htmlFor="searchUser">Search User:</label>
                     <input
                       type="text"
-                      id="firstName"
-                      required
-                      onChange={getFirstName}
-                      name="firstName"
+                      id="searchUser"
+                      placeholder="Start typing a name..."
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
                     />
                   </div>
-                  )}
 
-                  {reportTypeListing && (
-                    <div className="form-group">
-                      <label htmlFor="listingName">Listing name:</label>
-                      <input type="text" id="listing-name" required onChange={getListingName} name="listingName" />
-                    </div>
-                  )}
-
-                  {reportTypeListing && (
-                   <div className={`form-group ${reportTypeListing}`}>
-                   <label htmlFor="sellersName">Sellers name:</label>
-                   <input type="text" id="sellers-name" required onChange={getSellersName} name='sellersName'/>
-                 </div>
-                  )}
-
-                  {reportTypeReview && (
-                   <div className={`form-group ${reportTypeReview}`}>
-                   <label htmlFor="nameOfReviewer">FirstName of reviewer:</label>
-                   <input type="text" id="reviwer-name" required onChange={getReviwerName} name='nameOfReviwer'/>
-                 </div>
-                  )}
-
-                  {reportTypeReview && (
-                   <div className={`form-group ${reportTypeReview}`}>
-                   <label htmlFor="nameOfReviewed">FirstName of user reviewed:</label>
-                   <input type="text" id="reviwed-name" required onChange={getReviwedName} name='nameOfReviwed'/>
-                 </div>
-                  )}
-
-                  <div className="form-group details">
-                    <label htmlFor="details">Additional Details:</label>
-                    <textarea id="details" rows="5" required onChange={getDetails} name='details'></textarea>
+                  {/* User List */}
+                  <div className="user-list">
+                    {filteredUsers.length > 0 ? (
+                      filteredUsers.map((user) => (
+                        <div
+                          key={user.id}
+                          className={`user-item ${selectedUserId === user.id ? 'selected' : ''}`}
+                          onClick={() => setSelectedUserId(user.id)}
+                        >
+                          {user.first_name} {user.last_name}
+                        </div>
+                      ))
+                    ) : (
+                      <p>No users found</p>
+                    )}
                   </div>
-                  <button type="submit" className="submit-button">Submit Report</button>
-                </form>
+                </div>
+              )}
+
+              {/* Additional Details */}
+              <div className="form-group">
+                <label htmlFor="details">Additional Details:</label>
+                <textarea
+                  id="details"
+                  rows="5"
+                  value={details}
+                  onChange={(e) => setDetails(e.target.value)}
+                  required
+                ></textarea>
               </div>
-            ) : (
-              <p>Please login</p>
-            ) // <-- Change made: Removed unnecessary parentheses here, the ternary is now directly followed by JSX content
-          );
+
+              {/* Submit Button */}
+              <button type="submit" className="submit-button">
+                Submit Report
+              </button>
+
+              {/* Confirmation Message */}
+              {confirmationMessage && (
+                <p className="confirmation-message">{confirmationMessage}</p>
+              )}
+            </form>
+          </div>
+        );
 
       case 'contact':
         return (
@@ -482,25 +397,25 @@ const Help = () => {
   return (
     <div className="help-page">
       <nav className="sidebar">
-        <button
+        <button 
           className={`nav-button ${activeSection === 'help' ? 'active' : ''}`}
           onClick={() => setActiveSection('help')}
         >
           Help
         </button>
-        <button
+        <button 
           className={`nav-button ${activeSection === 'feedback' ? 'active' : ''}`}
           onClick={() => setActiveSection('feedback')}
         >
           Feedback
         </button>
-        <button
+        <button 
           className={`nav-button ${activeSection === 'report' ? 'active' : ''}`}
           onClick={() => setActiveSection('report')}
         >
           Create a Report
         </button>
-        <button
+        <button 
           className={`nav-button ${activeSection === 'contact' ? 'active' : ''}`}
           onClick={() => setActiveSection('contact')}
         >
