@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import './moderation.css';
 
 const Moderation = () => {
-  const [activeSection, setActiveSection] = useState('feedback'); // Set to feedback by default to show the section
+  const [activeSection, setActiveSection] = useState('reports'); // Set to feedback by default to show the section
   const [userReports, setUserReports] = useState([]);
   const [feedback, setFeedback] = useState([]);
   const [listingReports, setListingReports] = useState([]);
@@ -211,9 +211,8 @@ const Moderation = () => {
   
       if (response.ok) {
         alert("Report marked as solved!");
-        // Refresh review reports after action
-        setActiveSection(''); // Reset and reselect to trigger fetch
-        setActiveSection('reports');
+        // Refresh window after action
+        window.location.reload();
       } else {
         alert("Failed to mark as solved.");
       }
@@ -241,9 +240,8 @@ const Moderation = () => {
   
       if (response.ok) {
         alert("Review deleted and report marked as solved.");
-        // Refresh review reports after action
-        setActiveSection(''); // Reset and reselect to trigger fetch
-        setActiveSection('reports');
+        // Refresh window after action
+        window.location.reload();
       } else {
         alert("Failed to delete review.");
       }
@@ -271,9 +269,8 @@ const Moderation = () => {
   
       if (response.ok) {
         alert("Listing deleted and report marked as solved.");
-        // Refresh review reports after action
-        setActiveSection(''); // Reset and reselect to trigger fetch
-        setActiveSection('reports');
+        // Refresh window after action
+        window.location.reload();
       } else {
         alert("Failed to delete listing.");
       }
@@ -387,9 +384,9 @@ const Moderation = () => {
                   <div className="feedback-item" key={item.feedback_id}>
                     <div className="feedback-header">
                       <h3>{item.name}</h3>
-                      <span className={`user-type-label ${item.user_id ? "logged-in" : "external"}`}>
+                      <div className={`user-type-label ${item.user_id ? "logged-in" : "external"}`}>
                         {item.user_id ? "Logged in user" : "An external user"}
-                      </span>
+                      </div>
                     </div>
                     <div className="feedback-details">
                       <p><strong>Email:</strong> {item.email}</p>

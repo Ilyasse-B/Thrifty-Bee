@@ -3,7 +3,7 @@ from flask_migrate import Migrate
 import requests
 from models.index import db
 from flask_cors import CORS
-from sqlalchemy import inspect
+from sqlalchemy import inspect, text
 from sqlalchemy.exc import OperationalError
 
 from models.ChatsModel import ChatsModel
@@ -69,7 +69,7 @@ def check_login():
 @app.route('/intiate_login', methods=['GET'])
 def start_login():
     cs_ticket = uuid.uuid4().hex[:12]                                         # ngrok Link here
-    redirect_url = f'http://studentnet.cs.manchester.ac.uk/authenticate/?url=https://fa66-86-9-200-131.ngrok-free.app/profile&csticket={cs_ticket}&version=3&command=validate'
+    redirect_url = f'http://studentnet.cs.manchester.ac.uk/authenticate/?url=https://bd80-86-9-200-131.ngrok-free.app/profile&csticket={cs_ticket}&version=3&command=validate'
 
     res = {
         "auth_url": redirect_url,
@@ -140,6 +140,14 @@ def delete_listing(listing_id):
     if not listing:
         return make_response({"message": "Listing not found"}, 404)
 
+    # Find all tables with a "listing_id" column and delete related records
+    inspector = inspect(db.engine)
+    for table_name in inspector.get_table_names():
+        columns = [column["name"] for column in inspector.get_columns(table_name)]
+        if "listing_id" in columns:
+            db.session.execute(text(f'DELETE FROM {table_name} WHERE listing_id = :listing_id'), {"listing_id": listing.id})
+    db.session.commit()
+    # Delete the listing itself
     db.session.delete(listing)
     db.session.commit()
 
@@ -646,13 +654,13 @@ def create_favourite():
         return make_response('User not found')
     user_id = user.id
 
-    existing_favourite = FavouritesModel.query.filter_by(user_id=user_id, listings_id=listing_id).first()
+    existing_favourite = FavouritesModel.query.filter_by(user_id=user_id, listing_id=listing_id).first()
 
     if existing_favourite:
         return make_response({"message": "favourite already exists"}, 400)
 
 
-    new_favourite = FavouritesModel(user_id = user_id, listings_id = listing_id)
+    new_favourite = FavouritesModel(user_id = user_id, listing_id = listing_id)
 
 
     db.session.add(new_favourite)
@@ -667,13 +675,13 @@ def create_favourite():
 @app.route('/check_favorite', methods = ["GET"])
 def check_favourite():
     username = request.args.get('username', type=str)
-    listings_id = request.args.get('listings_id', type=int)
+    listing_id = request.args.get('listing_id', type=int)
 
     if not username:
         return make_response({"message": "username is required"}, 400)
 
     user = UserModel.query.filter_by(username=username).first()
-    listing = ListingsModel.query.filter_by(id=listings_id).first()
+    listing = ListingsModel.query.filter_by(id=listing_id).first()
 
     if not listing:
         return make_response('User not found', 404)
@@ -684,7 +692,7 @@ def check_favourite():
     print(user.id)
     print(listing.id)
 
-    favourite = FavouritesModel.query.filter_by(user_id=user_id, listings_id = listings_id).first()
+    favourite = FavouritesModel.query.filter_by(user_id=user_id, listing_id = listing_id).first()
 
     if favourite:
         return make_response({"message": "Is a favourite"}, 200)
@@ -712,8 +720,8 @@ def fetch_favourites():
     listings = []
 
     for favourite in favourites:
-        listings_id = favourite.listings_id
-        listing = ListingsModel.query.filter_by(id=listings_id).first()
+        listing_id = favourite.listing_id
+        listing = ListingsModel.query.filter_by(id=listing_id).first()
         listings.append(listing)
 
 
@@ -751,7 +759,7 @@ def delete_favourites(username, listing_id):
         return make_response({"message":"User not found"})
     user_id = user.id
 
-    favourite = FavouritesModel.query.filter_by(user_id=user_id,listings_id = listing_id).first()
+    favourite = FavouritesModel.query.filter_by(user_id=user_id,listing_id = listing_id).first()
 
     if not favourite:
         return make_response({"message": "Favourite not found"}, 404)
@@ -1414,11 +1422,16 @@ def edit_listing_report(report_id):
     if "delete" in data and data["delete"]:
         # Fetch the associated listing and delete it
         listing = ListingsModel.query.filter_by(id=report.listing_id).first()
-        other_reports = ReportsListingModel.query.filter_by(listing_id = listing.id).all()
+
         if listing:
-            for other_report in other_reports:
-                db.session.delete(other_report)
-            db.session.commit() 
+            # Find all tables with a "listing_id" column and delete related records
+            inspector = inspect(db.engine)
+            for table_name in inspector.get_table_names():
+                columns = [column["name"] for column in inspector.get_columns(table_name)]
+                if "listing_id" in columns:
+                    db.session.execute(text(f'DELETE FROM {table_name} WHERE listing_id = :listing_id'), {"listing_id": listing.id})
+            db.session.commit()
+            # Delete the listing itself
             db.session.delete(listing)
             
 
