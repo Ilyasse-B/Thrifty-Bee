@@ -42,7 +42,7 @@ migrate = Migrate(app, db)
 if __name__ == '__main__':
     app.run(debug=True)
 
-routes = ['get_all_users','get_all_listings','get_all_reviews','edit_contacts','delete_review','create_feedback','fetch_feedback','edit_feedback','delete_feedback','create_contact','fetch_contacts_moderator','fetch_contacts_user','delete_contact','create_user_report','fetch_user_reports','edit_user_report','delete_user_report','create_listing_report','fetch_listing_reports','edit_listings_report','delete_listing_report','create_review_report','fetch_review_reports','edit_reviews_report','delete_review_report','get_payment_info','create_payment_info','get_chat_role','get_chat_users','create_chat','edit_chat','delete_chat','create_message','edit_message','get_messages','create_favourite','check_favourite','fetch_favourites','delete_favourites','get_user_chats', 'change_listing', 'change_profile', 'get_seller_info','create_listing','get_product','make_profile','get_user_info','delete_listing','get_user_listings','get_listings','start_login','create_review','get_reviews_seller','get_reviews_buyer','see_if_reviewed']
+routes = ['get_all_users','get_all_listings','get_all_reviews','edit_contacts','delete_review','create_feedback','fetch_feedback','edit_feedback','delete_feedback','create_contact','fetch_contacts_moderator','fetch_contacts_user','delete_contact','create_user_report','fetch_user_reports','edit_user_report','delete_user_report','create_listing_report','fetch_listing_reports','edit_listing_report','delete_listing_report','create_review_report','fetch_review_reports','edit_review_report','delete_review_report','get_payment_info','create_payment_info','get_chat_role','get_chat_users','create_chat','edit_chat','delete_chat','create_message','edit_message','get_messages','create_favourite','check_favourite','fetch_favourites','delete_favourites','get_user_chats', 'change_listing', 'change_profile', 'get_seller_info','create_listing','get_product','make_profile','get_user_info','delete_listing','get_user_listings','get_listings','start_login','create_review','get_reviews_seller','get_reviews_buyer','see_if_reviewed']
 
 @app.before_request
 def check_login():
@@ -69,7 +69,7 @@ def check_login():
 @app.route('/intiate_login', methods=['GET'])
 def start_login():
     cs_ticket = uuid.uuid4().hex[:12]                                         # ngrok Link here
-    redirect_url = f'http://studentnet.cs.manchester.ac.uk/authenticate/?url=https://4da7-86-9-200-131.ngrok-free.app/profile&csticket={cs_ticket}&version=3&command=validate'
+    redirect_url = f'http://studentnet.cs.manchester.ac.uk/authenticate/?url=https://fa66-86-9-200-131.ngrok-free.app/profile&csticket={cs_ticket}&version=3&command=validate'
 
     res = {
         "auth_url": redirect_url,
@@ -1397,8 +1397,8 @@ def fetch_listing_reports():
     return make_response({"Listings": reportList}, 200)
 
 #Route for updating Listings Report
-@app.route('/edit_listings_report/<int:report_id>', methods=['PATCH'])
-def edit_listings_report(report_id):
+@app.route('/edit_listing_report/<int:report_id>', methods=['PATCH'])
+def edit_listing_report(report_id):
     data = request.get_json()
 
     report = ReportsListingModel.query.filter_by(id = report_id).first()
@@ -1470,21 +1470,28 @@ def fetch_review_reports():
 
 
 #Route for updating Reviews Report
-@app.route('/edit_reviews_report/<int:report_id>', methods=['PATCH'])
-def edit_reviews_report(report_id):
+@app.route('/edit_review_report/<int:report_id>', methods=['PATCH'])
+def edit_review_report(report_id):
     data = request.get_json()
 
     report = ReportsReviewsModel.query.filter_by(id = report_id).first()
 
     if not report:
         return make_response({"message": "report not found"}, 404)
+    
+    # Update solved status
+    if "solved" in data:
+        report.solved = data["solved"]
+    
+    # Handle delete logic
+    if "delete" in data and data["delete"]:
+        # Fetch the associated review and delete it
+        review = ReviewsModel.query.filter_by(id=report.review_id).first()
+        if review:
+            db.session.delete(review)
 
-    if data.get("solved") == "True":
-        report.solved = True
-    else:
-        report.solved = False
-
-    db.session.commit()
+    # Commit changes
+    db.session.commit() 
 
     return make_response({"message": " updated successfully"}, 200)
 

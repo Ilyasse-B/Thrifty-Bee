@@ -190,6 +190,61 @@ const Moderation = () => {
     setReplies((prevReplies) => ({ ...prevReplies, [id]: value }));
   };
 
+  const handleMarkAsSolved = async (reportId) => {
+    try {
+      const response = await fetch(`http://127.0.0.1:5000/edit_review_report/${reportId}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          solved: "True"
+        }),
+      });
+  
+      if (response.ok) {
+        alert("Report marked as solved!");
+        // Refresh review reports after action
+        setActiveSection(''); // Reset and reselect to trigger fetch
+        setActiveSection('reports');
+      } else {
+        alert("Failed to mark as solved.");
+      }
+    } catch (error) {
+      console.error("Error marking report as solved:", error);
+    }
+  };
+
+  const handleDeleteReview = async (reportId) => {
+    if (!window.confirm("Are you sure you want to delete this review? This action is permanent.")) {
+      return;
+    }
+  
+    try {
+      const response = await fetch(`http://127.0.0.1:5000/edit_review_report/${reportId}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          solved: "True",
+          delete: "True"
+        }),
+      });
+  
+      if (response.ok) {
+        alert("Review deleted and report marked as solved.");
+        // Refresh review reports after action
+        setActiveSection(''); // Reset and reselect to trigger fetch
+        setActiveSection('reports');
+      } else {
+        alert("Failed to delete review.");
+      }
+    } catch (error) {
+      console.error("Error deleting review:", error);
+    }
+  };
+
   const renderContent = () => {
     switch (activeSection) {
       case 'reports':
@@ -210,6 +265,16 @@ const Moderation = () => {
                     <p><strong>Rating:</strong> {report.review_rating} Stars</p>
                     <p><strong>Description:</strong> {report.review_description}</p>
                     <p><strong>Reason for Report:</strong> {report.reason}</p>
+
+                    {/* Buttons */}
+                    <div className="moderation-actions">
+                      <button className="mark-solved-btn" onClick={() => handleMarkAsSolved(report.report_id)}>
+                        Mark as Solved
+                      </button>
+                      <button className="delete-review-btn" onClick={() => handleDeleteReview(report.report_id)}>
+                        Delete Review
+                      </button>
+                    </div>
                   </div>
                 ))
               ) : (
