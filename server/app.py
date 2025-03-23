@@ -29,7 +29,10 @@ from datetime import datetime
 app = Flask(__name__)
 
 # Configure the SQLite database URI
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://thrifty_bee_postgres_db_user:h2dJXG0uQiZ4MxL67DukOTV6nuhm8xbl@dpg-cvalt3nnoe9s73fbjt50-a.frankfurt-postgres.render.com/thrifty_bee_postgres_db'
+# PostregSQL link has been removed below due to security vulneability.
+# If you would like to run the app on a local sqlite instance the config below will do this
+# If you would like access to our central database, contact me.
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///db.sqlite'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 # Initialize SQLAlchemy
