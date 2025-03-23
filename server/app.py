@@ -1170,7 +1170,7 @@ def fetch_contacts_user():
             return make_response({"message": "user not found"}, 404)
     user_id = user.id
 
-    contacts = ContactModel.query.filter_by(user_id_contacted = user_id).order_by(ContactModel.timestamp.asc()).all()
+    contacts = ContactModel.query.filter(ContactModel.user_id_contacted == user_id, ContactModel.moderator_response != "").order_by(ContactModel.timestamp.asc()).all()
     if not contacts:
         return make_response({"message": "No Contact requests"}, 200)
     else:

@@ -231,7 +231,7 @@ const Profile = () => {
       {/* Notifications Button */}
       <div>
         <button className="notifications-button" onClick={() => navigate("/notifications")}>
-            Your Chats
+            Your Chats & Notifications
         </button>
       </div>
       {/* Moderation Dashboard Button */}

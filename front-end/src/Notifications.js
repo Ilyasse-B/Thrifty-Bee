@@ -6,6 +6,7 @@ const Notifications = () => {
   const navigate = useNavigate();
   const [activeChats, setActiveChats] = useState([]);
   const [inactiveChats, setInactiveChats] = useState([]);
+  const [moderatorReplies, setModeratorReplies] = useState([]);
   const username = sessionStorage.getItem("username");
 
   useEffect(() => {
@@ -25,8 +26,22 @@ const Notifications = () => {
       }
     };
 
+    const fetchModeratorReplies = async () => {
+      try {
+        const response = await fetch(`http://127.0.0.1:5000/fetch_contacts_user?username=${username}`);
+        const data = await response.json();
+        
+        if (data.Contacts) {
+          setModeratorReplies(data.Contacts);
+        }
+      } catch (error) {
+        console.error("Error fetching moderator replies:", error);
+      }
+    };
+
     if (username) {
       fetchChats();
+      fetchModeratorReplies();
     }
   }, [username]);
 
@@ -78,6 +93,24 @@ const Notifications = () => {
               <img src={chat.listing_image} alt={chat.listing_name} className="chat-image" />
               <span className="chat-product-name">{chat.listing_name}</span>
               <span className="chat-user">Chat with {chat.other_person}</span>
+            </div>
+          ))
+        )}
+      </div>
+
+      {/* Moderator Replies */}
+      <h2 className="notifications-title">Moderator Replies</h2>
+      <p className="moderator-description">See replies from moderators to your Contact Us submissions</p>
+      <div className="moderator-replies">
+        {moderatorReplies.length === 0 ? (
+          <p>No replies from moderators yet.</p>
+        ) : (
+          moderatorReplies.map((reply, index) => (
+            <div key={index} className="moderator-reply-container">
+              <p className="moderator-subtitle">You told us:</p>
+              <p className="moderator-reason">"{reply.reason}"</p>
+              <p className="moderator-subtitle">And a moderator has replied:</p>
+              <p className="moderator-response">"{reply.moderator_response}"</p>
             </div>
           ))
         )}
