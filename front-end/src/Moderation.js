@@ -190,9 +190,16 @@ const Moderation = () => {
     setReplies((prevReplies) => ({ ...prevReplies, [id]: value }));
   };
 
-  const handleMarkAsSolved = async (reportId) => {
+  const handleMarkAsSolved = async (reportId, reportType) => {
     try {
-      const response = await fetch(`http://127.0.0.1:5000/edit_review_report/${reportId}`, {
+      const endpoint =
+        reportType === 'review'
+        ? `http://127.0.0.1:5000/edit_review_report/${reportId}`
+        : reportType === "listing"
+        ? `http://127.0.0.1:5000/edit_listing_report/${reportId}`
+        : `http://127.0.0.1:5000/edit_user_report/${reportId}`;
+      
+      const response = await fetch(endpoint, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
@@ -245,6 +252,36 @@ const Moderation = () => {
     }
   };
 
+  const handleDeleteListing = async (reportId) => {
+    if (!window.confirm("Are you sure you want to delete this listing? This action is permanent.")) {
+      return;
+    }
+  
+    try {
+      const response = await fetch(`http://127.0.0.1:5000/edit_listing_report/${reportId}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          solved: "True",
+          delete: "True"
+        }),
+      });
+  
+      if (response.ok) {
+        alert("Listing deleted and report marked as solved.");
+        // Refresh review reports after action
+        setActiveSection(''); // Reset and reselect to trigger fetch
+        setActiveSection('reports');
+      } else {
+        alert("Failed to delete listing.");
+      }
+    } catch (error) {
+      console.error("Error deleting listing:", error);
+    }
+  };
+
   const renderContent = () => {
     switch (activeSection) {
       case 'reports':
@@ -268,7 +305,7 @@ const Moderation = () => {
 
                     {/* Buttons */}
                     <div className="moderation-actions">
-                      <button className="mark-solved-btn" onClick={() => handleMarkAsSolved(report.report_id)}>
+                      <button className="mark-solved-btn" onClick={() => handleMarkAsSolved(report.report_id, "review")}>
                         Mark as Solved
                       </button>
                       <button className="delete-review-btn" onClick={() => handleDeleteReview(report.report_id)}>
@@ -294,6 +331,16 @@ const Moderation = () => {
                   <p><strong>Listing Description:</strong> {report.listing_description}</p>
                   <p><strong>Listing Price:</strong> £{report.listing_price}</p>
                   <p><strong>Reason:</strong> {report.reason}</p>
+
+                  {/* Buttons */}
+                  <div className="moderation-actions">
+                      <button className="mark-solved-btn" onClick={() => handleMarkAsSolved(report.report_id, "listing")}>
+                        Mark as Solved
+                      </button>
+                      <button className="delete-review-btn" onClick={() => handleDeleteListing(report.report_id)}>
+                        Delete Listing
+                      </button>
+                    </div>
                 </div>
               ))
             ) : (
@@ -313,6 +360,12 @@ const Moderation = () => {
                     <p><strong>Offender's Email:</strong> {report.reported_email_address}</p>
                     <p><strong>Offender's Phone Number:</strong> {report.reported_number}</p>
                     <p><strong>Description:</strong> {report.reason}</p>
+
+                    <div className="moderation-actions">
+                      <button className="mark-solved-btn" onClick={() => handleMarkAsSolved(report.report_id, "user")}>
+                        Mark as Solved
+                      </button>
+                    </div>
                   </div>
                 ))
               ) : (

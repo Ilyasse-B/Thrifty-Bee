@@ -1405,14 +1405,25 @@ def edit_listing_report(report_id):
 
     if not report:
         return make_response({"message": "report not found"}, 404)
-
+    
+    # Update solved status
     if data.get("solved") == "True":
         report.solved = True
-    else:
-        report.solved = False
+    
+    # Handle delete logic
+    if "delete" in data and data["delete"]:
+        # Fetch the associated listing and delete it
+        listing = ListingsModel.query.filter_by(id=report.listing_id).first()
+        other_reports = ReportsListingModel.query.filter_by(listing_id = listing.id).all()
+        if listing:
+            for other_report in other_reports:
+                db.session.delete(other_report)
+            db.session.commit() 
+            db.session.delete(listing)
+            
 
-
-    db.session.commit()
+    # Commit changes
+    db.session.commit() 
 
     return make_response({"message": " updated successfully"}, 200)
 
@@ -1480,14 +1491,18 @@ def edit_review_report(report_id):
         return make_response({"message": "report not found"}, 404)
     
     # Update solved status
-    if "solved" in data:
-        report.solved = data["solved"]
+    if data.get("solved") == "True":
+        report.solved = True
     
     # Handle delete logic
     if "delete" in data and data["delete"]:
         # Fetch the associated review and delete it
         review = ReviewsModel.query.filter_by(id=report.review_id).first()
+        other_reports = ReportsReviewsModel.query.filter_by(review_id = review.id).all()
         if review:
+            for other_report in other_reports:
+                db.session.delete(other_report)
+            db.session.commit()
             db.session.delete(review)
 
     # Commit changes
